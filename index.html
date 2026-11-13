@@ -7166,7 +7166,7 @@ html:root body:not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#
   const QUIEN='Sin avisos no te enterarás de los pedidos nuevos de tu negocio.';
   const ICO={gps:'<svg viewBox="0 0 24 24"><path d="M12 21s-7-6.2-7-11a7 7 0 0 1 14 0c0 4.8-7 11-7 11Z"/><circle cx="12" cy="10" r="2.5"/></svg>',
     bell:'<svg viewBox="0 0 24 24"><path d="M6 8a6 6 0 1 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>'};
-  const PASOS='Si el teléfono no te deja activarlo:\n1. Mantén presionado el ícono de la app → «Información de la app».\n2. Entra a «Permisos» y activa Ubicación (Permitir siempre o mientras se usa) y Notificaciones.\n3. Activa también la ubicación (GPS) del teléfono.\n4. Vuelve a la app.';
+  const PASOS='Si ya diste permiso a la app y sigue sin activarse, falta el permiso de Chrome:\n1. Abre Chrome → toca ⋮ (arriba a la derecha) → Configuración.\n2. Entra a «Configuración de sitios» → «Notificaciones».\n3. Busca pidemasdelivery.github.io y ponlo en «Permitir».\n4. Haz lo mismo en «Ubicación» si te pide GPS.\n5. Cierra la app del todo y vuelve a abrirla.';
   let gps=null,gate=null;
   const notifOk=()=>!('Notification' in window)||Notification.permission==='granted';
   const sesion=()=>{const l=document.getElementById('loginView');if(!l)return false;if(l.classList.contains('hidden')||l.hidden)return true;return getComputedStyle(l).display==='none'};
@@ -7186,11 +7186,11 @@ html:root body:not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#
   function pintar(okG,okN){
     if(!gate){gate=document.createElement('div');gate.id='pdPermGate';gate.setAttribute('role','dialog');gate.setAttribute('aria-modal','true');document.body.appendChild(gate)}
     const item=(k,t,s,ok)=>`<div class="pgItem"><span class="pgIco">${ICO[k]}</span><span class="pgTx"><b>${t}</b><small>${s}</small></span>${ok?'<span class="pgOk">✓ Listo</span>':`<button type="button" class="pgBtn" data-pg="${k}">Activar</button>`}</div>`;
-    const ayudaAbierta=gate.querySelector('.pgAyuda:not([hidden])');
+    const ayudaAbierta=gate.querySelector('.pgAyuda:not([hidden])')||('Notification' in window&&Notification.permission==='denied');
     gate.innerHTML=`<div class="pg"><div class="pgLogo">PIDEMÁS</div><h2>Activa estos permisos para trabajar</h2>
       <p class="pgSub">${QUIEN}</p>
       ${PIDE_GPS?item('gps','Ubicación (GPS)','Para asignarte pedidos cerca y que el cliente vea por dónde vas.',okG):''}
-      ${item('bell','Avisos de pedidos','Para que te enteres de cada pedido aunque el teléfono esté bloqueado.',okN)}
+      ${item('bell','Avisos de pedidos',('Notification' in window&&Notification.permission==='denied')?'Bloqueado en Chrome. Sigue los pasos de abajo para permitirlo.':'Para que te enteres de cada pedido aunque el teléfono esté bloqueado.',okN)}
       <p class="pgAyuda"${ayudaAbierta?'':' hidden'}>${PASOS}</p>
       <button type="button" class="pgSalir" data-pg="salir">Cerrar sesión</button></div>`;
     gate.hidden=false;document.documentElement.classList.add('pdPermOn');
