@@ -2279,14 +2279,14 @@ html.pdDlgOn,html.pdDlgOn body{overflow:hidden!important}
       d.innerHTML=`<div class="pdDlgCard"><div class="pdDlgIco${peligro?' peligro':''}">${tipo==='prompt'?ICO.lapiz:peligro?ICO.peligro:ICO.pregunta}</div>
         <h3 class="pdDlgT">${E(t)}</h3>${cuerpo?`<p class="pdDlgP">${E(cuerpo)}</p>`:''}
         ${tipo==='prompt'?`<div class="pdDlgCampo">${etiqueta?`<label for="pdDlgIn">${E(etiqueta.replace(/:\s*$/,''))}</label>`:''}<input id="pdDlgIn" autocomplete="off" value="${E(valor??'')}"></div>`:''}
-        <div class="pdDlgBtns"><button type="button" class="pdDlgNo">Cancelar</button><button type="button" class="pdDlgSi${peligro?' peligro':''}">${tipo==='prompt'?'Guardar':peligro?'Sí, continuar':'Aceptar'}</button></div></div>`;
+        <div class="pdDlgBtns${tipo==='info'?' uno':''}">${tipo==='info'?'':'<button type="button" class="pdDlgNo">Cancelar</button>'}<button type="button" class="pdDlgSi${peligro?' peligro':''}">${tipo==='prompt'?'Guardar':tipo==='info'?'Entendido':peligro?'Sí, continuar':'Aceptar'}</button></div></div>`;
       d.hidden=false;document.documentElement.classList.add('pdDlgOn');
       const inp=d.querySelector('#pdDlgIn');
       const fin=v=>{d.hidden=true;d.innerHTML='';document.documentElement.classList.remove('pdDlgOn');document.removeEventListener('keydown',tecla,true);res(v)};
       const si=()=>fin(tipo==='prompt'?(inp?inp.value:''):true),no=()=>fin(tipo==='prompt'?null:false);
       function tecla(e){if(e.key==='Escape'){e.preventDefault();no()}else if(e.key==='Enter'&&(tipo!=='prompt'||document.activeElement===inp)){e.preventDefault();si()}}
       document.addEventListener('keydown',tecla,true);
-      d.querySelector('.pdDlgSi').onclick=si;d.querySelector('.pdDlgNo').onclick=no;
+      d.querySelector('.pdDlgSi').onclick=si;const nb=d.querySelector('.pdDlgNo');if(nb)nb.onclick=no;
       setTimeout(()=>{if(inp){inp.focus();inp.select()}else d.querySelector('.pdDlgSi').focus()},60);
     });
   }
@@ -2294,6 +2294,7 @@ html.pdDlgOn,html.pdDlgOn body{overflow:hidden!important}
   function enCola(tipo,t,v){const p=cola.then(()=>abrir(tipo,t,v));cola=p.catch(()=>{});return p}
   window.pdConfirmar=t=>enCola('confirm',t);
   window.pdPedir=(t,v)=>enCola('prompt',t,v);
+  window.pdInfo=t=>enCola('info',t);
   window.pdAviso=function(texto){
     const t=String(texto??'').trim();if(!t)return;
     let pila=document.getElementById('pdAvisoPila');
@@ -6913,6 +6914,11 @@ html body #appView#appView#appView#appView#appView#appView .panelSection::before
     a.innerHTML=(msg||'Para recibir avisos, activa las notificaciones: mantén presionado el icono de la app → <b>Información de la app</b> → <b>Notificaciones</b> → Permitir. Luego vuelve a abrir la app.')+'<button type="button" style="display:block;margin-top:10px;margin-left:auto;background:#C4410C;color:#fff;border:0;border-radius:999px;padding:8px 16px;font:700 14px Inter,system-ui,sans-serif">Entendido</button>';
     a.hidden=false;a.querySelector('button').onclick=()=>{a.hidden=true};
   }
+  /* Cuando Android no deja dar el permiso desde la app, se explica cómo hacerlo en Ajustes */
+  function instrucciones(){
+    const t='Activa las notificaciones en tu teléfono\n1. Mantén presionado el ícono de la app y toca «Información de la app».\n2. Entra a «Notificaciones» y actívalas.\n3. Vuelve a abrir la app: los avisos quedarán activados solos.';
+    if(window.pdInfo)window.pdInfo(t);else ayuda();
+  }
   let card=null;
   function tarjeta(){
     if(card&&!card.hidden)return;
@@ -6946,7 +6952,18 @@ html body #appView#appView#appView#appView#appView#appView .panelSection::before
     document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')setTimeout(revisar,800)});
     // si el permiso se concede desde otro botón del panel, se guarda el celular al instante
     try{navigator.permissions.query({name:'notifications'}).then(st=>{st.onchange=()=>{if(st.state==='granted')revisar()}})}catch(_){}
-    document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest('button');if(b&&/avisos|notificaci|alerta|permiso|activar/i.test((b.textContent||'')+' '+(b.id||'')))[1500,5000,12000].forEach(t=>setTimeout(revisar,t))},true);
+    document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest('button');if(!b)return;
+      const txt=(b.textContent||'')+' '+(b.id||'');
+      /* Botón «Activar avisos» del panel: se pide el permiso en el mismo toque y se explica qué pasó */
+      if(/activar avisos|activa los avisos|activar notificaciones/i.test(txt)&&!b.closest('#pdPushCard')&&'Notification' in window){
+        if(Notification.permission==='granted'){revisar().then(()=>window.pdAviso&&pdAviso('Los avisos ya están activados en este teléfono ✓'));return}
+        pedir().then(p=>{
+          if(p==='granted'){setTimeout(revisar,300);window.pdAviso&&pdAviso('Avisos activados ✓ Te avisaremos de cada pedido.')}
+          else instrucciones();
+        });
+        return;
+      }
+      if(/avisos|notificaci|alerta|permiso|activar/i.test(txt))[1500,5000,12000].forEach(t=>setTimeout(revisar,t))},true);
     try{c.auth.onAuthStateChange(ev=>{
       if(ev==='SIGNED_IN')setTimeout(revisar,1500);
       if(ev==='SIGNED_OUT'){if(card)card.hidden=true;navigator.serviceWorker.getRegistration().then(r=>r&&r.pushManager.getSubscription()).then(s=>s&&s.unsubscribe()).catch(()=>{})}
@@ -7115,6 +7132,94 @@ html:root body *{overscroll-behavior-y:none!important}
   document.addEventListener('mousemove',function(e){if(g)mover(e.clientX,e.clientY,e)},true);
   document.addEventListener('mouseup',fin,true);
   window.pdHojaDe=hojaDe;window.pdBotonCerrar=botonCerrar;
+})();
+</script>
+<style id="pd-permisos-css">
+/* ===== pd-permisos · sin ubicación y sin avisos no se puede trabajar ===== */
+#pdPermGate{all:initial;}
+html:root body:not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ) #pdPermGate{position:fixed !important;inset:0 !important;z-index:2147483647 !important;display:flex !important;flex-direction:column !important;justify-content:center !important;padding:max(24px,env(safe-area-inset-top,0px)) 20px max(24px,env(safe-area-inset-bottom,0px)) !important;background:var(--fr-surface,#FFF9F5) !important;font-family:var(--font,"PdInter",Inter,system-ui,sans-serif) !important;overflow-y:auto !important;overscroll-behavior:contain !important;}
+html:root body:not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ) #pdPermGate[hidden]{display:none!important;}
+html:root body:not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ) #pdPermGate .pg{width:100% !important;max-width:420px !important;margin:0 auto !important;display:flex !important;flex-direction:column !important;gap:12px !important;}
+html:root body:not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ) #pdPermGate .pgLogo{font:800 28px/1 var(--font,Inter,sans-serif) !important;letter-spacing:-.5px !important;color:var(--fr-orange,#C4410C) !important;text-align:center !important;margin-bottom:4px !important;}
+html:root body:not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ) #pdPermGate h2{margin:0 !important;font:800 var(--fs-2xl,20px)/1.2 var(--font,Inter,sans-serif) !important;letter-spacing:-.3px !important;color:var(--fr-ink,#1F1A17) !important;text-align:center !important;}
+html:root body:not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ) #pdPermGate .pgSub{margin:0 0 6px !important;font:500 var(--fs-md,14px)/1.45 var(--font,Inter,sans-serif) !important;color:var(--fr-muted,#6F625A) !important;text-align:center !important;}
+html:root body:not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ) #pdPermGate .pgItem{display:flex !important;align-items:center !important;gap:12px !important;padding:14px !important;background:#fff !important;border:1px solid var(--fr-line,#EFE3DA) !important;border-radius:var(--r-lg,18px) !important;}
+html:root body:not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ) #pdPermGate .pgIco{flex:0 0 44px !important;width:44px !important;height:44px !important;border-radius:var(--r-md,14px) !important;display:flex !important;align-items:center !important;justify-content:center !important;background:var(--fr-peach,#FBE6DD) !important;color:var(--fr-orange,#C4410C) !important;}
+html:root body:not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ) #pdPermGate .pgIco svg{width:22px !important;height:22px !important;fill:none !important;stroke:currentColor !important;stroke-width:2.2 !important;stroke-linecap:round !important;stroke-linejoin:round !important;}
+html:root body:not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ) #pdPermGate .pgTx{flex:1 !important;min-width:0 !important;}
+html:root body:not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ) #pdPermGate .pgTx b{display:block !important;font:800 var(--fs-card,15px)/1.25 var(--font,Inter,sans-serif) !important;color:var(--fr-ink,#1F1A17) !important;}
+html:root body:not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ) #pdPermGate .pgTx small{display:block !important;margin-top:2px !important;font:500 var(--fs-sm,12px)/1.4 var(--font,Inter,sans-serif) !important;color:var(--fr-muted,#6F625A) !important;}
+html:root body:not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ) #pdPermGate .pgBtn{flex:0 0 auto !important;height:40px !important;padding:0 14px !important;border-radius:var(--r-md,14px) !important;border:1px solid var(--fr-orange,#C4410C) !important;background:var(--fr-orange,#C4410C) !important;color:#fff !important;font:800 var(--fs-md,14px)/1 var(--font,Inter,sans-serif) !important;box-shadow:var(--sh-brand,0 6px 16px rgba(196,65,12,.25)) !important;}
+html:root body:not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ) #pdPermGate .pgOk{flex:0 0 auto !important;display:inline-flex !important;align-items:center !important;gap:6px !important;height:32px !important;padding:0 12px !important;border-radius:999px !important;background:var(--fr-green,#1F6B45) !important;color:#fff !important;font:800 var(--fs-sm,12px)/1 var(--font,Inter,sans-serif) !important;}
+html:root body:not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ) #pdPermGate .pgAyuda{margin:4px 0 0 !important;padding:12px 14px !important;border-radius:var(--r-md,14px) !important;background:var(--fr-peach,#FBE6DD) !important;color:var(--fr-orange-dark,#A63508) !important;font:700 var(--fs-base,13px)/1.5 var(--font,Inter,sans-serif) !important;white-space:pre-line !important;}
+html:root body:not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ) #pdPermGate .pgAyuda[hidden]{display:none !important;}
+html:root body:not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ) #pdPermGate .pgSalir{margin-top:4px !important;height:44px !important;border-radius:var(--r-md,14px) !important;border:1px solid var(--fr-line,#EFE3DA) !important;background:#fff !important;color:var(--fr-muted,#6F625A) !important;font:700 var(--fs-md,14px)/1 var(--font,Inter,sans-serif) !important;}
+html.pdPermOn,html.pdPermOn body{overflow:hidden!important}
+html:root body:not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ) #pdPermGate .pg{background:transparent !important;border:0 !important;box-shadow:none !important;padding:0 !important;border-radius:0 !important}
+html:root body:not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ) #pdPermGate h2{color:var(--fr-ink,#1F1A17) !important}
+</style>
+<script id="pd-permisos-js">
+/* Al entrar con sesión: si faltan la ubicación o los avisos, la app queda bloqueada hasta activarlos. */
+(function(){
+  if(window.__pdPermisos)return;window.__pdPermisos=true;
+  const PIDE_GPS=false;
+  const QUIEN='Sin avisos no te enterarás de los pedidos nuevos de tu negocio.';
+  const ICO={gps:'<svg viewBox="0 0 24 24"><path d="M12 21s-7-6.2-7-11a7 7 0 0 1 14 0c0 4.8-7 11-7 11Z"/><circle cx="12" cy="10" r="2.5"/></svg>',
+    bell:'<svg viewBox="0 0 24 24"><path d="M6 8a6 6 0 1 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>'};
+  const PASOS='Si el teléfono no te deja activarlo:\n1. Mantén presionado el ícono de la app → «Información de la app».\n2. Entra a «Permisos» y activa Ubicación (Permitir siempre o mientras se usa) y Notificaciones.\n3. Activa también la ubicación (GPS) del teléfono.\n4. Vuelve a la app.';
+  let gps=null,gate=null;
+  const notifOk=()=>!('Notification' in window)||Notification.permission==='granted';
+  const sesion=()=>{const l=document.getElementById('loginView');if(!l)return false;if(l.classList.contains('hidden')||l.hidden)return true;return getComputedStyle(l).display==='none'};
+  async function estadoGps(){
+    if(!PIDE_GPS)return true;
+    if(!('geolocation' in navigator))return true;
+    try{const p=await navigator.permissions.query({name:'geolocation'});if(p.state==='granted'){gps=true;return true}if(p.state==='denied'){gps=false;return false}}catch(_){}
+    return gps===true;
+  }
+  function pedirGps(){
+    return new Promise(r=>{try{navigator.geolocation.getCurrentPosition(()=>{gps=true;r(true)},()=>{gps=false;r(false)},{enableHighAccuracy:true,timeout:15000,maximumAge:0})}catch(_){r(false)}});
+  }
+  async function pedirAvisos(){
+    let p='default';try{p=await Promise.race([Notification.requestPermission(),new Promise(r=>setTimeout(()=>r(Notification.permission),10000))])}catch(_){p=Notification.permission}
+    return p==='granted';
+  }
+  function pintar(okG,okN){
+    if(!gate){gate=document.createElement('div');gate.id='pdPermGate';gate.setAttribute('role','dialog');gate.setAttribute('aria-modal','true');document.body.appendChild(gate)}
+    const item=(k,t,s,ok)=>`<div class="pgItem"><span class="pgIco">${ICO[k]}</span><span class="pgTx"><b>${t}</b><small>${s}</small></span>${ok?'<span class="pgOk">✓ Listo</span>':`<button type="button" class="pgBtn" data-pg="${k}">Activar</button>`}</div>`;
+    const ayudaAbierta=gate.querySelector('.pgAyuda:not([hidden])');
+    gate.innerHTML=`<div class="pg"><div class="pgLogo">PIDEMÁS</div><h2>Activa estos permisos para trabajar</h2>
+      <p class="pgSub">${QUIEN}</p>
+      ${PIDE_GPS?item('gps','Ubicación (GPS)','Para asignarte pedidos cerca y que el cliente vea por dónde vas.',okG):''}
+      ${item('bell','Avisos de pedidos','Para que te enteres de cada pedido aunque el teléfono esté bloqueado.',okN)}
+      <p class="pgAyuda"${ayudaAbierta?'':' hidden'}>${PASOS}</p>
+      <button type="button" class="pgSalir" data-pg="salir">Cerrar sesión</button></div>`;
+    gate.hidden=false;document.documentElement.classList.add('pdPermOn');
+  }
+  function ocultar(){if(gate&&!gate.hidden){gate.hidden=true;document.documentElement.classList.remove('pdPermOn')}}
+  let revisando=false;
+  async function revisar(){
+    if(revisando)return;revisando=true;
+    try{
+      if(!sesion()){ocultar();return}
+      const okG=await estadoGps(),okN=notifOk();
+      if(okG&&okN){ocultar();return}
+      pintar(okG,okN);
+    }finally{revisando=false}
+  }
+  document.addEventListener('click',async e=>{
+    const b=e.target.closest&&e.target.closest('#pdPermGate [data-pg]');if(!b)return;
+    const k=b.dataset.pg;
+    if(k==='salir'){const lo=document.getElementById('logout');ocultar();if(lo)lo.click();return}
+    b.disabled=true;b.textContent='…';
+    const ok=k==='gps'?await pedirGps():await pedirAvisos();
+    if(!ok){const a=gate&&gate.querySelector('.pgAyuda');if(a)a.hidden=false}
+    revisando=false;await revisar();
+  },true);
+  document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')setTimeout(revisar,400)});
+  try{navigator.permissions.query({name:'notifications'}).then(s=>{s.onchange=revisar})}catch(_){}
+  try{navigator.permissions.query({name:'geolocation'}).then(s=>{s.onchange=()=>{gps=s.state==='granted';revisar()}})}catch(_){}
+  setInterval(revisar,2500);
+  setTimeout(revisar,2000);
 })();
 </script>
 </body></html>
