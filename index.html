@@ -1993,7 +1993,7 @@ html body #pdxPerf#pdxPerf#pdxPerf#pdxPerf#pdxPerf#pdxPerf#pdxPerf#pdxPerf #pdxS
 html body #pdxPerf#pdxPerf#pdxPerf#pdxPerf#pdxPerf#pdxPerf#pdxPerf#pdxPerf #pdxLogout#pdxLogout.x-btn{margin:8px 0 0!important}
 </style>
 
-<meta name="pd-version" content="20261106204500"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>Pidemás | Panel Negocio</title>
+<meta name="pd-version" content="20261106204500"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover"><title>Pidemás | Panel Negocio</title>
 <link rel="manifest" href="manifest.webmanifest">
 <meta name="theme-color" content="#FFF9F5">
 <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
@@ -2224,6 +2224,90 @@ html body #pdxPerf#pdxPerf#pdxPerf#pdxPerf#pdxPerf#pdxPerf#pdxPerf#pdxPerf #pdxL
 
 
 
+<style id="pd-dialogos-css">
+/* ===== pd-dialogos · avisos, confirmaciones y preguntas dentro de la app (sin ventanas del navegador) ===== */
+#pdDlg{position:fixed;inset:0;z-index:2147483647;display:flex;align-items:flex-end;justify-content:center;padding:0 12px calc(12px + env(safe-area-inset-bottom,0px));background:rgba(31,26,23,.45);animation:pdDlgFondo .18s ease-out;font-family:var(--font,"PdInter",Inter,system-ui,sans-serif)}
+#pdDlg[hidden]{display:none!important}
+@keyframes pdDlgFondo{from{opacity:0}to{opacity:1}}
+@keyframes pdDlgSube{from{transform:translateY(24px);opacity:0}to{transform:none;opacity:1}}
+#pdDlg .pdDlgCard{width:100%;max-width:440px;box-sizing:border-box;background:#fff;border:1px solid var(--fr-line,#EFE3DA);border-radius:var(--r-xl,24px);box-shadow:var(--sh-lg,0 12px 32px rgba(31,26,23,.16));padding:20px 16px 16px;animation:pdDlgSube .22s cubic-bezier(.2,.8,.2,1);max-height:calc(100dvh - 80px);overflow-y:auto}
+#pdDlg .pdDlgIco{width:44px;height:44px;border-radius:var(--r-md,14px);display:flex;align-items:center;justify-content:center;background:var(--fr-peach,#FBE6DD);color:var(--fr-orange,#C4410C);margin-bottom:12px}
+#pdDlg .pdDlgIco svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+#pdDlg .pdDlgIco.peligro{background:#FDECEA;color:var(--fr-red,#B42318)}
+#pdDlg .pdDlgT{margin:0 0 6px;font:800 var(--fs-xl,18px)/1.25 var(--font,Inter,sans-serif);letter-spacing:-.3px;color:var(--fr-ink,#1F1A17)}
+#pdDlg .pdDlgP{margin:0;font:500 var(--fs-md,14px)/1.45 var(--font,Inter,sans-serif);color:var(--fr-muted,#6F625A);white-space:pre-line;overflow-wrap:anywhere}
+#pdDlg .pdDlgCampo{display:flex;flex-direction:column;gap:6px;margin-top:14px}
+#pdDlg .pdDlgCampo label{font:700 var(--fs-base,13px)/1.3 var(--font,Inter,sans-serif);color:var(--fr-muted,#6F625A)}
+#pdDlg .pdDlgCampo input{box-sizing:border-box;width:100%;height:48px;padding:0 14px;border-radius:var(--r-md,14px);border:1px solid var(--fr-line,#EFE3DA);background:var(--fr-surface,#FFF9F5);font:500 16px/1.3 var(--font,Inter,sans-serif);color:var(--fr-ink,#1F1A17);outline:none}
+#pdDlg .pdDlgCampo input:focus{border-color:var(--fr-ink,#1F1A17);box-shadow:var(--ring,0 0 0 3px rgba(196,65,12,.12))}
+#pdDlg .pdDlgBtns{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:18px}
+#pdDlg .pdDlgBtns.uno{grid-template-columns:1fr}
+#pdDlg .pdDlgBtns button{height:48px;border-radius:var(--r-md,14px);font:800 var(--fs-card,15px)/1 var(--font,Inter,sans-serif);cursor:pointer;-webkit-tap-highlight-color:transparent}
+#pdDlg .pdDlgNo{background:#fff;border:1px solid var(--fr-line,#EFE3DA);color:var(--fr-ink,#1F1A17)}
+#pdDlg .pdDlgSi{background:var(--fr-orange,#C4410C);border:1px solid var(--fr-orange,#C4410C);color:#fff;box-shadow:var(--sh-brand,0 6px 16px rgba(196,65,12,.25))}
+#pdDlg .pdDlgSi.peligro{background:var(--fr-red,#B42318);border-color:var(--fr-red,#B42318);box-shadow:0 6px 16px rgba(180,35,24,.22)}
+#pdAvisoPila{position:fixed;left:12px;right:12px;bottom:calc(96px + env(safe-area-inset-bottom,0px));z-index:2147483647;display:flex;flex-direction:column;gap:8px;align-items:center;pointer-events:none}
+#pdAvisoPila .pdAviso{pointer-events:auto;box-sizing:border-box;width:100%;max-width:440px;display:flex;align-items:flex-start;gap:10px;padding:12px 14px;background:#fff;border:1px solid var(--fr-line,#EFE3DA);border-left:5px solid var(--fr-orange,#C4410C);border-radius:var(--r-md,14px);box-shadow:var(--sh-lg,0 12px 32px rgba(31,26,23,.16));font:600 var(--fs-md,14px)/1.4 var(--font,Inter,sans-serif);color:var(--fr-ink,#1F1A17);white-space:pre-line;overflow-wrap:anywhere;animation:pdDlgSube .22s cubic-bezier(.2,.8,.2,1)}
+#pdAvisoPila .pdAviso.error{border-left-color:var(--fr-red,#B42318)}
+#pdAvisoPila .pdAviso.ok{border-left-color:var(--fr-green,#1F6B45)}
+#pdAvisoPila .pdAviso span{flex:1;min-width:0}
+#pdAvisoPila .pdAviso button{flex:0 0 auto;width:28px;height:28px;border-radius:8px;border:1px solid var(--fr-line,#EFE3DA);background:#fff;color:var(--fr-muted,#6F625A);font:600 16px/1 var(--font,Inter,sans-serif)}
+html.pdDlgOn,html.pdDlgOn body{overflow:hidden!important}
+</style>
+<script id="pd-dialogos-js">
+/* Reemplaza alert, confirm y prompt por tarjetas de la app.
+   pdAviso(texto)             → tarjeta pequeña abajo que se va sola
+   await pdConfirmar(texto)   → true / false
+   await pdPedir(texto, valor)→ texto escrito, o null si cancela */
+(function(){
+  if(window.pdConfirmar)return;
+  const ICO={pregunta:'<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.6 2.6 0 0 1 5 1c0 1.8-2.5 2.2-2.5 3.6"/><path d="M12 17h.01"/></svg>',
+    peligro:'<svg viewBox="0 0 24 24"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M19 6l-1 14H6L5 6"/></svg>',
+    lapiz:'<svg viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>'};
+  const E=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const PELIGRO=/eliminar|borrar|anular|quitar|cancelar el pedido|cerrar sesión|desactivar|suspender|vaciar|reiniciar|rechazar/i;
+  let cola=Promise.resolve();
+  /* separa "Título\nResto" para que se lea mejor */
+  function partes(t){t=String(t??'').trim();const i=t.indexOf('\n');let a=i>0?t.slice(0,i):t,b=i>0?t.slice(i+1).trim():'';
+    if(!b&&a.length>90){const k=a.search(/[.?!]\s/);if(k>20&&k<a.length-2){b=a.slice(k+2);a=a.slice(0,k+1)}}return [a,b]}
+  function abrir(tipo,texto,valor){
+    return new Promise(res=>{
+      let d=document.getElementById('pdDlg');
+      if(!d){d=document.createElement('div');d.id='pdDlg';d.setAttribute('role','dialog');d.setAttribute('aria-modal','true');document.body.appendChild(d)}
+      let [t,p]=partes(texto);if(tipo==='prompt'&&!p)t=t.replace(/:\s*$/,'');const peligro=tipo==='confirm'&&PELIGRO.test(t+' '+p);
+      const etiqueta=tipo==='prompt'?(p.match(/[^.\n]*:\s*$/)?.[0]||''):'';const cuerpo=etiqueta?p.slice(0,p.length-etiqueta.length).trim():p;
+      d.innerHTML=`<div class="pdDlgCard"><div class="pdDlgIco${peligro?' peligro':''}">${tipo==='prompt'?ICO.lapiz:peligro?ICO.peligro:ICO.pregunta}</div>
+        <h3 class="pdDlgT">${E(t)}</h3>${cuerpo?`<p class="pdDlgP">${E(cuerpo)}</p>`:''}
+        ${tipo==='prompt'?`<div class="pdDlgCampo">${etiqueta?`<label for="pdDlgIn">${E(etiqueta.replace(/:\s*$/,''))}</label>`:''}<input id="pdDlgIn" autocomplete="off" value="${E(valor??'')}"></div>`:''}
+        <div class="pdDlgBtns"><button type="button" class="pdDlgNo">Cancelar</button><button type="button" class="pdDlgSi${peligro?' peligro':''}">${tipo==='prompt'?'Guardar':peligro?'Sí, continuar':'Aceptar'}</button></div></div>`;
+      d.hidden=false;document.documentElement.classList.add('pdDlgOn');
+      const inp=d.querySelector('#pdDlgIn');
+      const fin=v=>{d.hidden=true;d.innerHTML='';document.documentElement.classList.remove('pdDlgOn');document.removeEventListener('keydown',tecla,true);res(v)};
+      const si=()=>fin(tipo==='prompt'?(inp?inp.value:''):true),no=()=>fin(tipo==='prompt'?null:false);
+      function tecla(e){if(e.key==='Escape'){e.preventDefault();no()}else if(e.key==='Enter'&&(tipo!=='prompt'||document.activeElement===inp)){e.preventDefault();si()}}
+      document.addEventListener('keydown',tecla,true);
+      d.querySelector('.pdDlgSi').onclick=si;d.querySelector('.pdDlgNo').onclick=no;
+      setTimeout(()=>{if(inp){inp.focus();inp.select()}else d.querySelector('.pdDlgSi').focus()},60);
+    });
+  }
+  /* una pregunta a la vez */
+  function enCola(tipo,t,v){const p=cola.then(()=>abrir(tipo,t,v));cola=p.catch(()=>{});return p}
+  window.pdConfirmar=t=>enCola('confirm',t);
+  window.pdPedir=(t,v)=>enCola('prompt',t,v);
+  window.pdAviso=function(texto){
+    const t=String(texto??'').trim();if(!t)return;
+    let pila=document.getElementById('pdAvisoPila');
+    if(!pila){pila=document.createElement('div');pila.id='pdAvisoPila';pila.setAttribute('aria-live','polite');document.body.appendChild(pila)}
+    const c=document.createElement('div');c.className='pdAviso'+(/no se pudo|error|falló|inválid|obligatori|primero|debes|falta/i.test(t)?' error':/listo|guardad|registrad|actualizad|eliminad|correctamente|✓/i.test(t)?' ok':'');
+    c.setAttribute('role','status');c.innerHTML='<span>'+E(t)+'</span><button type="button" aria-label="Cerrar aviso">×</button>';
+    const quitar=()=>{c.remove()};c.querySelector('button').onclick=quitar;
+    pila.appendChild(c);while(pila.children.length>3)pila.firstChild.remove();
+    setTimeout(quitar,Math.min(9000,3500+t.length*40));
+  };
+  /* por si queda alguno suelto: los avisos simples también salen como tarjeta */
+  try{window.alert=function(t){window.pdAviso(t)}}catch(_){}
+})();
+</script>
 </head><body>
 <header class="top"><div class="brand brand-logo"><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiB3aWR0aD0iMTA4OCIgem9vbUFuZFBhbj0ibWFnbmlmeSIgdmlld0JveD0iMCAwIDgxNiAzNDQuMjUwMDAzIiBoZWlnaHQ9IjQ1OSIgcHJlc2VydmVBc3BlY3RSYXRpbz0ieE1pZFlNaWQgbWVldCIgdmVyc2lvbj0iMS4wIj48ZGVmcz48Zy8+PGNsaXBQYXRoIGlkPSI0ZDEzODg3ZGNjIj48cGF0aCBkPSJNIDUxOSAwLjI1NzgxMiBMIDYzMyAwLjI1NzgxMiBMIDYzMyAxNDYgTCA1MTkgMTQ2IFogTSA1MTkgMC4yNTc4MTIgIiBjbGlwLXJ1bGU9Im5vbnplcm8iLz48L2NsaXBQYXRoPjxjbGlwUGF0aCBpZD0iNjhkZmU2MjA5NSI+PHJlY3QgeD0iMCIgd2lkdGg9Ijc1NyIgeT0iMCIgaGVpZ2h0PSIyODMiLz48L2NsaXBQYXRoPjwvZGVmcz48ZyB0cmFuc2Zvcm09Im1hdHJpeCgxLCAwLCAwLCAxLCAzNCwgMjgpIj48ZyBjbGlwLXBhdGg9InVybCgjNjhkZmU2MjA5NSkiPjxnIGZpbGw9IiNDNDQxMEMiIGZpbGwtb3BhY2l0eT0iMSI+PGcgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoMS4xOTA0MSwgMTQ1LjAwNTk3NykiPjxnPjxwYXRoIGQ9Ik0gNDQuMTU2MjUgLTM5LjgxMjUgQyA0My4xNTYyNSAtMzkuODEyNSA0Mi40NzY1NjIgLTM5LjYwOTM3NSA0Mi4xMjUgLTM5LjIwMzEyNSBDIDQxLjc4MTI1IC0zOC44MDQ2ODggNDEuNTU0Njg4IC0zOC4xNjAxNTYgNDEuNDUzMTI1IC0zNy4yNjU2MjUgTCAzNi42NzE4NzUgLTMuNDM3NSBDIDM2LjQ2MDkzOCAtMS45NDUzMTIgMzYuMDYyNSAtMSAzNS40Njg3NSAtMC41OTM3NSBDIDM0Ljg3NSAtMC4xOTUzMTIgMzMuNjc1NzgxIDAgMzEuODc1IDAgTCA1LjM5MDYyNSAwIEMgNC4zOTA2MjUgMCAzLjY4NzUgLTAuMTk1MzEyIDMuMjgxMjUgLTAuNTkzNzUgQyAyLjg4MjgxMiAtMSAyLjY4NzUgLTEuNjk1MzEyIDIuNjg3NSAtMi42ODc1IEMgMi42ODc1IC0zLjQ4ODI4MSAyLjczODI4MSAtNC4xNDA2MjUgMi44NDM3NSAtNC42NDA2MjUgTCAxNy41MTU2MjUgLTEwOC41IEMgMTcuNjA5Mzc1IC0xMDkuNTkzNzUgMTcuODI4MTI1IC0xMTAuMjg5MDYyIDE4LjE3MTg3NSAtMTEwLjU5Mzc1IEMgMTguNTIzNDM4IC0xMTAuODk0NTMxIDE5LjE0ODQzOCAtMTExLjA0Njg3NSAyMC4wNDY4NzUgLTExMS4wNDY4NzUgTCA2OS41OTM3NSAtMTExLjA0Njg3NSBDIDc3LjI2OTUzMSAtMTExLjA0Njg3NSA4NC4yMDMxMjUgLTEwOS44MjAzMTIgOTAuMzkwNjI1IC0xMDcuMzc1IEMgOTYuNTc4MTI1IC0xMDQuOTM3NSAxMDEuNDY4NzUgLTEwMS4yOTY4NzUgMTA1LjA2MjUgLTk2LjQ1MzEyNSBDIDEwOC42NTYyNSAtOTEuNjA5Mzc1IDExMC40NTMxMjUgLTg1Ljc1IDExMC40NTMxMjUgLTc4Ljg3NSBDIDExMC40NTMxMjUgLTcwLjg4MjgxMiAxMDguNDUzMTI1IC02My45NDUzMTIgMTA0LjQ1MzEyNSAtNTguMDYyNSBDIDEwMC40NjA5MzggLTUyLjE3NTc4MSA5NSAtNDcuNjYwMTU2IDg4LjA2MjUgLTQ0LjUxNTYyNSBDIDgxLjEzMjgxMiAtNDEuMzc4OTA2IDczLjMzMjAzMSAtMzkuODEyNSA2NC42NTYyNSAtMzkuODEyNSBaIE0gNzUuODc1IC03OC43MTg3NSBDIDc1Ljg3NSAtODEuNDE0MDYyIDc0LjkyNTc4MSAtODMuNDg0Mzc1IDczLjAzMTI1IC04NC45MjE4NzUgQyA3MS4xMzI4MTIgLTg2LjM2NzE4OCA2OC41OTM3NSAtODcuMDkzNzUgNjUuNDA2MjUgLTg3LjA5Mzc1IEwgNTEuNDg0Mzc1IC04Ny4wOTM3NSBDIDUwLjI4NTE1NiAtODcuMDkzNzUgNDkuNDM3NSAtODYuODQzNzUgNDguOTM3NSAtODYuMzQzNzUgQyA0OC40Mzc1IC04NS44NTE1NjIgNDguMDg1OTM4IC04NS4wMDc4MTIgNDcuODkwNjI1IC04My44MTI1IEwgNDUuNSAtNjYuMTQwNjI1IEwgNDUuMzQzNzUgLTY1LjI1IEMgNDUuMzQzNzUgLTY0LjY1NjI1IDQ1LjQ5MjE4OCAtNjQuMjUzOTA2IDQ1Ljc5Njg3NSAtNjQuMDQ2ODc1IEMgNDYuMDk3NjU2IC02My44NDc2NTYgNDYuNTQ2ODc1IC02My43NSA0Ny4xNDA2MjUgLTYzLjc1IEwgNjEuODEyNSAtNjMuNzUgQyA2NC40MDYyNSAtNjMuNzUgNjYuNzczNDM4IC02NC40NzI2NTYgNjguOTIxODc1IC02NS45MjE4NzUgQyA3MS4wNjY0MDYgLTY3LjM2NzE4OCA3Mi43NTc4MTIgLTY5LjI2NTYyNSA3NCAtNzEuNjA5Mzc1IEMgNzUuMjUgLTczLjk1MzEyNSA3NS44NzUgLTc2LjMyMDMxMiA3NS44NzUgLTc4LjcxODc1IFogTSA3NS44NzUgLTc4LjcxODc1ICIvPjwvZz48L2c+PC9nPjxnIGZpbGw9IiNDNDQxMEMiIGZpbGwtb3BhY2l0eT0iMSI+PGcgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoMTEwLjU5MTI4NCwgMTQ1LjAwNTk3NykiPjxnPjxwYXRoIGQ9Ik0gNDkuMDkzNzUgLTExMS4wNDY4NzUgQyA1MC43ODEyNSAtMTExLjA0Njg3NSA1MS40NzY1NjIgLTEwOS42OTUzMTIgNTEuMTg3NSAtMTA3IEwgMzYuNjcxODc1IC0zLjQzNzUgQyAzNi40NjA5MzggLTEuOTQ1MzEyIDM2LjA2MjUgLTEgMzUuNDY4NzUgLTAuNTkzNzUgQyAzNC44NzUgLTAuMTk1MzEyIDMzLjY3NTc4MSAwIDMxLjg3NSAwIEwgNS44NDM3NSAwIEMgMy43MzgyODEgMCAyLjY4NzUgLTEuMDQ2ODc1IDIuNjg3NSAtMy4xNDA2MjUgTCAyLjg0Mzc1IC00LjY0MDYyNSBMIDE3LjUxNTYyNSAtMTA4LjUgQyAxNy42MDkzNzUgLTEwOS41OTM3NSAxNy44MjgxMjUgLTExMC4yODkwNjIgMTguMTcxODc1IC0xMTAuNTkzNzUgQyAxOC41MjM0MzggLTExMC44OTQ1MzEgMTkuMTQ4NDM4IC0xMTEuMDQ2ODc1IDIwLjA0Njg3NSAtMTExLjA0Njg3NSBaIE0gNDkuMDkzNzUgLTExMS4wNDY4NzUgIi8+PC9nPjwvZz48L2c+PGcgZmlsbD0iI0M0NDEwQyIgZmlsbC1vcGFjaXR5PSIxIj48ZyB0cmFuc2Zvcm09InRyYW5zbGF0ZSgxNjAuMTI4NDc0LCAxNDUuMDA1OTc3KSI+PGc+PHBhdGggZD0iTSA3LjE4NzUgMCBDIDUuNjg3NSAwIDQuNTYyNSAtMC41IDMuODEyNSAtMS41IEMgMy4wNjI1IC0yLjUgMi43ODkwNjIgLTMuNzk2ODc1IDMgLTUuMzkwNjI1IEwgMTcuMzU5Mzc1IC0xMDguMjAzMTI1IEMgMTcuNDYwOTM4IC0xMDkuMzk4NDM4IDE3Ljc1NzgxMiAtMTEwLjE3MTg3NSAxOC4yNSAtMTEwLjUxNTYyNSBDIDE4Ljc1IC0xMTAuODY3MTg4IDE5LjY5NTMxMiAtMTExLjA0Njg3NSAyMS4wOTM3NSAtMTExLjA0Njg3NSBMIDU4LjUxNTYyNSAtMTExLjA0Njg3NSBDIDcwLjE5MTQwNiAtMTExLjA0Njg3NSA4MC4xNzE4NzUgLTEwOS4wNTA3ODEgODguNDUzMTI1IC0xMDUuMDYyNSBDIDk2LjczNDM3NSAtMTAxLjA3MDMxMiAxMDIuOTkyMTg4IC05NS41MzUxNTYgMTA3LjIzNDM3NSAtODguNDUzMTI1IEMgMTExLjQ3MjY1NiAtODEuMzY3MTg4IDExMy41OTM3NSAtNzMuMjg1MTU2IDExMy41OTM3NSAtNjQuMjAzMTI1IEMgMTEzLjU5Mzc1IC01MS41MzUxNTYgMTEwLjc5Njg3NSAtNDAuMzM1OTM4IDEwNS4yMDMxMjUgLTMwLjYwOTM3NSBDIDk5LjYxNzE4OCAtMjAuODc4OTA2IDkxLjc2NTYyNSAtMTMuMzQzNzUgODEuNjQwNjI1IC04IEMgNzEuNTE1NjI1IC0yLjY2NDA2MiA1OS44MTY0MDYgMCA0Ni41NDY4NzUgMCBaIE0gNTAuNTc4MTI1IC0yMy41IEMgNTkuNjYwMTU2IC0yMy41IDY2LjU0Njg3NSAtMjcuNDg4MjgxIDcxLjIzNDM3NSAtMzUuNDY4NzUgQyA3NS45MjE4NzUgLTQzLjQ0NTMxMiA3OC4yNjU2MjUgLTUzLjY3MTg3NSA3OC4yNjU2MjUgLTY2LjE0MDYyNSBDIDc4LjI2NTYyNSAtNzMuMDIzNDM4IDc2LjY0NDUzMSAtNzguMzEyNSA3My40MDYyNSAtODIgQyA3MC4xNjQwNjIgLTg1LjY5NTMxMiA2NS43MDMxMjUgLTg3LjU0Njg3NSA2MC4wMTU2MjUgLTg3LjU0Njg3NSBMIDUxLjE4NzUgLTg3LjU0Njg3NSBDIDQ5LjM4MjgxMiAtODcuNTQ2ODc1IDQ4LjMzNTkzOCAtODYuNTUwNzgxIDQ4LjA0Njg3NSAtODQuNTYyNSBMIDQwLjEwOTM3NSAtMjYuMzQzNzUgTCA0MC4xMDkzNzUgLTI1LjQzNzUgQyA0MC4xMDkzNzUgLTI0LjE0NDUzMSA0MC43NTM5MDYgLTIzLjUgNDIuMDQ2ODc1IC0yMy41IFogTSA1MC41NzgxMjUgLTIzLjUgIi8+PC9nPjwvZz48L2c+PGcgZmlsbD0iI0M0NDEwQyIgZmlsbC1vcGFjaXR5PSIxIj48ZyB0cmFuc2Zvcm09InRyYW5zbGF0ZSgyNzUuNTE1NzI0LCAxNDUuMDA1OTc3KSI+PGc+PHBhdGggZD0iTSAxNy41MTU2MjUgLTEwOC41IEMgMTcuNjA5Mzc1IC0xMDkuNTkzNzUgMTcuODI4MTI1IC0xMTAuMjg5MDYyIDE4LjE3MTg3NSAtMTEwLjU5Mzc1IEMgMTguNTIzNDM4IC0xMTAuODk0NTMxIDE5LjE0ODQzOCAtMTExLjA0Njg3NSAyMC4wNDY4NzUgLTExMS4wNDY4NzUgTCAxMDEuNDY4NzUgLTExMS4wNDY4NzUgQyAxMDIuOTY4NzUgLTExMS4wNDY4NzUgMTAzLjcxODc1IC0xMTAuMTQ0NTMxIDEwMy43MTg3NSAtMTA4LjM0Mzc1IEMgMTAzLjcxODc1IC0xMDcuNzUgMTAzLjY2NDA2MiAtMTA3LjMwMDc4MSAxMDMuNTYyNSAtMTA3IEwgMTAxLjAxNTYyNSAtODkuNjQwNjI1IEMgMTAwLjgxNjQwNiAtODguNDQxNDA2IDEwMC40Njg3NSAtODcuNjE3MTg4IDk5Ljk2ODc1IC04Ny4xNzE4NzUgQyA5OS40Njg3NSAtODYuNzIyNjU2IDk4LjU3MDMxMiAtODYuNSA5Ny4yODEyNSAtODYuNSBMIDUwLjg5MDYyNSAtODYuNSBDIDQ5Ljk4NDM3NSAtODYuNSA0OS4zMDQ2ODggLTg2LjMyMDMxMiA0OC44NTkzNzUgLTg1Ljk2ODc1IEMgNDguNDEwMTU2IC04NS42MjUgNDguMTQwNjI1IC04NC45MDYyNSA0OC4wNDY4NzUgLTgzLjgxMjUgTCA0Ni4wOTM3NSAtNzAuMDQ2ODc1IEwgNDUuOTM3NSAtNjguOTg0Mzc1IEMgNDUuOTM3NSAtNjguNDkyMTg4IDQ2LjA2MjUgLTY4LjE3MTg3NSA0Ni4zMTI1IC02OC4wMTU2MjUgQyA0Ni41NjI1IC02Ny44NjcxODggNDcuMDM1MTU2IC02Ny43OTY4NzUgNDcuNzM0Mzc1IC02Ny43OTY4NzUgTCA3Ni4wMzEyNSAtNjcuNzk2ODc1IEMgNzcuMDE5NTMxIC02Ny43OTY4NzUgNzcuNjY0MDYyIC02Ny41OTM3NSA3Ny45Njg3NSAtNjcuMTg3NSBDIDc4LjI2OTUzMSAtNjYuNzg5MDYyIDc4LjMyMDMxMiAtNjYuMTQ0NTMxIDc4LjEyNSAtNjUuMjUgTCA3NS40MjE4NzUgLTQ1LjY0MDYyNSBDIDc1LjMyODEyNSAtNDQuODQ3NjU2IDc1LjEyODkwNiAtNDQuMzI4MTI1IDc0LjgyODEyNSAtNDQuMDc4MTI1IEMgNzQuNTIzNDM4IC00My44MjgxMjUgNzMuOTI1NzgxIC00My43MDMxMjUgNzMuMDMxMjUgLTQzLjcwMzEyNSBMIDQ0LjE1NjI1IC00My43MDMxMjUgQyA0My40NDUzMTIgLTQzLjcwMzEyNSA0Mi45NDE0MDYgLTQzLjUyMzQzOCA0Mi42NDA2MjUgLTQzLjE3MTg3NSBDIDQyLjM0NzY1NiAtNDIuODI4MTI1IDQyLjEwMTU2MiAtNDIuMjA3MDMxIDQxLjkwNjI1IC00MS4zMTI1IEwgMzkuODEyNSAtMjYuNDg0Mzc1IEwgMzkuODEyNSAtMjUuNzM0Mzc1IEMgMzkuODEyNSAtMjQuOTQxNDA2IDQwLjE2MDE1NiAtMjQuNTQ2ODc1IDQwLjg1OTM3NSAtMjQuNTQ2ODc1IEwgOTAuNjg3NSAtMjQuNTQ2ODc1IEMgOTEuNjg3NSAtMjQuNTQ2ODc1IDkyLjMzNTkzOCAtMjQuMzQzNzUgOTIuNjQwNjI1IC0yMy45Mzc1IEMgOTIuOTQxNDA2IC0yMy41MzkwNjIgOTIuOTg4MjgxIC0yMi43OTY4NzUgOTIuNzgxMjUgLTIxLjcwMzEyNSBMIDkwLjI1IC0yLjM5MDYyNSBDIDkwLjAzOTA2MiAtMS40OTIxODggODkuNzM4MjgxIC0wLjg2NzE4OCA4OS4zNDM3NSAtMC41MTU2MjUgQyA4OC45NDUzMTIgLTAuMTcxODc1IDg4LjE0ODQzOCAwIDg2Ljk1MzEyNSAwIEwgNi40Mzc1IDAgQyA1LjEzMjgxMiAwIDQuMTc5Njg4IC0wLjI2OTUzMSAzLjU3ODEyNSAtMC44MTI1IEMgMi45ODQzNzUgLTEuMzYzMjgxIDIuNjg3NSAtMi4xOTE0MDYgMi42ODc1IC0zLjI5Njg3NSBMIDIuODQzNzUgLTQuNjQwNjI1IFogTSAxNy41MTU2MjUgLTEwOC41ICIvPjwvZz48L2c+PC9nPjxnIGZpbGw9IiNDNDQxMEMiIGZpbGwtb3BhY2l0eT0iMSI+PGcgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoMzc1LjkzNzAzMywgMTQ1LjAwNTk3NykiPjxnPjxwYXRoIGQ9Ik0gNS4yMzQzNzUgMCBDIDQuMzM1OTM4IDAgMy42ODc1IC0wLjE3MTg3NSAzLjI4MTI1IC0wLjUxNTYyNSBDIDIuODgyODEyIC0wLjg2NzE4OCAyLjY4NzUgLTEuNDkyMTg4IDIuNjg3NSAtMi4zOTA2MjUgQyAyLjY4NzUgLTIuNzk2ODc1IDIuNzg5MDYyIC0zLjY5NTMxMiAzIC01LjA5Mzc1IEwgMTcuNTE1NjI1IC0xMDguNSBDIDE3LjYwOTM3NSAtMTA5LjY5NTMxMiAxNy44MjgxMjUgLTExMC40MjE4NzUgMTguMTcxODc1IC0xMTAuNjcxODc1IEMgMTguNTIzNDM4IC0xMTAuOTIxODc1IDE5LjI1MzkwNiAtMTExLjA0Njg3NSAyMC4zNTkzNzUgLTExMS4wNDY4NzUgTCA2Mi4yNSAtMTExLjA0Njg3NSBDIDY0LjQ0NTMxMiAtMTExLjA0Njg3NSA2NS43OTY4NzUgLTEwOS44OTg0MzggNjYuMjk2ODc1IC0xMDcuNjA5Mzc1IEwgNzUuMjgxMjUgLTYwLjMxMjUgQyA3NS4yODEyNSAtNTkuNzA3MDMxIDc1LjQ3NjU2MiAtNTkuNDA2MjUgNzUuODc1IC01OS40MDYyNSBDIDc2LjE3NTc4MSAtNTkuNDA2MjUgNzYuNDc2NTYyIC01OS43MDcwMzEgNzYuNzgxMjUgLTYwLjMxMjUgTCA5Ny44NzUgLTEwNy40NTMxMjUgQyA5OC4zNzUgLTEwOC44NDc2NTYgOTguOTIxODc1IC0xMDkuNzk2ODc1IDk5LjUxNTYyNSAtMTEwLjI5Njg3NSBDIDEwMC4xMTcxODggLTExMC43OTY4NzUgMTAwLjkyMTg3NSAtMTExLjA0Njg3NSAxMDEuOTIxODc1IC0xMTEuMDQ2ODc1IEwgMTQ2LjIxODc1IC0xMTEuMDQ2ODc1IEMgMTQ3LjgxMjUgLTExMS4wNDY4NzUgMTQ4LjQ1NzAzMSAtMTEwLjI1IDE0OC4xNTYyNSAtMTA4LjY1NjI1IEwgMTMzLjM0Mzc1IC0zLjQzNzUgQyAxMzMuMTQ0NTMxIC0xLjk0NTMxMiAxMzIuNzY5NTMxIC0xIDEzMi4yMTg3NSAtMC41OTM3NSBDIDEzMS42NjQwNjIgLTAuMTk1MzEyIDEzMC40OTIxODggMCAxMjguNzAzMTI1IDAgTCAxMDMuNDA2MjUgMCBDIDEwMi4wMDc4MTIgMCAxMDAuOTg4MjgxIC0wLjIyMjY1NiAxMDAuMzQzNzUgLTAuNjcxODc1IEMgOTkuNjk1MzEyIC0xLjExNzE4OCA5OS4zNzUgLTEuOTQxNDA2IDk5LjM3NSAtMy4xNDA2MjUgQyA5OS4zNzUgLTMuNzQyMTg4IDk5LjQyMTg3NSAtNC4yNDIxODggOTkuNTE1NjI1IC00LjY0MDYyNSBMIDEwOC43OTY4NzUgLTcwLjM0Mzc1IEwgMTA4Ljc5Njg3NSAtNzAuOTM3NSBDIDEwOC43OTY4NzUgLTcxLjMzMjAzMSAxMDguNjk1MzEyIC03MS41MzEyNSAxMDguNSAtNzEuNTMxMjUgQyAxMDguMTAxNTYyIC03MS41MzEyNSAxMDcuNzAzMTI1IC03MS4wMzUxNTYgMTA3LjI5Njg3NSAtNzAuMDQ2ODc1IEwgNzYuMDMxMjUgLTEuOTUzMTI1IEMgNzUuNjI1IC0xLjE0ODQzOCA3NS4xNzE4NzUgLTAuNjI1IDc0LjY3MTg3NSAtMC4zNzUgQyA3NC4xNzk2ODggLTAuMTI1IDczLjQ4NDM3NSAwIDcyLjU3ODEyNSAwIEwgNTYuODc1IDAgQyA1NS44NzUgMCA1NS4xMjUgLTAuMjIyNjU2IDU0LjYyNSAtMC42NzE4NzUgQyA1NC4xMjUgLTEuMTE3MTg4IDUzLjcyMjY1NiAtMi4wMzkwNjIgNTMuNDIxODc1IC0zLjQzNzUgTCA0MS4zMTI1IC02OS41OTM3NSBDIDQxLjAwNzgxMiAtNzAuNjg3NSA0MC42MDkzNzUgLTcxLjIzNDM3NSA0MC4xMDkzNzUgLTcxLjIzNDM3NSBDIDM5LjcxMDkzOCAtNzEuMjM0Mzc1IDM5LjQxMDE1NiAtNzAuNzg1MTU2IDM5LjIwMzEyNSAtNjkuODkwNjI1IEwgMjkuNjI1IC0yLjM5MDYyNSBDIDI5LjUzMTI1IC0xLjM5MDYyNSAyOS4yNTc4MTIgLTAuNzM4MjgxIDI4LjgxMjUgLTAuNDM3NSBDIDI4LjM2MzI4MSAtMC4xNDQ1MzEgMjcuNjQwNjI1IDAgMjYuNjQwNjI1IDAgWiBNIDUuMjM0Mzc1IDAgIi8+PC9nPjwvZz48L2c+PGcgY2xpcC1wYXRoPSJ1cmwoIzRkMTM4ODdkY2MpIj48ZyBmaWxsPSIjQzQ0MTBDIiBmaWxsLW9wYWNpdHk9IjEiPjxnIHRyYW5zZm9ybT0idHJhbnNsYXRlKDUyMi4xNTQwNTcsIDE0NS4wMDU5NzcpIj48Zz48cGF0aCBkPSJNIC0wLjU5Mzc1IDAgQyAtMS43ODkwNjIgMCAtMi4zOTA2MjUgLTAuNSAtMi4zOTA2MjUgLTEuNSBDIC0yLjM5MDYyNSAtMi4yODkwNjIgLTEuODQzNzUgLTMuODgyODEyIC0wLjc1IC02LjI4MTI1IEwgNDkuOTg0Mzc1IC0xMDguMzQzNzUgQyA1MC41ODU5MzggLTEwOS40NDUzMTIgNTEuMzEyNSAtMTEwLjE3MTg3NSA1Mi4xNTYyNSAtMTEwLjUxNTYyNSBDIDUzIC0xMTAuODY3MTg4IDU0LjE3MTg3NSAtMTExLjA0Njg3NSA1NS42NzE4NzUgLTExMS4wNDY4NzUgTCA4NS4xNTYyNSAtMTExLjA0Njg3NSBDIDg2LjM1MTU2MiAtMTExLjA0Njg3NSA4Ny4yMDMxMjUgLTExMC42MTcxODggODcuNzAzMTI1IC0xMDkuNzY1NjI1IEMgODguMjAzMTI1IC0xMDguOTIxODc1IDg4LjU5NzY1NiAtMTA3Ljc1IDg4Ljg5MDYyNSAtMTA2LjI1IEwgMTEwLjU5Mzc1IC00LjM0Mzc1IEMgMTEwLjY5NTMxMiAtNC4wMzkwNjIgMTEwLjc1IC0zLjU5Mzc1IDExMC43NSAtMyBDIDExMC43NSAtMSAxMDkuOTQ1MzEyIDAgMTA4LjM0Mzc1IDAgTCA3OS4wMTU2MjUgMCBDIDc3LjYxNzE4OCAwIDc2LjY3MTg3NSAtMS4wOTc2NTYgNzYuMTcxODc1IC0zLjI5Njg3NSBMIDcyLjczNDM3NSAtMjAuMjAzMTI1IEMgNzIuNjI4OTA2IC0yMC43MDMxMjUgNzIuNDUzMTI1IC0yMS4wNTA3ODEgNzIuMjAzMTI1IC0yMS4yNSBDIDcxLjk1MzEyNSAtMjEuNDQ1MzEyIDcxLjQ3NjU2MiAtMjEuNTQ2ODc1IDcwLjc4MTI1IC0yMS41NDY4NzUgTCAzOS4zNTkzNzUgLTIxLjU0Njg3NSBDIDM4LjY2MDE1NiAtMjEuNTQ2ODc1IDM4LjEwOTM3NSAtMjEuMzk0NTMxIDM3LjcwMzEyNSAtMjEuMDkzNzUgQyAzNy4zMDQ2ODggLTIwLjgwMDc4MSAzNi45MTAxNTYgLTIwLjMwNDY4OCAzNi41MTU2MjUgLTE5LjYwOTM3NSBMIDI3LjUzMTI1IC0xLjUgQyAyNy4yMzgyODEgLTAuODk0NTMxIDI2Ljg2MzI4MSAtMC40OTIxODggMjYuNDA2MjUgLTAuMjk2ODc1IEMgMjUuOTU3MDMxIC0wLjA5NzY1NjIgMjUuMjM4MjgxIDAgMjQuMjUgMCBaIE0gNjYuNzUgLTQ2Ljk4NDM3NSBDIDY4LjQ0NTMxMiAtNDYuOTg0Mzc1IDY5LjA0Njg3NSAtNDcuOTg0Mzc1IDY4LjU0Njg3NSAtNDkuOTg0Mzc1IEwgNjMuMTU2MjUgLTc0Ljk4NDM3NSBDIDYzLjA1MDc4MSAtNzUuOTcyNjU2IDYyLjcwMzEyNSAtNzYuNDY4NzUgNjIuMTA5Mzc1IC03Ni40Njg3NSBDIDYxLjcxMDkzOCAtNzYuNDY4NzUgNjEuMjY1NjI1IC03Ni4wMTk1MzEgNjAuNzY1NjI1IC03NS4xMjUgTCA0OC4zNDM3NSAtNDkuMzkwNjI1IEMgNDguMDM5MDYyIC00OC43ODUxNTYgNDcuODkwNjI1IC00OC4yODUxNTYgNDcuODkwNjI1IC00Ny44OTA2MjUgQyA0Ny44OTA2MjUgLTQ3LjI4NTE1NiA0OC40ODgyODEgLTQ2Ljk4NDM3NSA0OS42ODc1IC00Ni45ODQzNzUgWiBNIDkzLjgyODEyNSAtMTI5LjQ1MzEyNSBDIDkzLjkyOTY4OCAtMTI5LjA1NDY4OCA5My45ODQzNzUgLTEyOC41NjI1IDkzLjk4NDM3NSAtMTI3Ljk2ODc1IEMgOTMuOTg0Mzc1IC0xMjcuMjY5NTMxIDkzLjc4MTI1IC0xMjYuNzE4NzUgOTMuMzc1IC0xMjYuMzEyNSBDIDkyLjk3NjU2MiAtMTI1LjkxNDA2MiA5Mi4yMzQzNzUgLTEyNS41NjY0MDYgOTEuMTQwNjI1IC0xMjUuMjY1NjI1IEwgNTUuMDc4MTI1IC0xMTYuODkwNjI1IEMgNTQuNzczNDM4IC0xMTYuNzg1MTU2IDU0LjM3NSAtMTE2LjczNDM3NSA1My44NzUgLTExNi43MzQzNzUgQyA1Mi4yODEyNSAtMTE2LjczNDM3NSA1MS4yMzQzNzUgLTExNy43MzQzNzUgNTAuNzM0Mzc1IC0xMTkuNzM0Mzc1IEwgNDkuMzkwNjI1IC0xMjYuMTcxODc1IEMgNDkuMTc5Njg4IC0xMjcuMTYwMTU2IDQ5LjA3ODEyNSAtMTI3LjcwNzAzMSA0OS4wNzgxMjUgLTEyNy44MTI1IEMgNDkuMDc4MTI1IC0xMjguNTA3ODEyIDQ5LjQyNTc4MSAtMTI5LjAwNzgxMiA1MC4xMjUgLTEyOS4zMTI1IEwgODggLTE0NC40MjE4NzUgQyA4OC4wOTM3NSAtMTQ0LjUyMzQzOCA4OC4yODkwNjIgLTE0NC41NzgxMjUgODguNTkzNzUgLTE0NC41NzgxMjUgQyA4OS4wOTM3NSAtMTQ0LjU3ODEyNSA4OS41NjY0MDYgLTE0NC4yNzM0MzggOTAuMDE1NjI1IC0xNDMuNjcxODc1IEMgOTAuNDYwOTM4IC0xNDMuMDc4MTI1IDkwLjc4NTE1NiAtMTQyLjM3ODkwNiA5MC45ODQzNzUgLTE0MS41NzgxMjUgWiBNIDkzLjgyODEyNSAtMTI5LjQ1MzEyNSAiLz48L2c+PC9nPjwvZz48L2c+PGcgZmlsbD0iI0M0NDEwQyIgZmlsbC1vcGFjaXR5PSIxIj48ZyB0cmFuc2Zvcm09InRyYW5zbGF0ZSg2NDEuNzMxNzcsIDE0NS4wMDU5NzcpIj48Zz48cGF0aCBkPSJNIDgwLjY3MTg3NSAtODIuNjA5Mzc1IEMgNzUuMzc4OTA2IC04Ny4yMDMxMjUgNjguNTM5MDYyIC04OS41IDYwLjE1NjI1IC04OS41IEMgNTUuMTY0MDYyIC04OS41IDUxLjE5NTMxMiAtODguNjk1MzEyIDQ4LjI1IC04Ny4wOTM3NSBDIDQ1LjMxMjUgLTg1LjUgNDMuODQzNzUgLTgzLjIwNzAzMSA0My44NDM3NSAtODAuMjE4NzUgQyA0My44NDM3NSAtNzYuNzI2NTYyIDQ2LjgzNTkzOCAtNzQuMDgyMDMxIDUyLjgyODEyNSAtNzIuMjgxMjUgTCA3Ni43ODEyNSAtNjQuNSBDIDg0Ljc1NzgxMiAtNjEuOTA2MjUgOTAuNjkxNDA2IC01OC41MzUxNTYgOTQuNTc4MTI1IC01NC4zOTA2MjUgQyA5OC40NzI2NTYgLTUwLjI1MzkwNiAxMDAuNDIxODc1IC00NS4wNDY4NzUgMTAwLjQyMTg3NSAtMzguNzY1NjI1IEMgMTAwLjQyMTg3NSAtMzAuMzc4OTA2IDk4LjEyNSAtMjMuMTQ0NTMxIDkzLjUzMTI1IC0xNy4wNjI1IEMgODguOTQ1MzEyIC0xMC45NzY1NjIgODIuNjg3NSAtNi4zNjMyODEgNzQuNzUgLTMuMjE4NzUgQyA2Ni44MjAzMTIgLTAuMDcwMzEyNSA1Ny45MjE4NzUgMS41IDQ4LjA0Njg3NSAxLjUgQyAzNi42NzE4NzUgMS41IDI3LjAxNTYyNSAtMC4zNjcxODggMTkuMDc4MTI1IC00LjEwOTM3NSBDIDExLjE0ODQzOCAtNy44NTkzNzUgNS4zOTA2MjUgLTEzLjAyMzQzOCAxLjc5Njg3NSAtMTkuNjA5Mzc1IEMgMS4xOTE0MDYgLTIxLjAwMzkwNiAwLjg5MDYyNSAtMjEuODAwNzgxIDAuODkwNjI1IC0yMiBDIDAuODkwNjI1IC0yMi41OTM3NSAxLjM0Mzc1IC0yMy4xOTE0MDYgMi4yNSAtMjMuNzk2ODc1IEwgMTguMTA5Mzc1IC0zMy41MTU2MjUgQyAxOC45MTAxNTYgLTM0LjAxNTYyNSAxOS43NTc4MTIgLTM0LjI2NTYyNSAyMC42NTYyNSAtMzQuMjY1NjI1IEMgMjIuMDUwNzgxIC0zNC4yNjU2MjUgMjMuMzQ3NjU2IC0zMy41MTk1MzEgMjQuNTQ2ODc1IC0zMi4wMzEyNSBDIDI3LjIzNDM3NSAtMjkuMDMxMjUgMjkuNTc4MTI1IC0yNi43ODEyNSAzMS41NzgxMjUgLTI1LjI4MTI1IEMgMzMuNTc4MTI1IC0yMy43ODkwNjIgMzYuMDcwMzEyIC0yMi42MTcxODggMzkuMDYyNSAtMjEuNzY1NjI1IEMgNDIuMDUwNzgxIC0yMC45MjE4NzUgNDYuMDM5MDYyIC0yMC41IDUxLjAzMTI1IC0yMC41IEMgNTUuNzE4NzUgLTIwLjUgNTkuNTgyMDMxIC0yMS4yNjk1MzEgNjIuNjI1IC0yMi44MTI1IEMgNjUuNjc1NzgxIC0yNC4zNjMyODEgNjcuMjAzMTI1IC0yNi45Mzc1IDY3LjIwMzEyNSAtMzAuNTMxMjUgQyA2Ny4yMDMxMjUgLTM0LjEyNSA2NC4xNTYyNSAtMzYuODE2NDA2IDU4LjA2MjUgLTM4LjYwOTM3NSBMIDM2LjA2MjUgLTQ1LjM0Mzc1IEMgMjguNDc2NTYyIC00Ny42MzI4MTIgMjIuNTkzNzUgLTUxLjIyMjY1NiAxOC40MDYyNSAtNTYuMTA5Mzc1IEMgMTQuMjE4NzUgLTYxLjAwMzkwNiAxMi4xMjUgLTY2Ljc0MjE4OCAxMi4xMjUgLTczLjMyODEyNSBDIDEyLjEyNSAtODEuMDE1NjI1IDE0LjM2NzE4OCAtODcuODQ3NjU2IDE4Ljg1OTM3NSAtOTMuODI4MTI1IEMgMjMuMzQ3NjU2IC05OS44MTY0MDYgMjkuMzU5Mzc1IC0xMDQuNDI5Njg4IDM2Ljg5MDYyNSAtMTA3LjY3MTg3NSBDIDQ0LjQyMTg3NSAtMTEwLjkyMTg3NSA1Mi41NzgxMjUgLTExMi41NDY4NzUgNjEuMzU5Mzc1IC0xMTIuNTQ2ODc1IEMgNzAuNjQwNjI1IC0xMTIuNTQ2ODc1IDc4Ljg5NDUzMSAtMTEwLjkyMTg3NSA4Ni4xMjUgLTEwNy42NzE4NzUgQyA5My4zNjMyODEgLTEwNC40Mjk2ODggOTguNzczNDM4IC0xMDAuNDE0MDYyIDEwMi4zNTkzNzUgLTk1LjYyNSBDIDEwMy4xNjAxNTYgLTk0LjUzMTI1IDEwMy41NjI1IC05My42MzI4MTIgMTAzLjU2MjUgLTkyLjkzNzUgQyAxMDMuNTYyNSAtOTIuMjM4MjgxIDEwMy4yMTA5MzggLTkxLjY5MTQwNiAxMDIuNTE1NjI1IC05MS4yOTY4NzUgTCA4NS4yOTY4NzUgLTgwLjIxODc1IEMgODQuODA0Njg4IC03OS44MTI1IDg0LjI1NzgxMiAtNzkuNzg1MTU2IDgzLjY1NjI1IC04MC4xNDA2MjUgQyA4My4wNjI1IC04MC40OTIxODggODIuNDYwOTM4IC04MC45NDE0MDYgODEuODU5Mzc1IC04MS40ODQzNzUgQyA4MS4yNjU2MjUgLTgyLjAzNTE1NiA4MC44NjcxODggLTgyLjQxMDE1NiA4MC42NzE4NzUgLTgyLjYwOTM3NSBaIE0gODAuNjcxODc1IC04Mi42MDkzNzUgIi8+PC9nPjwvZz48L2c+PGcgZmlsbD0iI0M0NDEwQyIgZmlsbC1vcGFjaXR5PSIxIj48ZyB0cmFuc2Zvcm09InRyYW5zbGF0ZSg5Ljg0NDQ2MSwgMjUzLjYxNzk1NykiPjxnPjxwYXRoIGQ9Ik0gMTkuMjk2ODc1IC03OS45Mzc1IEwgNTIuNzUgLTc5LjkzNzUgQyA2MC44OTQ1MzEgLTc5LjkzNzUgNjcuOTE0MDYyIC03OC41ODIwMzEgNzMuODEyNSAtNzUuODc1IEMgNzkuNzE4NzUgLTczLjE3NTc4MSA4NC4yNSAtNjkuMzEyNSA4Ny40MDYyNSAtNjQuMjgxMjUgQyA5MC41NzAzMTIgLTU5LjI1NzgxMiA5Mi4xNTYyNSAtNTMuMzYzMjgxIDkyLjE1NjI1IC00Ni41OTM3NSBDIDkyLjE1NjI1IC0zNy4zMDA3ODEgOTAuMDYyNSAtMjkuMTMyODEyIDg1Ljg3NSAtMjIuMDkzNzUgQyA4MS42ODc1IC0xNS4wNTA3ODEgNzUuODQzNzUgLTkuNjA5Mzc1IDY4LjM0Mzc1IC01Ljc2NTYyNSBDIDYwLjg0Mzc1IC0xLjkyMTg3NSA1Mi4xNzk2ODggMCA0Mi4zNTkzNzUgMCBMIDMuMzEyNSAwIFogTSA0Mi45Mzc1IC0xNS4xODc1IEMgNDkuMTc1NzgxIC0xNS4xODc1IDU0LjU5NzY1NiAtMTYuNSA1OS4yMDMxMjUgLTE5LjEyNSBDIDYzLjgwNDY4OCAtMjEuNzUgNjcuMzI4MTI1IC0yNS4zNjMyODEgNjkuNzY1NjI1IC0yOS45Njg3NSBDIDcyLjIwMzEyNSAtMzQuNTcwMzEyIDczLjQyMTg3NSAtMzkuNzY5NTMxIDczLjQyMTg3NSAtNDUuNTYyNSBDIDczLjQyMTg3NSAtNTEuNTcwMzEyIDcxLjQ3NjU2MiAtNTYuMjY5NTMxIDY3LjU5Mzc1IC01OS42NTYyNSBDIDYzLjcxODc1IC02My4wNTA3ODEgNTguMDg1OTM4IC02NC43NSA1MC43MDMxMjUgLTY0Ljc1IEwgMzQuODI4MTI1IC02NC43NSBMIDI0Ljg5MDYyNSAtMTUuMTg3NSBaIE0gNDIuOTM3NSAtMTUuMTg3NSAiLz48L2c+PC9nPjwvZz48ZyBmaWxsPSIjQzQ0MTBDIiBmaWxsLW9wYWNpdHk9IjEiPjxnIHRyYW5zZm9ybT0idHJhbnNsYXRlKDEyMi40MjY2NDIsIDI1My42MTc5NTcpIj48Zz48cGF0aCBkPSJNIDM0LjcxODc1IC02NS4wOTM3NSBMIDMxLjI4MTI1IC00Ny43MzQzNzUgTCA2OC4zOTA2MjUgLTQ3LjczNDM3NSBMIDY1LjU0Njg3NSAtMzMuMzQzNzUgTCAyOC4zMTI1IC0zMy4zNDM3NSBMIDI0LjY3MTg3NSAtMTQuODQzNzUgTCA2OC4yODEyNSAtMTQuODQzNzUgTCA2NS4yMDMxMjUgMCBMIDMuMzEyNSAwIEwgMTkuMjk2ODc1IC03OS45Mzc1IEwgNzkuNzAzMTI1IC03OS45Mzc1IEwgNzYuNjI1IC02NS4wOTM3NSBaIE0gMzQuNzE4NzUgLTY1LjA5Mzc1ICIvPjwvZz48L2c+PC9nPjxnIGZpbGw9IiNDNDQxMEMiIGZpbGwtb3BhY2l0eT0iMSI+PGcgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoMjE3LjMxMDkxNSwgMjUzLjYxNzk1NykiPjxnPjxwYXRoIGQ9Ik0gMTkuMjk2ODc1IC03OS45Mzc1IEwgMzcuOTA2MjUgLTc5LjkzNzUgTCAyNC44OTA2MjUgLTE1LjA3ODEyNSBMIDY0Ljk2ODc1IC0xNS4wNzgxMjUgTCA2MS44OTA2MjUgMCBMIDMuMzEyNSAwIFogTSAxOS4yOTY4NzUgLTc5LjkzNzUgIi8+PC9nPjwvZz48L2c+PGcgZmlsbD0iI0M0NDEwQyIgZmlsbC1vcGFjaXR5PSIxIj48ZyB0cmFuc2Zvcm09InRyYW5zbGF0ZSgzMDQuNTQ1MTIxLCAyNTMuNjE3OTU3KSI+PGc+PHBhdGggZD0iTSAxOS4yOTY4NzUgLTc5LjkzNzUgTCAzNy45MDYyNSAtNzkuOTM3NSBMIDIxLjkyMTg3NSAwIEwgMy4zMTI1IDAgWiBNIDE5LjI5Njg3NSAtNzkuOTM3NSAiLz48L2c+PC9nPjwvZz48ZyBmaWxsPSIjQzQ0MTBDIiBmaWxsLW9wYWNpdHk9IjEiPjxnIHRyYW5zZm9ybT0idHJhbnNsYXRlKDM2MC4yNjU2MzcsIDI1My42MTc5NTcpIj48Zz48cGF0aCBkPSJNIDk2LjE0MDYyNSAtNzkuOTM3NSBMIDQ1LjU2MjUgMCBMIDI3LjQwNjI1IDAgTCA4Ljc5Njg3NSAtNzkuOTM3NSBMIDI3Ljg1OTM3NSAtNzkuOTM3NSBMIDQwLjc2NTYyNSAtMjIuOTUzMTI1IEwgNzYuOTY4NzUgLTc5LjkzNzUgWiBNIDk2LjE0MDYyNSAtNzkuOTM3NSAiLz48L2c+PC9nPjwvZz48ZyBmaWxsPSIjQzQ0MTBDIiBmaWxsLW9wYWNpdHk9IjEiPjxnIHRyYW5zZm9ybT0idHJhbnNsYXRlKDQ2My43MTM0LCAyNTMuNjE3OTU3KSI+PGc+PHBhdGggZD0iTSAzNC43MTg3NSAtNjUuMDkzNzUgTCAzMS4yODEyNSAtNDcuNzM0Mzc1IEwgNjguMzkwNjI1IC00Ny43MzQzNzUgTCA2NS41NDY4NzUgLTMzLjM0Mzc1IEwgMjguMzEyNSAtMzMuMzQzNzUgTCAyNC42NzE4NzUgLTE0Ljg0Mzc1IEwgNjguMjgxMjUgLTE0Ljg0Mzc1IEwgNjUuMjAzMTI1IDAgTCAzLjMxMjUgMCBMIDE5LjI5Njg3NSAtNzkuOTM3NSBMIDc5LjcwMzEyNSAtNzkuOTM3NSBMIDc2LjYyNSAtNjUuMDkzNzUgWiBNIDM0LjcxODc1IC02NS4wOTM3NSAiLz48L2c+PC9nPjwvZz48ZyBmaWxsPSIjQzQ0MTBDIiBmaWxsLW9wYWNpdHk9IjEiPjxnIHRyYW5zZm9ybT0idHJhbnNsYXRlKDU1OC41OTc2OTgsIDI1My42MTc5NTcpIj48Zz48cGF0aCBkPSJNIDgzLjEyNSAtNTUuMTU2MjUgQyA4My4xMjUgLTQ3LjY5NTMxMiA4MS4xMDkzNzUgLTQxLjMwMDc4MSA3Ny4wNzgxMjUgLTM1Ljk2ODc1IEMgNzMuMDQ2ODc1IC0zMC42MzI4MTIgNjcuNDUzMTI1IC0yNi44NjcxODggNjAuMjk2ODc1IC0yNC42NzE4NzUgTCA3NC4yMTg3NSAwIEwgNTQuNzAzMTI1IDAgTCA0Mi4xNDA2MjUgLTIyLjM3NSBMIDI2LjM3NSAtMjIuMzc1IEwgMjEuOTIxODc1IDAgTCAzLjMxMjUgMCBMIDE5LjI5Njg3NSAtNzkuOTM3NSBMIDUxLjg0Mzc1IC03OS45Mzc1IEMgNjEuNzM4MjgxIC03OS45Mzc1IDY5LjQyNTc4MSAtNzcuNzY1NjI1IDc0LjkwNjI1IC03My40MjE4NzUgQyA4MC4zODI4MTIgLTY5LjA3ODEyNSA4My4xMjUgLTYyLjk4ODI4MSA4My4xMjUgLTU1LjE1NjI1IFogTSA0NC45ODQzNzUgLTM3LjEwOTM3NSBDIDUxLjE0ODQzOCAtMzcuMTA5Mzc1IDU1LjkyNTc4MSAtMzguNTE1NjI1IDU5LjMxMjUgLTQxLjMyODEyNSBDIDYyLjcwNzAzMSAtNDQuMTQ4NDM4IDY0LjQwNjI1IC00OC4xODc1IDY0LjQwNjI1IC01My40Mzc1IEMgNjQuNDA2MjUgLTU3LjI1IDYzLjEwOTM3NSAtNjAuMTAxNTYyIDYwLjUxNTYyNSAtNjIgQyA1Ny45Mjk2ODggLTYzLjkwNjI1IDU0LjIzODI4MSAtNjQuODU5Mzc1IDQ5LjQzNzUgLTY0Ljg1OTM3NSBMIDM0LjgyODEyNSAtNjQuODU5Mzc1IEwgMjkuMjM0Mzc1IC0zNy4xMDkzNzUgWiBNIDQ0Ljk4NDM3NSAtMzcuMTA5Mzc1ICIvPjwvZz48L2c+PC9nPjxnIGZpbGw9IiNDNDQxMEMiIGZpbGwtb3BhY2l0eT0iMSI+PGcgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoNjYwLjc4OTQ3MSwgMjUzLjYxNzk1NykiPjxnPjxwYXRoIGQ9Ik0gNDcuMTU2MjUgLTI3Ljc1IEwgNDEuNjcxODc1IDAgTCAyMy4xODc1IDAgTCAyOC43ODEyNSAtMjguNTQ2ODc1IEwgOC4yMTg3NSAtNzkuOTM3NSBMIDI2LjcxODc1IC03OS45Mzc1IEwgNDEgLTQ0LjMxMjUgTCA2OS42NTYyNSAtNzkuOTM3NSBMIDg4LjcxODc1IC03OS45Mzc1IFogTSA0Ny4xNTYyNSAtMjcuNzUgIi8+PC9nPjwvZz48L2c+PC9nPjwvZz48L3N2Zz4=" alt="Pidemás Delivery"></div><button id="logout" class="btn alt hidden" style="width:auto;background:#fff">Cerrar sesión</button></header>
 <main class="wrap"><section id="loginView" class="card login">
@@ -2519,7 +2603,7 @@ async function loadCategories(){
   renderCategories();
 }
 function renderCategories(){$('pCategoria').innerHTML='<option value="">Sin categoría</option>';categories.forEach(c=>{const o=document.createElement('option');o.value=c.id;o.textContent=c.nombre;$('pCategoria').appendChild(o)});$('categoryList').innerHTML=categories.length?categories.map(c=>`<div class="productCard"><div class="productTop"><div><b>${esc(c.nombre)}</b><div class="muted">${esc(c.descripcion||'')}</div></div></div><div class="actions"><button class="btn alt" onclick="editCategory('${c.id}')">Editar</button><button class="btn alt" onclick="deleteCategory('${c.id}')">Eliminar</button></div></div>`).join(''):'<div class="empty">Todavía no tienes categorías.</div>'}
-window.editCategory=async id=>{const c=categories.find(x=>String(x.id)===String(id));if(!c)return;const n=prompt('Nombre de la categoría:',c.nombre||'');if(n===null)return;const d=prompt('Descripción:',c.descripcion||'');if(d===null)return;const {error}=await db.from('categorias_negocio').update({nombre:n.trim(),descripcion:d.trim()||null}).eq('id',id).eq('negocio_id',restaurant.id);if(error){alert('No se pudo editar la categoría.');return}await loadCategories();await loadProducts()};window.toggleCategory=async id=>{const c=categories.find(x=>String(x.id)===String(id));if(!c)return;const nuevoEstado=c.activo===false;const accion=nuevoEstado?'mostrar':'ocultar';if(!confirm(`¿${accion.charAt(0).toUpperCase()+accion.slice(1)} esta categoría completa en la tienda?`))return;try{const {error}=await db.from('categorias_negocio').update({activo:nuevoEstado}).eq('id',id).eq('negocio_id',restaurant.id);if(error)throw error;await loadCategories();await loadProducts()}catch(e){alert('No se pudo cambiar el estado de la categoría: '+(e?.message||'Revisa los permisos de categorias_negocio.'))}};window.deleteCategory=async id=>{if(!confirm('¿Eliminar esta categoría?'))return;const {error}=await db.from('categorias_negocio').delete().eq('id',id).eq('negocio_id',restaurant.id);if(error){alert('No se pudo eliminar la categoría.');return}await loadCategories();await loadProducts()};
+window.editCategory=async id=>{const c=categories.find(x=>String(x.id)===String(id));if(!c)return;const n=(await pdPedir('Nombre de la categoría:',c.nombre||''));if(n===null)return;const d=(await pdPedir('Descripción:',c.descripcion||''));if(d===null)return;const {error}=await db.from('categorias_negocio').update({nombre:n.trim(),descripcion:d.trim()||null}).eq('id',id).eq('negocio_id',restaurant.id);if(error){pdAviso('No se pudo editar la categoría.');return}await loadCategories();await loadProducts()};window.toggleCategory=async id=>{const c=categories.find(x=>String(x.id)===String(id));if(!c)return;const nuevoEstado=c.activo===false;const accion=nuevoEstado?'mostrar':'ocultar';if(!(await pdConfirmar(`¿${accion.charAt(0).toUpperCase()+accion.slice(1)} esta categoría completa en la tienda?`)))return;try{const {error}=await db.from('categorias_negocio').update({activo:nuevoEstado}).eq('id',id).eq('negocio_id',restaurant.id);if(error)throw error;await loadCategories();await loadProducts()}catch(e){pdAviso('No se pudo cambiar el estado de la categoría: '+(e?.message||'Revisa los permisos de categorias_negocio.'))}};window.deleteCategory=async id=>{if(!(await pdConfirmar('¿Eliminar esta categoría?')))return;const {error}=await db.from('categorias_negocio').delete().eq('id',id).eq('negocio_id',restaurant.id);if(error){pdAviso('No se pudo eliminar la categoría.');return}await loadCategories();await loadProducts()};
 async function loadProducts(){
   const {data,error}=await db.from('productos_negocio').select('*').eq('negocio_id',restaurant.id).order('orden',{ascending:true});
   if(error){show($('appMsg'),'No se pudieron cargar los productos: '+error.message);return}
@@ -2566,9 +2650,9 @@ function renderCatalogFields(containerId,features=[]){const box=$(containerId);i
 window.addCatalogField=function(containerId,name='',value=''){const box=$(containerId);if(!box)return;const row=document.createElement('div');row.className='catalog-custom-row';row.innerHTML='<input class="catalog-custom-key" aria-label="Nombre de característica" placeholder="Característica (ej. Talla)" maxlength="80"><input class="catalog-custom-value" aria-label="Valor de característica" placeholder="Valor (ej. 38, 39, 40)" maxlength="500"><button type="button" class="catalog-remove-field" aria-label="Eliminar característica">×</button>';row.querySelector('.catalog-custom-key').value=name||'';row.querySelector('.catalog-custom-value').value=value||'';row.querySelector('.catalog-remove-field').onclick=()=>row.remove();box.appendChild(row)};
 function readCatalogFields(containerId){const box=$(containerId);if(!box)return [];return [...box.querySelectorAll('.catalog-custom-row')].map(row=>({name:row.querySelector('.catalog-custom-key').value.trim(),value:row.querySelector('.catalog-custom-value').value.trim()})).filter(x=>x.name&&x.value)}
 function clearForm(){$('pNombre').value='';$('pDescripcion').value='';renderCatalogFields('pCustomFields',[]);$('pPrecio').value='';$('pStock').value='';$('pImagen').value='';$('pImagenFile').value='';$('pCategoria').value='';$('pActivo').checked=true;$('saveProduct').textContent='Agregar producto';delete $('saveProduct').dataset.editingId;$('cancelEdit').classList.add('hidden')}
-window.editProduct=async id=>{const p=products.find(x=>String(x.id)===String(id));if(!p){show($('appMsg'),'No se encontró el producto.');return}const sel=$('editPCategoria');sel.innerHTML='<option value="">Sin categoría</option>';categories.forEach(c=>{const o=document.createElement('option');o.value=c.id;o.textContent=c.nombre;sel.appendChild(o)});$('editPNombre').value=p.nombre||'';const parsedDescription=splitCatalogDescription(p.descripcion||'');$('editPDescripcion').value=parsedDescription.description;renderCatalogFields('editPCustomFields',parsedDescription.features);$('editPPrecio').value=p.precio??'';$('editPImagen').value=p.imagen_url||'';$('editPCategoria').value=p.categoria_id||'';$('editPActivo').checked=p.disponible!==false;const sc=stockCol(p);$('editPStock').value=sc?(p[sc]??0):0;$('editPImagenFile').value='';if(p.imagen_url){$('editPImagenPreview').src=p.imagen_url;$('editPImagenPreview').style.display='block';$('editPImagenCloud').style.display='none';$('editPImagenTitle').textContent='Cambiar imagen';$('editPImagenHint').textContent='Selecciona una nueva imagen o arrástrala aquí';$('editPImagenFileName').textContent='Imagen actual';$('deleteEditImage').style.display='block'}else{$('editPImagenPreview').style.display='none';$('editPImagenPreview').removeAttribute('src');$('editPImagenCloud').style.display='block';$('editPImagenTitle').textContent='Seleccionar imagen';$('editPImagenHint').textContent='Selecciona una imagen o arrástrala aquí';$('editPImagenFileName').textContent='PNG, JPG o WebP.';$('deleteEditImage').style.display='none'}$('deleteEditImage').dataset.removeImage='false';$('editProductMsg').classList.add('hidden');$('editProductMsg').textContent='';$('editProductModal').dataset.productId=String(id);$('editProductModal').classList.add('open');document.body.style.overflow='hidden';};window.deleteProduct=async id=>{if(!confirm('¿Eliminar este producto de tu carta?'))return;try{const r=await db.from('productos_negocio').delete().eq('id',id).eq('negocio_id',restaurant.id);if(r.error)throw r.error;clearForm();await loadProducts()}catch(e){show($('appMsg'),'No se pudo eliminar el producto: '+(e?.message||'Revisa los permisos de productos_negocio.'))}};window.hideProduct=async id=>{const p=products.find(x=>String(x.id)===String(id));if(!p)return;const sc=stockCol(p);const stock=sc!==null?Number(p[sc]??0):null;const disponible=p.disponible!==false && (stock===null || stock>0);try{let payload;if(disponible){payload={disponible:false};if(sc)payload[sc]=0;}else{if(sc!==null && Number(p[sc]??0)<=0){show($('appMsg'),'Para poner el producto como disponible, primero agrega stock mayor a 0.');return;}payload={disponible:true};}const r=await db.from('productos_negocio').update(payload).eq('id',id).eq('negocio_id',restaurant.id);if(r.error)throw r.error;await loadProducts()}catch(e){show($('appMsg'),'No se pudo cambiar el estado del producto: '+(e?.message||'Revisa los permisos de productos_negocio.'))}};
+window.editProduct=async id=>{const p=products.find(x=>String(x.id)===String(id));if(!p){show($('appMsg'),'No se encontró el producto.');return}const sel=$('editPCategoria');sel.innerHTML='<option value="">Sin categoría</option>';categories.forEach(c=>{const o=document.createElement('option');o.value=c.id;o.textContent=c.nombre;sel.appendChild(o)});$('editPNombre').value=p.nombre||'';const parsedDescription=splitCatalogDescription(p.descripcion||'');$('editPDescripcion').value=parsedDescription.description;renderCatalogFields('editPCustomFields',parsedDescription.features);$('editPPrecio').value=p.precio??'';$('editPImagen').value=p.imagen_url||'';$('editPCategoria').value=p.categoria_id||'';$('editPActivo').checked=p.disponible!==false;const sc=stockCol(p);$('editPStock').value=sc?(p[sc]??0):0;$('editPImagenFile').value='';if(p.imagen_url){$('editPImagenPreview').src=p.imagen_url;$('editPImagenPreview').style.display='block';$('editPImagenCloud').style.display='none';$('editPImagenTitle').textContent='Cambiar imagen';$('editPImagenHint').textContent='Selecciona una nueva imagen o arrástrala aquí';$('editPImagenFileName').textContent='Imagen actual';$('deleteEditImage').style.display='block'}else{$('editPImagenPreview').style.display='none';$('editPImagenPreview').removeAttribute('src');$('editPImagenCloud').style.display='block';$('editPImagenTitle').textContent='Seleccionar imagen';$('editPImagenHint').textContent='Selecciona una imagen o arrástrala aquí';$('editPImagenFileName').textContent='PNG, JPG o WebP.';$('deleteEditImage').style.display='none'}$('deleteEditImage').dataset.removeImage='false';$('editProductMsg').classList.add('hidden');$('editProductMsg').textContent='';$('editProductModal').dataset.productId=String(id);$('editProductModal').classList.add('open');document.body.style.overflow='hidden';};window.deleteProduct=async id=>{if(!(await pdConfirmar('¿Eliminar este producto de tu carta?')))return;try{const r=await db.from('productos_negocio').delete().eq('id',id).eq('negocio_id',restaurant.id);if(r.error)throw r.error;clearForm();await loadProducts()}catch(e){show($('appMsg'),'No se pudo eliminar el producto: '+(e?.message||'Revisa los permisos de productos_negocio.'))}};window.hideProduct=async id=>{const p=products.find(x=>String(x.id)===String(id));if(!p)return;const sc=stockCol(p);const stock=sc!==null?Number(p[sc]??0):null;const disponible=p.disponible!==false && (stock===null || stock>0);try{let payload;if(disponible){payload={disponible:false};if(sc)payload[sc]=0;}else{if(sc!==null && Number(p[sc]??0)<=0){show($('appMsg'),'Para poner el producto como disponible, primero agrega stock mayor a 0.');return;}payload={disponible:true};}const r=await db.from('productos_negocio').update(payload).eq('id',id).eq('negocio_id',restaurant.id);if(r.error)throw r.error;await loadProducts()}catch(e){show($('appMsg'),'No se pudo cambiar el estado del producto: '+(e?.message||'Revisa los permisos de productos_negocio.'))}};
 $('productList').addEventListener('click',e=>{const b=e.target.closest('button[data-action]');if(!b)return;const card=b.closest('[data-product-id]');if(!card)return;const id=card.dataset.productId;const action=b.dataset.action;if(action==='edit')window.editProduct(id);if(action==='hide')window.hideProduct(id);if(action==='delete')window.deleteProduct(id)});
-$('saveCategory').onclick=async()=>{const n=$('cNombre').value.trim();if(!n)return;const {error}=await db.from('categorias_negocio').insert({negocio_id:restaurant.id,nombre:n,descripcion:$('cDescripcion').value.trim()||null});if(error){alert('No se pudo guardar la categoría: '+error.message);return}$('cNombre').value='';$('cDescripcion').value='';await loadCategories()};
+$('saveCategory').onclick=async()=>{const n=$('cNombre').value.trim();if(!n)return;const {error}=await db.from('categorias_negocio').insert({negocio_id:restaurant.id,nombre:n,descripcion:$('cDescripcion').value.trim()||null});if(error){pdAviso('No se pudo guardar la categoría: '+error.message);return}$('cNombre').value='';$('cDescripcion').value='';await loadCategories()};
 $('pImagenFile').addEventListener('change',e=>{const f=e.target.files?.[0];if(!f){$('pImagenFileName').textContent='PNG, JPG o WebP.';$('pImagenPreview').style.display='none';$('pImagenPreview').removeAttribute('src');$('pImagenCloud').style.display='';$('pImagenDropText').style.display='';return}$('pImagenFileName').textContent=f.name;const url=URL.createObjectURL(f);$('pImagenPreview').src=url;$('pImagenPreview').style.display='block';$('pImagenCloud').style.display='none';$('pImagenDropText').style.display='none'});
 const uploadZone=document.querySelector('label.fileUploadButton[for="pImagenFile"]');
 ['dragenter','dragover'].forEach(ev=>uploadZone.addEventListener(ev,e=>{e.preventDefault();e.stopPropagation();uploadZone.style.borderColor='#1F1A17';uploadZone.style.background='#FFF9F5'}));
@@ -2904,7 +2988,7 @@ window.guardarHorarioDia=async function(dia){
   const cierra=row.querySelector('.inlineHoraCierra')?.value||'';
   const boton=row.querySelector('.perfilHorarioInlineActions .btn:not(.alt)');
   if(activo && (!abre||!cierra)){
-    alert('Completa la hora de apertura y cierre.');
+    pdAviso('Completa la hora de apertura y cierre.');
     return;
   }
   if(boton){boton.disabled=true;boton.textContent='Guardando...';}
@@ -2940,7 +3024,7 @@ window.guardarHorarioDia=async function(dia){
     renderPerfilVista();
   }catch(e){
     console.error('Error guardando horario:',e);
-    alert('No se pudo guardar el horario: '+(e?.message||'error desconocido'));
+    pdAviso('No se pudo guardar el horario: '+(e?.message||'error desconocido'));
     show($('perfilMsg'),'No se pudo guardar el horario: '+(e?.message||'error desconocido'));
   }finally{
     if(boton){boton.disabled=false;boton.textContent='Guardar';}
@@ -3159,18 +3243,18 @@ async function updateBusinessOrder(id,patch,success){
 }
 window.businessConfirmOrder=async id=>{
   const o=businessOrders.find(x=>String(x.id)===String(id));if(!o)return;
-  if(!confirm('¿Confirmas que el negocio acepta este pedido?'))return;
+  if(!(await pdConfirmar('¿Confirmas que el negocio acepta este pedido?')))return;
   await updateBusinessOrder(id,{estado:'confirmado'},'Pedido confirmado. El administrador ya puede gestionarlo.');
 };
 window.businessConfirmPayment=async id=>{
   const o=businessOrders.find(x=>String(x.id)===String(id));if(!o)return;
-  if(!confirm('Confirma únicamente si ya verificaste el pago con el cliente. ¿El pago fue recibido?'))return;
+  if(!(await pdConfirmar('Confirma únicamente si ya verificaste el pago con el cliente. ¿El pago fue recibido?')))return;
   await updateBusinessOrder(id,{pago_negocio_confirmado:true,pago_negocio_confirmado_en:new Date().toISOString()},'Pago del negocio confirmado. Ya puedes marcar el pedido listo para recojo.');
 };
 window.businessMarkReady=async id=>{
   const o=businessOrders.find(x=>String(x.id)===String(id));if(!o)return;
   if(o.pago_negocio_confirmado!==true){show($('businessOrdersMsg'),'Primero debes confirmar el pago.');return}
-  if(!confirm('¿El pedido está completamente preparado y listo para que lo recoja el motorizado?'))return;
+  if(!(await pdConfirmar('¿El pedido está completamente preparado y listo para que lo recoja el motorizado?')))return;
   await updateBusinessOrder(id,{listo_para_recojo:true,listo_para_recojo_en:new Date().toISOString()},'Pedido marcado como listo para recojo.');
 };
 async function loadBusinessOrders(){
@@ -3654,7 +3738,7 @@ async function init(){try{setupLoginOptions();$('loginBtn').addEventListener('cl
   }
   async function saveOrder(table,list){
     const ups=list.map((x,i)=>({x,o:i+1})).filter(({x,o})=>Number(x.orden)!==o);
-    for(const {x,o} of ups){const {error}=await db.from(table).update({orden:o}).eq('id',x.id).eq('negocio_id',R().id);if(error){alert('No se pudo guardar el orden: '+error.message+(table==='categorias_negocio'?'\n\nEjecuta el SQL que agrega la columna «orden» a categorias_negocio.':''));return false}x.orden=o}
+    for(const {x,o} of ups){const {error}=await db.from(table).update({orden:o}).eq('id',x.id).eq('negocio_id',R().id);if(error){pdAviso('No se pudo guardar el orden: '+error.message+(table==='categorias_negocio'?'\n\nEjecuta el SQL que agrega la columna «orden» a categorias_negocio.':''));return false}x.orden=o}
     return true;
   }
   async function moveProduct(p,dir){
@@ -3671,16 +3755,16 @@ async function init(){try{setupLoginOptions();$('loginBtn').addEventListener('cl
     if(a==='cadd')return openProd(cid==='_none'?'':cid);
     if(a==='cvis')return window.toggleCategory(cid);
     if(a==='cedit')return window.editCategory(cid);
-    if(a==='cdel'){const n=(products||[]).filter(p=>String(p.categoria_id)===cid).length;if(n&&!confirm(`Esta categoría tiene ${n} producto${n===1?'':'s'}. Quedarán en «Sin categoría». ¿Continuar?`))return;catMore.delete(cid);return window.deleteCategory(cid)}
+    if(a==='cdel'){const n=(products||[]).filter(p=>String(p.categoria_id)===cid).length;if(n&&!(await pdConfirmar(`Esta categoría tiene ${n} producto${n===1?'':'s'}. Quedarán en «Sin categoría». ¿Continuar?`)))return;catMore.delete(cid);return window.deleteCategory(cid)}
     if(a==='cup'||a==='cdown'){const list=[...categories].sort(byOrd);const i=list.findIndex(c=>String(c.id)===cid),j=i+(a==='cup'?-1:1);if(i<0||j<0||j>=list.length)return;[list[i],list[j]]=[list[j],list[i]];if(await saveOrder('categorias_negocio',list)){categories=list;paintCarta()}return}
     const row=b.closest('.x-pRow');const id=row?.dataset.pid;
     const p=(products||[]).find(x=>String(x.id)===String(id));if(!p)return;
     if(a==='open')return openEdit(p.id);
     if(a==='vis'){
       const next=p.disponible===false;const stk=stockOf(p);
-      if(next&&stk===0){alert('Este producto no tiene stock. Tócalo y súmale stock para mostrarlo en la tienda.');return}
+      if(next&&stk===0){pdAviso('Este producto no tiene stock. Tócalo y súmale stock para mostrarlo en la tienda.');return}
       b.disabled=true;const {error}=await db.from('productos_negocio').update({disponible:next}).eq('id',id).eq('negocio_id',R().id);b.disabled=false;
-      if(error){alert('No se pudo cambiar la visibilidad: '+error.message);return}p.disponible=next;paintCarta();return;
+      if(error){pdAviso('No se pudo cambiar la visibilidad: '+error.message);return}p.disponible=next;paintCarta();return;
     }
   }
   // Ventana rápida para editar un producto.
@@ -3807,7 +3891,7 @@ async function init(){try{setupLoginOptions();$('loginBtn').addEventListener('cl
     $('pdxSnd').onclick=()=>{Snd.on=!Snd.on;LS.set('pd_sound',Snd.on?'on':'off');if(Snd.on)Snd.play('info');paintPerf();paintBanner()};
     $('pdxTest').onclick=async()=>{await Snd.ready();setBannerOff();Snd.play('nuevo')};
     $('pdxPerm').onclick=async()=>{if('Notification' in window&&Notification.permission==='default'){try{await Notification.requestPermission()}catch(e){}}else alertUser({kind:'info',title:'Así se verán tus avisos',text:'Te avisaremos de cada pedido nuevo.'});paintPerf();paintBanner()};
-    $('pdxLogout').onclick=()=>{if(confirm('¿Cerrar sesión? Dejarás de recibir avisos de pedidos en este teléfono.'))$('logout')?.click()};
+    $('pdxLogout').onclick=async ()=>{if((await pdConfirmar('¿Cerrar sesión? Dejarás de recibir avisos de pedidos en este teléfono.')))$('logout')?.click()};
   }
   function paintPerf(){
     if(!$('pdxPerf')||!R())return;const r=R();
@@ -3958,7 +4042,7 @@ async function init(){try{setupLoginOptions();$('loginBtn').addEventListener('cl
       var activo=row&&row.querySelector('.inlineDiaActivo')?row.querySelector('.inlineDiaActivo').checked:true;
       if(row&&activo){
         var e=valido((row.querySelector('.inlineHoraAbre')||{}).value,(row.querySelector('.inlineHoraCierra')||{}).value);
-        if(e){alert(e);return;}
+        if(e){pdAviso(e);return;}
       }
       return gDia.apply(this,arguments);
     };
@@ -3971,7 +4055,7 @@ async function init(){try{setupLoginOptions();$('loginBtn').addEventListener('cl
     btn.onclick=function(ev){
       var txt=String(window.obtenerHorarioSemanal()||'');
       var malos=txt.split('|').filter(Boolean).map(function(p){var d=p.split('=');var h=(d[1]||'').split('-');return {dia:d[0],err:valido(h[0],h[1])};}).filter(function(x){return x.err;});
-      if(malos.length){alert('Revisa '+malos[0].dia+': '+malos[0].err);return;}
+      if(malos.length){pdAviso('Revisa '+malos[0].dia+': '+malos[0].err);return;}
       return orig.call(this,ev);
     };
   }
@@ -4016,7 +4100,7 @@ async function init(){try{setupLoginOptions();$('loginBtn').addEventListener('cl
     if(!pago){show($('businessOrdersMsg'),'Primero coordina el pago con el cliente y elige cómo quedó.');document.querySelector(`[data-order="${CSS.escape(String(id))}"] .x-pChips`)?.scrollIntoView({behavior:'smooth',block:'center'});return}
     const min=window.__pdxT[id]||15,now=new Date().toISOString();
     const txt={efectivo:'el motorizado cobrará todo en efectivo',yape:'el motorizado cobrará todo con Yape (QR)',solo_delivery:'el motorizado cobrará solo el delivery',pagado:'el motorizado no cobrará nada (tú ya pagaste el delivery a Pidemás)'}[pago];
-    if(!confirm('¿Confirmas el pedido? Se enviará a Pidemás para asignar motorizado y '+txt+'.'))return;
+    if(!(await pdConfirmar('¿Confirmas el pedido? Se enviará a Pidemás para asignar motorizado y '+txt+'.')))return;
     const patch={estado:'confirmado',pago_acordado:pago,metodo_pago:pago==='pagado'?(o.metodo_pago||'yape'):pago==='solo_delivery'?(String(o.metodo_pago||'').toLowerCase()==='efectivo'?'efectivo':'yape'):pago,pago_confirmado:pago==='pagado',pago_negocio_confirmado:true,pago_negocio_confirmado_en:now,negocio_aceptado_en:now,tiempo_preparacion_min:min};
     if(pago==='pagado'&&window.__pdxCap&&window.__pdxCap[id])patch.observaciones=[o.observaciones||'','DELIVERY PAGADO POR EL NEGOCIO A PIDEMÁS (captura enviada por WhatsApp)'].filter(Boolean).join(' | ');
     await updateBusinessOrder(id,patch,'Pedido confirmado y enviado a Pidemás. Prepáralo: estará listo en '+min+' min.');
@@ -4101,7 +4185,7 @@ async function init(){try{setupLoginOptions();$('loginBtn').addEventListener('cl
     document.getElementById('pvFile').addEventListener('change',async e=>{
       const f=e.target.files?.[0];e.target.value='';if(!f)return;
       const add=document.getElementById('pvFotoAdd');if(add){add.disabled=true;add.textContent='…'}
-      try{st.fotos.push(await subirFoto(f))}catch(err){alert('No se pudo subir la foto: '+(err.message||err))}
+      try{st.fotos.push(await subirFoto(f))}catch(err){pdAviso('No se pudo subir la foto: '+(err.message||err))}
       document.getElementById('pvFotos').innerHTML=fotosHtml();
     });
   };
@@ -4886,10 +4970,10 @@ html:not(#zq0):not(#zq1):not(#zq2):not(#zq3):not(#zq4):not(#zq5):not(#zq6):not(#
     }).catch(()=>{});
   }
   function gpsDirecto(b){
-    if(!navigator.geolocation){alert('Este teléfono no permite obtener la ubicación.');return}
+    if(!navigator.geolocation){pdAviso('Este teléfono no permite obtener la ubicación.');return}
     const t=b.innerHTML;b.innerHTML='<i class="ti ti-loader-2"></i>Buscando…';b.disabled=true;
     navigator.geolocation.getCurrentPosition(p=>{b.innerHTML=t;b.disabled=false;abrirMapa({lat:p.coords.latitude,lng:p.coords.longitude},'Revisa que el punto esté sobre tu local y confirma.')},
-      e=>{b.innerHTML=t;b.disabled=false;alert(e&&e.code===1?'Permite el acceso a la ubicación en tu navegador para usar esta opción.':'No se pudo obtener tu ubicación. Intenta de nuevo o márcala en el mapa.')},{enableHighAccuracy:true,timeout:20000,maximumAge:0});
+      e=>{b.innerHTML=t;b.disabled=false;pdAviso(e&&e.code===1?'Permite el acceso a la ubicación en tu navegador para usar esta opción.':'No se pudo obtener tu ubicación. Intenta de nuevo o márcala en el mapa.')},{enableHighAccuracy:true,timeout:20000,maximumAge:0});
   }
   /* ---------- Mapa a pantalla completa ---------- */
   let big=null,tRev=null,ultima=null;
@@ -4903,7 +4987,7 @@ html:not(#zq0):not(#zq1):not(#zq2):not(#zq3):not(#zq4):not(#zq5):not(#zq6):not(#
       m.addEventListener('click',e=>{const b=e.target.closest('[data-a]');if(!b)return;const a=b.dataset.a;
         if(a==='x')cerrarMapa();
         if(a==='ok'){if(!big)return;const c=big.getCenter();fijar({lat:c.lat,lng:c.lng});const d=$('perfilDireccion');if(d&&!d.value.trim()&&ultima&&ultima.linea&&ultima.linea!=='Punto marcado en el mapa'){d.value=[ultima.linea,ultima.sub].filter(Boolean).join(', ');d.dispatchEvent(new Event('input',{bubbles:true}))}cerrarMapa();const s=$('editarPerfil');if(s){s.classList.add('pdubPulse');setTimeout(()=>s.classList.remove('pdubPulse'),2500)}pendiente=true;pintar()}
-        if(a==='gps'){if(!navigator.geolocation)return;b.style.opacity=.5;navigator.geolocation.getCurrentPosition(p=>{b.style.opacity=1;big&&big.setView([p.coords.latitude,p.coords.longitude],18)},()=>{b.style.opacity=1;alert('No se pudo obtener tu ubicación. Revisa el permiso de ubicación del navegador.')},{enableHighAccuracy:true,timeout:20000,maximumAge:0})}
+        if(a==='gps'){if(!navigator.geolocation)return;b.style.opacity=.5;navigator.geolocation.getCurrentPosition(p=>{b.style.opacity=1;big&&big.setView([p.coords.latitude,p.coords.longitude],18)},()=>{b.style.opacity=1;pdAviso('No se pudo obtener tu ubicación. Revisa el permiso de ubicación del navegador.')},{enableHighAccuracy:true,timeout:20000,maximumAge:0})}
         if(a==='res'){const r=JSON.parse(b.dataset.r);$('pdubRs').hidden=true;$('pdubQ').blur();big&&big.setView([r.lat,r.lng],18)}
       });
       let tq=null;const q=$('pdubQ'),rs=$('pdubRs');
@@ -5161,11 +5245,11 @@ html:not(#zq0):not(#zq1):not(#zq2):not(#zq3):not(#zq4):not(#zq5):not(#zq6):not(#
   /* Pausar: deja de aparecer en la tienda (no recibe pedidos) hasta reanudar */
   async function pausar(b){
     const r=neg();if(!r||!r.id)return;if(r.visible_admin===false){window.pdVisAdminAviso&&window.pdVisAdminAviso();return}const pausado=r.activo===false;
-    if(!pausado&&!confirm('¿Pausar tu negocio? Dejarás de aparecer en la tienda y no recibirás pedidos nuevos hasta que lo reanudes.'))return;
+    if(!pausado&&!(await pdConfirmar('¿Pausar tu negocio? Dejarás de aparecer en la tienda y no recibirás pedidos nuevos hasta que lo reanudes.')))return;
     b.disabled=true;
     try{const {data,error}=await db.from('negocios').update({activo:pausado}).eq('id',r.id).select('id,activo').maybeSingle();if(error)throw error;if(!data)throw new Error('Supabase no actualizó el negocio.');
       r.activo=data.activo;const act=$('perfilActivo');if(act){act.checked=data.activo!==false;delete act.dataset.touched}const tg=$('pdxActTog');if(tg)tg.classList.toggle('on',data.activo!==false);
-    }catch(e){alert('No se pudo cambiar: '+(e.message||e))}
+    }catch(e){pdAviso('No se pudo cambiar: '+(e.message||e))}
     finally{b.disabled=false;hero()}
   }
   function hero(){
@@ -5341,7 +5425,7 @@ html:not(#zq0):not(#zq1):not(#zq2):not(#zq3):not(#zq4):not(#zq5):not(#zq6):not(#
     const conf=window.pdxConfirmar;
     window.pdxConfirmar=async function(id){
       if(window.__pdxP[id]==='pagado'&&!window.__pdxCap[id]){
-        (typeof show==='function'&&document.getElementById('businessOrdersMsg'))?show(document.getElementById('businessOrdersMsg'),'Primero yapea el delivery a Pidemás y envía la captura.'):alert('Primero yapea el delivery a Pidemás y envía la captura.');
+        (typeof show==='function'&&document.getElementById('businessOrdersMsg'))?show(document.getElementById('businessOrdersMsg'),'Primero yapea el delivery a Pidemás y envía la captura.'):pdAviso('Primero yapea el delivery a Pidemás y envía la captura.');
         document.querySelector(`.x-delPay[data-del="${CSS.escape(String(id))}"]`)?.scrollIntoView({behavior:'smooth',block:'center'});return}
       return conf.apply(this,arguments);
     };
@@ -6057,7 +6141,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
   }
   async function quitar(){
     var r=neg();if(!r||!r.id)return;
-    if(!confirm('¿Quitar el logo? En la tienda se verá la inicial del negocio.'))return;
+    if(!(await pdConfirmar('¿Quitar el logo? En la tienda se verá la inicial del negocio.')))return;
     try{
       var old=String(logoDe(r)),mk='/storage/v1/object/public/negocios/',i=old.indexOf(mk);
       await guardarUrl(null);
@@ -6814,12 +6898,13 @@ html body #appView#appView#appView#appView#appView#appView .panelSection::before
     return guardar(s);
   }
   // En la app instalada (APK) el permiso lo da Android; si no responde en 10 s, se explica cómo activarlo.
+  const RP=Notification.requestPermission.bind(Notification);
   function pedir(){
-    return Promise.race([
-      Promise.resolve().then(()=>Notification.requestPermission()).catch(()=>Notification.permission),
-      new Promise(r=>setTimeout(()=>r(Notification.permission),10000))
-    ]);
+    let pr;try{pr=Promise.resolve(RP())}catch(_){pr=Promise.resolve(Notification.permission)}
+    return Promise.race([pr.catch(()=>Notification.permission),new Promise(r=>setTimeout(()=>r(Notification.permission),10000))]);
   }
+  // Los botones propios del panel también pasan por aquí: tiempo límite, ayuda y registro del celular.
+  try{Notification.requestPermission=function(){return pedir().then(p=>{if(p==='granted')setTimeout(revisar,300);else ayuda();return p})}}catch(_){}
   function ayuda(msg){
     let a=document.getElementById('pdPushAyuda');
     if(!a){a=document.createElement('div');a.id='pdPushAyuda';a.setAttribute('role','alert');
@@ -6868,6 +6953,168 @@ html body #appView#appView#appView#appView#appView#appView .panelSection::before
     })}catch(_){}
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',iniciar);else iniciar();
+})();
+</script>
+<style id="pd-pedido-hoja-css">
+/* Detalle del pedido: empieza a la misma altura que las demás ventanas (56px) */
+@layer pdmoto{
+html:root body:not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ) #pdoModal #pdoSheet.pdoSheet{top:var(--sheet-top,56px)!important;bottom:0!important;height:auto!important;max-height:none!important}
+}
+</style>
+<style id="pd-app-panel-css">
+/* ===== pd-app-panel · se siente como app: sin zoom, sin recargar al jalar, login fijo y centrado ===== */
+html:root,html:root body{overscroll-behavior:none!important;overscroll-behavior-y:none!important;overflow-x:hidden!important;-webkit-text-size-adjust:100%;text-size-adjust:100%}
+html:root body{touch-action:pan-x pan-y;-webkit-tap-highlight-color:transparent}
+html:root input,html:root select,html:root textarea{font-size:max(16px,1em)}
+/* Login: ocupa exactamente la pantalla, no se mueve y queda centrado */
+html.pdLoginFijo,html.pdLoginFijo body{height:100%!important;overflow:hidden!important}
+html.pdLoginFijo body #loginView#loginView#loginView{position:fixed!important;inset:0!important;z-index:50!important;width:100%!important;max-width:none!important;height:100dvh!important;min-height:0!important;margin:0!important;
+  padding:max(24px,env(safe-area-inset-top,0px)) 20px max(24px,env(safe-area-inset-bottom,0px))!important;box-sizing:border-box!important;
+  display:flex!important;flex-direction:column!important;justify-content:center!important;align-items:stretch!important;
+  overflow-y:auto!important;overscroll-behavior:contain!important;background:var(--fr-surface,#FFF9F5)!important;border:0!important;border-radius:0!important;box-shadow:none!important}
+html.pdLoginFijo body #loginView#loginView#loginView > *{width:100%;max-width:420px;margin-left:auto!important;margin-right:auto!important}
+/* Ventanas que se cierran deslizando hacia abajo */
+/* sin estirar el contenido al jalar (efecto de Android que dejaba la cabecera arriba y un hueco blanco) */
+html:root body *{overscroll-behavior-y:none!important}
+.pdArrastrando{transition:none!important;user-select:none!important}
+.pdArrastrando *{overscroll-behavior:none!important}
+.pdSoltando{transition:translate .28s cubic-bezier(.2,.8,.3,1)!important}
+#pdFondoHoja{position:fixed;inset:0;background:rgba(31,26,23,.45);opacity:0;transition:opacity .2s ease-out;pointer-events:auto;touch-action:none}
+#pdFondoHoja.on{opacity:1}
+#pdFondoHoja[hidden]{display:none!important}
+</style>
+<script id="pd-app-panel-js">
+(function(){
+  if(window.__pdAppPanel)return;window.__pdAppPanel=true;
+  /* 1 · Sin zoom (pellizcar, doble toque, Ctrl + rueda o teclas) */
+  var vp=document.querySelector('meta[name="viewport"]');
+  if(!vp){vp=document.createElement('meta');vp.name='viewport';document.head.appendChild(vp)}
+  vp.setAttribute('content','width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover');
+  ['gesturestart','gesturechange','gestureend'].forEach(function(ev){document.addEventListener(ev,function(e){e.preventDefault()},{passive:false})});
+  document.addEventListener('touchmove',function(e){if(e.touches&&e.touches.length>1&&e.cancelable)e.preventDefault()},{passive:false,capture:true});
+  var ult=0;
+  document.addEventListener('touchend',function(e){var n=Date.now();if(n-ult<350&&e.cancelable&&!(e.target.closest&&e.target.closest('input,textarea,select,a,button,label,[role=button]')))e.preventDefault();ult=n},{passive:false});
+  document.addEventListener('wheel',function(e){if(e.ctrlKey)e.preventDefault()},{passive:false});
+  /* 2 · Sin recargar (F5, Ctrl+R); el jalón hacia abajo lo bloquea overscroll-behavior */
+  document.addEventListener('keydown',function(e){var k=(e.key||'').toLowerCase();
+    if((e.ctrlKey||e.metaKey)&&(k==='+'||k==='-'||k==='='||k==='0'||k==='r'))e.preventDefault();
+    if(k==='f5')e.preventDefault()});
+
+  /* 3 · Login fijo a la pantalla */
+  function loginVisible(){var l=document.getElementById('loginView');if(!l)return false;if(l.classList.contains('hidden')||l.hidden)return false;var cs=getComputedStyle(l);return cs.display!=='none'&&cs.visibility!=='hidden'}
+  var antes=null;
+  function revisarLogin(){var v=loginVisible();if(v===antes)return;antes=v;document.documentElement.classList.toggle('pdLoginFijo',v);if(v)window.scrollTo(0,0)}
+  function iniciarLogin(){revisarLogin();var l=document.getElementById('loginView');
+    if(l)new MutationObserver(revisarLogin).observe(l,{attributes:true,attributeFilter:['class','hidden','style']});
+    new MutationObserver(revisarLogin).observe(document.body,{attributes:true,attributeFilter:['class']});
+    setInterval(revisarLogin,1000)}
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',iniciarLogin);else iniciarLogin();
+
+  /* 4 · Ventanas (hojas) que se cierran deslizando hacia abajo, como en la tienda */
+
+  /* 5 · Fondo oscuro detrás de todas las ventanas (igual que la primera ventana del motorizado) */
+  (function(){
+    var fondo=null;
+    function crear(){fondo=document.createElement('div');fondo.id='pdFondoHoja';fondo.setAttribute('aria-hidden','true');document.body.appendChild(fondo);
+      fondo.addEventListener('click',function(e){e.stopPropagation()});return fondo}
+    function alfa(c){var m=/rgba?\(([^)]+)\)/.exec(c);if(!m)return 0;var p=m[1].split(',');return p.length>3?parseFloat(p[3]):1}
+    var CAND='section.pdmSheet,section.panelSection,.notifDialog,[class*="Sheet"],[class*="sheet"],dialog[open],[role="dialog"]';
+    function hojaAbierta(){
+      var best=null,bz=-1;
+      document.querySelectorAll(CAND).forEach(function(e){
+        if(e.id==='pdFondoHoja'||!e.getClientRects().length)return;
+        var cs=getComputedStyle(e);if(cs.position!=='fixed'||cs.visibility==='hidden'||cs.display==='none'||parseFloat(cs.opacity)<0.5)return;
+        var r=e.getBoundingClientRect();if(!(r.bottom>=innerHeight-2&&r.top>24&&r.height>120))return;
+        var z=parseInt(cs.zIndex,10)||0;if(z>bz){bz=z;best=e}
+      });
+      return best?{h:best,z:bz}:null}
+    function yaTieneFondo(z){
+      var els=document.elementsFromPoint(Math.round(innerWidth/2),12);
+      for(var i=0;i<els.length;i++){var e=els[i];if(e.id==='pdFondoHoja')continue;var cs=getComputedStyle(e);if(cs.position!=='fixed')continue;
+        var r=e.getBoundingClientRect();if(r.top<=1&&r.height>=innerHeight-2&&r.width>=innerWidth-2&&alfa(cs.backgroundColor)>=0.2&&(parseInt(cs.zIndex,10)||0)<z)return true}
+      return false}
+    function zReal(h){for(var e=h;e&&e!==document.body;e=e.parentElement){var z=parseInt(getComputedStyle(e).zIndex,10);if(z)return z}return 0}
+    function revisar(){
+      var a=hojaAbierta();
+      if(!a){if(fondo&&!fondo.hidden){fondo.classList.remove('on');fondo.hidden=true}return}
+      /* si la hoja vive dentro de una capa fija transparente, el fondo va justo debajo de esa capa */
+      var z=a.z||zReal(a.h);
+      if(fondo&&!fondo.hidden&&fondo.__hoja===a.h)return;
+      if(fondo&&!fondo.hidden){fondo.hidden=true}
+      if(yaTieneFondo(z))return;
+      var f=fondo||crear();f.style.zIndex=String(z-1)
+      f.__hoja=a.h;f.hidden=false;void f.offsetWidth;f.classList.add('on')}
+    setInterval(revisar,250);
+  })();
+  if(document.documentElement.dataset.pdSinArrastre==='1')return;
+  var quieto=matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var CERRAR='[aria-label^="Cerrar"],[aria-label^="cerrar"],[data-close],.close,.pdpm-x,.pdmX,.notifClose,.pnaX,.pdoX';
+  function visible(b){return b&&b.offsetParent!==null&&b.getClientRects().length>0}
+  function botonCerrar(h){
+    var zonas=[h];var p=h.parentElement;for(var i=0;i<2&&p&&p!==document.body;i++){zonas.push(p);p=p.parentElement}
+    for(var z=0;z<zonas.length;z++){
+      var bs=zonas[z].querySelectorAll(CERRAR+',button');
+      for(var j=0;j<bs.length;j++){var b=bs[j];if(!visible(b))continue;
+        if(b.matches(CERRAR)||/^[×✕✖x]$/i.test((b.textContent||'').trim()))return b}
+    }
+    return null}
+  /* Una hoja es un bloque fijo pegado al borde inferior que no ocupa toda la pantalla */
+  /* se busca la hoja más externa: así se mueve entera (cabecera y cuerpo), no solo el cuerpo con scroll */
+  function hojaDe(t){
+    var mejor=null;
+    for(var e=t;e&&e!==document.body;e=e.parentElement){
+      if(e.id==='nav'||(e.tagName==='HEADER'&&e.classList.contains('top'))||e.id==='loginView')return null;
+      var cs=getComputedStyle(e),pa=e.parentElement,enCapa=pa&&pa!==document.body&&getComputedStyle(pa).position==='fixed';
+      if(cs.position==='fixed'||cs.position==='absolute'||enCapa){
+        var r=e.getBoundingClientRect();
+        if(r.bottom>=innerHeight-2&&r.top>24&&r.height>120&&r.width>=Math.min(innerWidth,320)-2){
+          if(cs.position==='absolute'&&!enCapa){var pp=e.offsetParent;if(!pp||getComputedStyle(pp).position!=='fixed')continue}
+          mejor=e}
+      }
+    }
+    return mejor}
+  function desplazado(t,h){for(var e=t;e&&e!==h.parentElement;e=e.parentElement){if(e.scrollTop>0)return true;if(e===h)break}return false}
+  function vibrar(ms){try{navigator.vibrate&&navigator.vibrate(ms)}catch(e){}}
+  var g=null;
+  function inicio(x,y,t){
+    if(quieto||!t||!t.closest)return;
+    if(t.closest('input,textarea,select,[contenteditable],.leaflet-container'))return;
+    var h=hojaDe(t);if(!h)return;
+    /* filas que se deslizan de lado (chips, pestañas): ahí no se arrastra la hoja */
+    for(var e=t;e&&e!==h;e=e.parentElement){var ox=getComputedStyle(e).overflowX;if((ox==='auto'||ox==='scroll')&&e.scrollWidth>e.clientWidth+2)return}
+    if(desplazado(t,h))return;
+    g={h:h,x0:x,y0:y,dy:0,t0:Date.now(),activo:false};
+  }
+  function mover(x,y,ev){
+    if(!g)return;var dx=x-g.x0,dy=y-g.y0;
+    if(!g.activo){
+      /* desde el primer movimiento hacia abajo se toma el gesto, para que el navegador no estire el contenido */
+      if(dy>0&&dy>=Math.abs(dx)&&ev&&ev.cancelable)ev.preventDefault();
+      if(Math.abs(dy)<10&&Math.abs(dx)<10)return;
+      if(dy<=0||Math.abs(dx)>Math.abs(dy)||!botonCerrar(g.h)){g=null;return}
+      g.activo=true;g.h.classList.add('pdArrastrando')}
+    g.dy=Math.max(0,dy);var ahora=Date.now();g.v=(g.dy-(g.dyAnt||0))/Math.max(1,ahora-(g.tAnt||g.t0));g.dyAnt=g.dy;g.tAnt=ahora;
+    g.h.style.setProperty('translate','0 '+(g.dy<120?g.dy:120+(g.dy-120)*0.85)+'px','important');
+    if(ev&&ev.cancelable)ev.preventDefault();
+  }
+  function fin(){
+    if(!g)return;var s=g;g=null;if(!s.activo)return;
+    var v=(Date.now()-(s.tAnt||0))<90?(s.v||0):0;var h=s.h;h.classList.remove('pdArrastrando');h.classList.add('pdSoltando');
+    if(s.dy>110||(v>0.55&&s.dy>40)){
+      h.style.setProperty('translate','0 '+(h.offsetHeight+40)+'px','important');vibrar(8);
+      setTimeout(function(){var b=botonCerrar(h);if(b)b.click();setTimeout(function(){h.style.removeProperty('translate');h.classList.remove('pdSoltando')},60)},230);
+    }else{h.style.setProperty('translate','0 0px','important');setTimeout(function(){h.style.removeProperty('translate');h.classList.remove('pdSoltando')},300)}
+    var anular=function(e){if(!e.isTrusted)return;e.stopPropagation();e.preventDefault();window.removeEventListener('click',anular,true)};
+    window.addEventListener('click',anular,true);setTimeout(function(){window.removeEventListener('click',anular,true)},350);
+  }
+  /* en fase de captura: algunas ventanas detienen los toques y así igual se detecta el arrastre */
+  document.addEventListener('touchstart',function(e){if(e.touches.length===1)inicio(e.touches[0].clientX,e.touches[0].clientY,e.target)},{passive:true,capture:true});
+  document.addEventListener('touchmove',function(e){if(g&&e.touches.length===1)mover(e.touches[0].clientX,e.touches[0].clientY,e)},{passive:false,capture:true});
+  document.addEventListener('touchend',fin,true);document.addEventListener('touchcancel',fin,true);
+  document.addEventListener('mousedown',function(e){if(e.button===0)inicio(e.clientX,e.clientY,e.target)},true);
+  document.addEventListener('mousemove',function(e){if(g)mover(e.clientX,e.clientY,e)},true);
+  document.addEventListener('mouseup',fin,true);
+  window.pdHojaDe=hojaDe;window.pdBotonCerrar=botonCerrar;
 })();
 </script>
 </body></html>
