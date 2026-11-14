@@ -2601,7 +2601,7 @@ async function enter(uid){
   actualizarEnlaceIndividualCarta();
   $('loginView').classList.add('hidden');$('appView').classList.remove('hidden');$('logout').classList.remove('hidden');$('nav').classList.remove('hidden');
   switchPanelTab('pedidos');
-  try{await ensureDefaultCategories()}catch(e){show($('appMsg'),'No se pudieron preparar las categorías de la carta: '+(e?.message||'error desconocido'));return}
+  try{await ensureDefaultCategories()}catch(e){console.warn('Categorías predeterminadas no creadas:',e?.message||e)}
   await loadCategories();await loadProducts();await loadBusinessOrders();if(window.pidemasBusinessOrdersTimer)clearInterval(window.pidemasBusinessOrdersTimer);window.pidemasBusinessOrdersTimer=setInterval(()=>{if(restaurant?.id)loadBusinessOrders()},8000)
 }
 function defaultCategoryNames(){
@@ -7091,6 +7091,12 @@ html:root body *{overscroll-behavior-y:none!important}
       if(!a){if(fondo&&!fondo.hidden){fondo.classList.remove('on');fondo.hidden=true}return}
       /* si la hoja vive dentro de una capa fija transparente, el fondo va justo debajo de esa capa */
       var z=a.z||zReal(a.h);
+      /* si la hoja vive dentro de una capa fija a pantalla completa: si esa capa ya oscurece, no se agrega nada; si es transparente, el fondo va debajo de ella */
+      for(var e=a.h.parentElement;e&&e!==document.body;e=e.parentElement){var cs=getComputedStyle(e);if(cs.position!=='fixed')continue;var r=e.getBoundingClientRect();
+        if(r.top<=1&&r.height>=innerHeight-2&&r.width>=innerWidth-2){
+          var oscura=alfa(cs.backgroundColor)>=0.2||[].some.call(e.children,function(k){if(k===a.h||k.contains(a.h))return false;var kc=getComputedStyle(k),kr=k.getBoundingClientRect();return kr.height>=innerHeight-2&&kr.width>=innerWidth-2&&alfa(kc.backgroundColor)>=0.2});
+          if(oscura){if(fondo&&!fondo.hidden){fondo.classList.remove('on');fondo.hidden=true}return}
+          z=parseInt(cs.zIndex,10)||z;break}}
       if(fondo&&!fondo.hidden&&fondo.__hoja===a.h)return;
       if(fondo&&!fondo.hidden){fondo.hidden=true}
       if(yaTieneFondo(z))return;
@@ -7225,14 +7231,7 @@ html:root body:not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#
     return p==='granted';
   }
   function logo(){const im=document.querySelector('#loginView .lg-logo img, .lg-logo img');return im&&im.getAttribute('src')?`<img class="pgLogoImg" alt="Pidemás Delivery" src="${im.getAttribute('src')}">`:'<div class="pgLogo">PIDEMÁS</div>'}
-  /* Estado en la pantalla principal: solo informativo, no se puede tocar */
-  function estado(ok){
-    let c=document.getElementById('pdConexion');
-    if(!c){const ancla=document.getElementById(PIDE_GPS?'gpsStatus':'pdxBanner')||document.getElementById('pdnBanner');if(!ancla||!ancla.parentElement)return;
-      c=document.createElement('div');c.id='pdConexion';c.setAttribute('aria-label','Estado de conexión');ancla.after(c)}
-    c.innerHTML=(PIDE_GPS?'<span class="pcx"><i></i>Ubicación conectada</span>':'')+'<span class="pcx"><i></i>Avisos conectados</span>';
-    c.hidden=!ok;
-  }
+    function estado(ok){const c=document.getElementById('pdConexion');if(c)c.remove()}
   function pintar(okG,okN){
     if(!gate){gate=document.createElement('div');gate.id='pdPermGate';gate.setAttribute('role','dialog');gate.setAttribute('aria-modal','true');document.body.appendChild(gate)}
     const item=(k,t,s,ok)=>`<div class="pgItem"><span class="pgIco">${ICO[k]}</span><span class="pgTx"><b>${t}</b><small>${s}</small></span>${ok?'<span class="pgOk">✓ Listo</span>':`<button type="button" class="pgBtn" data-pg="${k}">Activar</button>`}</div>`;
