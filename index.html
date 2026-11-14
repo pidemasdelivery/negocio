@@ -5595,16 +5595,15 @@ window.pdMapa={elegir,tarjeta,coords,linkDe,leaflet,PIN,repintar:()=>tarjetas.fo
     const FOOD=['restaurantes','comida criolla','pizzerías','pollerías','hamburgueserías','comida rápida','sangucherías','paviferías','cevicherías','chifas','sushi y comida japonesa','parrillas y anticuchos','heladerías','cafeterías','juguerías','dulcerías y pastelerías','panaderías'];
     const cat=String(r.categoria_negocio||r.categoria||r.tipo_negocio||'').trim().toLowerCase();
     const esComida=FOOD.includes(cat)||/restaur|comida|poll|pizz|hambur|sangu|cevich|chifa|sushi|parrill|anticuch|helad|cafe|jugu|dulce|pastel|panader|polleri|broaster|menu|men[uú]/.test(cat);
-    let sh=$('pdxDescSheet');
+    let sh=$('pdxDescSheet')||window.__pdxDsEl;
     if(!sh){
-      sh=document.createElement('div');sh.id='pdxDescSheet';sh.hidden=true;
-      sh.innerHTML='<div class="pdxDsBg"></div><div class="pdxDsCard" role="dialog" aria-label="Descartables"><div class="pdxDsGrip"></div><div class="pdxDsHead"><span><span class="x-kick">Productos</span><strong>Descartables</strong></span><button type="button" class="x-icon sm" id="pdxDsX" aria-label="Cerrar">×</button></div><div class="pdxDsBody" id="pdxDsBody"></div></div>';
-      document.body.appendChild(sh);
-      const cerrarDs=()=>{sh.hidden=true;document.documentElement.classList.remove('pdxDsOn')};
-      sh.querySelector('.pdxDsBg').addEventListener('click',cerrarDs);sh.querySelector('#pdxDsX').addEventListener('click',cerrarDs);
+      sh=document.createElement('div');sh.id='pdxDescSheet';sh.className='x-panel';sh.hidden=true;window.__pdxDsEl=sh;
+      sh.innerHTML='<div class="x-panelHead"><strong>Descartables</strong><button type="button" class="x-icon sm" id="pdxDsX" aria-label="Cerrar">×</button></div><div class="pdxDsBody" id="pdxDsBody"></div>';
+      const cerrarDs=()=>{sh.hidden=true};
+      sh.querySelector('#pdxDsX').addEventListener('click',cerrarDs);
       window.pdCerrarDescartables=cerrarDs;
     }
-    const body=$('pdxDsBody');
+    const body=sh.querySelector('#pdxDsBody');
     ['pdxDescRow','pdxDescPrecioBox','pdxDescMsg'].forEach(id=>{const el=$(id);if(el&&body&&el.parentElement!==body)body.appendChild(el)});
     const dr=$('pdxDescRow');if(dr&&!dr.dataset.pdx){dr.dataset.pdx='1';const st=dr.querySelector('strong');if(st)st.textContent='Cobrar descartables';const sm=dr.querySelector('small');if(sm)sm.textContent='Actívalo para sumar el precio de los descartables a tus pedidos.'}
     const pb=$('pdxDescPrecioBox');if(pb&&!pb.dataset.pdx){pb.dataset.pdx='1';const sp=pb.querySelector(':scope > span');if(sp)sp.innerHTML='<b>Precio por unidad</b><small>Vacío = no lo ofreces · 0 = gratis</small>';
@@ -5614,8 +5613,11 @@ window.pdMapa={elegir,tarjeta,coords,linkDe,leaflet,PIN,repintar:()=>tarjetas.fo
     }
     const fila=$('pdxAddCat')&&$('pdxAddCat').closest('.x-grid2');
     let bt=$('pdxDescBtn');
-    if(fila&&!bt){bt=document.createElement('button');bt.type='button';bt.id='pdxDescBtn';bt.className='x-btn light';bt.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 8h14l-1.2 11.2a2 2 0 0 1-2 1.8H8.2a2 2 0 0 1-2-1.8z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg><span>Configurar descartables</span>';bt.addEventListener('click',()=>{sh.hidden=false;document.documentElement.classList.add('pdxDsOn')});fila.after(bt)}
+    if(fila&&!bt){bt=document.createElement('button');bt.type='button';bt.id='pdxDescBtn';bt.className='x-btn light';bt.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 8h14l-1.2 11.2a2 2 0 0 1-2 1.8H8.2a2 2 0 0 1-2-1.8z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg><span>Configurar descartables</span>';bt.addEventListener('click',()=>{const abrir=sh.hidden;['pdxCatPanel','pdxProdPanel'].forEach(id=>{const x=$(id);if(x)x.hidden=true});sh.hidden=!abrir;if(abrir)setTimeout(()=>{try{sh.scrollIntoView({behavior:'smooth',block:'start'})}catch(e){}},60)});fila.after(bt);
+      ['pdxAddCat','pdxAddProd'].forEach(id=>{const x=$(id);if(x)x.addEventListener('click',()=>{sh.hidden=true},true)})}
+    if(bt&&sh.previousElementSibling!==bt)bt.after(sh);
     if(bt&&bt.hidden===esComida)bt.hidden=!esComida;
+    if(bt&&bt.hidden)sh.hidden=true;
   }
   setInterval(()=>{try{mover()}catch(e){}},700);
 })();
@@ -7136,7 +7138,10 @@ armar();
   const neg=()=>{try{return restaurant}catch(e){return null}};
   const KEYS=['taper_p','taper_g','vaso_p','vaso_g','bolsa','cubiertos'];
   let tGuardar=null;
-  const aviso=(t,mal)=>{const m=$('pdxDescMsg');if(m){m.textContent=t||'';m.className=mal?'bad':''}};
+  const aviso=(t,mal)=>{const m=$('pdxDescMsg');if(m){m.textContent='';m.className=''}
+    if(!t||/^Guardando/.test(t))return;
+    if(mal){if(window.pdInfo)window.pdInfo(t);else if(window.pdAviso)window.pdAviso(t);return}
+    if(window.pdExito)window.pdExito('Cambios guardados');else if(window.pdAviso)window.pdAviso(t)};
   function msgError(e){
     const m=String((e&&e.message)||e||'');
     return /descartables|column|schema/i.test(m)?'Falta crear las columnas de descartables en Supabase. Avisa al administrador.':'No se pudo guardar: '+m;
@@ -7174,19 +7179,20 @@ armar();
     tog.addEventListener('click',async()=>{
       const nuevo=!tog.classList.contains('on');
       tog.disabled=true;
-      const ok=await guardar({descartables_activo:nuevo},nuevo?'Listo: tus pedidos incluirán los descartables que configures.':'Descartables apagados.');
+      const ok=await guardar({descartables_activo:nuevo},'Cambios guardados');
       tog.disabled=false;
       if(ok){tog.classList.toggle('on',nuevo);box.hidden=!nuevo}
     });
+    if(!$('pdxDescSave')){const sv=document.createElement('button');sv.type='button';sv.id='pdxDescSave';sv.className='x-btn';sv.textContent='Guardar precios';box.appendChild(sv)}
     const enviar=async()=>{
       clearTimeout(tGuardar);
       const cfg={};
       for(const k of KEYS){const v=leer(k);if(v===undefined){aviso('Escribe precios válidos, por ejemplo 0.50.',true);return}cfg[k]=v}
-      if(JSON.stringify(cfg)===JSON.stringify(Object.assign({},...KEYS.map(k=>({[k]:cfgActual()[k]===undefined?null:cfgActual()[k]})))))return;
+      if(JSON.stringify(cfg)===JSON.stringify(Object.assign({},...KEYS.map(k=>({[k]:cfgActual()[k]===undefined?null:cfgActual()[k]})))))return aviso('Cambios guardados');
       const prodActual=cfgActual().prod;if(prodActual&&typeof prodActual==='object')cfg.prod=prodActual;
       await guardar({descartables_config:cfg},'Precios guardados.');
     };
-    KEYS.forEach(k=>{const el=$('pdxDc_'+k);el.addEventListener('input',()=>{clearTimeout(tGuardar);aviso('');tGuardar=setTimeout(enviar,1000)});el.addEventListener('blur',enviar)});
+    $('pdxDescSave').addEventListener('click',async()=>{const b=$('pdxDescSave');b.disabled=true;b.textContent='Guardando…';try{await enviar()}finally{b.disabled=false;b.textContent='Guardar precios'}});
   }
   setInterval(()=>{try{conectar()}catch(e){}},700);
 
@@ -7910,6 +7916,23 @@ html:root body:not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#
   setInterval(pasar,1000);
 })();
 </script>
+
+<style id="pd-descartables-panel">
+/* Descartables: se abre en la página como «Nueva categoría» (ya no en ventana) */
+html:root body:not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ) #pdxDescSheet{position:static!important;inset:auto!important;z-index:auto!important;box-shadow:none!important}
+html:root body:not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ) #pdxDescSheet[hidden]{display:none!important}
+html:root body:not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ) #pdxDescSheet .x-panelHead{display:flex!important;justify-content:space-between!important;align-items:center!important;gap:10px!important;margin:0 0 12px!important}
+html:root body:not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ) #pdxDescSheet .pdxDsBody{display:flex!important;flex-direction:column!important;gap:12px!important;padding:0!important;border:0!important;background:transparent!important}
+html:root body:not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ) #pdxDescSheet #pdxDescPrecioBox{padding:6px 14px 14px!important}
+html:root body:not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ) #pdxDescSheet #pdxDescMsg{display:none!important}
+html:root body:not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ) #pdxDescSheet #pdxDescSave{width:100%!important;margin:12px 0 0!important}
+html:root body:not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ) #pdxDescSheet :is(*,.x-swRow,#pdxDescPrecioBox,input,button,.x-btn){box-shadow:none!important}
+html:root body:not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ) #pdxDescSheet .x-tog::after{box-shadow:0 1px 2px rgba(0,0,0,.15)!important}
+/* Mapas sin sombra */
+html:root body:not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ) :is([id*="Mapa"],[id*="mapa"],[id*="Map"],[class*="Mapa"],[class*="mapa"],[class*="mapWrap"],.leaflet-container),
+html:root body:not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ) :is([id*="Mapa"],[id*="mapa"],[id*="Map"],[class*="Mapa"],[class*="mapa"],[class*="mapWrap"],.leaflet-container) *{box-shadow:none!important;text-shadow:none!important}
+html:root body:not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ) .leaflet-marker-shadow{display:none!important}
+</style>
 </body></html>
 
 <script id="pidemas-negocio-pro-js">
