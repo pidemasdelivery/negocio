@@ -5608,7 +5608,7 @@ window.pdMapa={elegir,tarjeta,coords,linkDe,leaflet,PIN,repintar:()=>tarjetas.fo
     const dr=$('pdxDescRow');if(dr&&!dr.dataset.pdx){dr.dataset.pdx='1';const st=dr.querySelector('strong');if(st)st.textContent='Cobrar descartables';const sm=dr.querySelector('small');if(sm)sm.textContent='Actívalo para sumar el precio de los descartables a tus pedidos.'}
     const pb=$('pdxDescPrecioBox');if(pb&&!pb.dataset.pdx){pb.dataset.pdx='1';const sp=pb.querySelector(':scope > span');if(sp)sp.innerHTML='<b>Precio por unidad</b><small>Vacío = no lo ofreces · 0 = gratis</small>';
       const IC={taper:'🥡',vaso:'🥤',bolsa:'🛍️',cubiertos:'🍴'};
-      pb.querySelectorAll('.pdxDcF').forEach(f=>{const lab=f.querySelector('span');const tx=(lab&&lab.textContent||'').toLowerCase();const k=tx.includes('taper')?'taper':tx.includes('vaso')?'vaso':tx.includes('bolsa')?'bolsa':'cubiertos';if(lab){lab.innerHTML='<i>'+IC[k]+'</i><span>'+lab.textContent.replace(/\s*\(.*\)\s*/,'')+'</span>'+(k==='taper'||k==='vaso'?'<em>Se elige en cada producto</em>':k==='bolsa'?'<em>Va en cada pedido</em>':'<em>Lo pide el cliente</em>')}
+      pb.querySelectorAll('.pdxDcF').forEach(f=>{const lab=f.querySelector('span');const tx=(lab&&lab.textContent||'').toLowerCase();const k=tx.includes('taper')?'taper':tx.includes('vaso')?'vaso':tx.includes('bolsa')?'bolsa':'cubiertos';if(lab){lab.innerHTML='<span>'+lab.textContent.replace(/\s*\(.*\)\s*/,'')+'</span>'+(k==='taper'||k==='vaso'?'<em>Se elige en cada producto</em>':k==='bolsa'?'<em>Va en cada pedido</em>':'<em>Lo pide el cliente</em>')}
         const inp=f.querySelector('input');if(inp&&!f.querySelector('.pdxDcS')){const w=document.createElement('span');w.className='pdxDcS';w.textContent='S/';inp.before(w)}});
     }
     const fila=$('pdxAddCat')&&$('pdxAddCat').closest('.x-grid2');
@@ -7035,10 +7035,10 @@ armar();
   /* Opciones de tiempo: las mismas que el negocio elige en «Mi perfil» (Tiempo de entrega) */
   function opcTiempo(){
     var OPC=['10–20 min','20–30 min','30–40 min'],r=null;try{r=restaurant}catch(e){}
-    var v=String(r&&r.tiempo_estimado||'').trim().replace(/\s*-\s*/,'–');
-    if(v&&!/min/i.test(v))v+=' min';
-    if(v&&/\d/.test(v)&&OPC.indexOf(v)<0)OPC=[v].concat(OPC);
-    return {ops:OPC.map(function(t){var ns=(t.match(/\d+/g)||['15']).map(Number);return {t:t,n:ns[ns.length-1]}}),def:v};
+    var ops=OPC.map(function(t){var ns=t.match(/\d+/g).map(Number);return {t:t,n:ns[1]}});
+    var ns=(String(r&&r.tiempo_estimado||'').match(/\d+/g)||[]).map(Number),hi=ns.length?ns[ns.length-1]:0;
+    var def=ops[0];if(hi)ops.forEach(function(x){if(Math.abs(x.n-hi)<Math.abs(def.n-hi))def=x});
+    return {ops:ops,def:def.t};
   }
   var DET={};
   function marcaJSON(obs,mk){var t=String(obs||''),i=t.indexOf(mk);if(i<0)return null;var j=i+mk.length,p=0,k=j;if(t.charAt(j)!=='{')return null;for(;k<t.length;k++){if(t[k]==='{')p++;else if(t[k]==='}'){p--;if(!p){k++;break}}}try{return JSON.parse(t.slice(j,k))}catch(e){return null}}
@@ -7106,17 +7106,31 @@ armar();
     b+='<div class="pdoCard">'+(st.k!=='cancel'?'<div class="pdoBars">'+STEPS.map(function(_,i){return '<i class="'+(st.i>=i?'on':'')+'"></i>'}).join('')+'</div>':'')+'<div class="pdoStep">'+E(stepTxt)+'</div>'
       +(o.en_local_en&&['asignado','aceptado','pedido_aceptado','camino_recojo'].indexOf(String(o.estado||'').toLowerCase())>=0?'<div class="pdoNote"><b>'+E(mn||'El motorizado')+' llegó a tu local.</b> Pídele el código y compáralo: <b style="font-size:18px">'+E(o.codigo_recojo||'—')+'</b></div>':'')+'</div>';
     var tel=String(o.telefono_cliente||'').replace(/[^\d+]/g,'');
-    b+='<div class="pdoCard"><h4>Cliente</h4><div class="pdoRow"><span>Nombre</span><b>'+E(o.nombre_cliente||'Cliente')+'</b></div>'+(o.telefono_cliente?'<div class="pdoRow"><span>Teléfono</span><b>'+E(o.telefono_cliente)+'</b></div>':'')
-      +(o.motorizado_id&&st.k!=='cancel'?'<div class="pdoRow"><span>Motorizado</span><b>'+E(mn||'Asignado')+'</b></div>':'')
-      +(o.direccion_entrega?'<div class="pdoRow"><span>Entrega</span><b>'+E(o.direccion_entrega)+'</b></div>':'')+(o.referencia_entrega?'<div class="pdoRow"><span>Referencia</span><b>'+E(o.referencia_entrega)+'</b></div>':'')
-      +'<div class="pdoPair"><button type="button" class="pdoBtn" onclick="businessWhatsApp(\''+E(id)+'\')">WhatsApp</button>'+(tel?'<a class="pdoBtn" href="tel:'+E(tel)+'">Llamar</a>':'')+'</div></div>';
+    var rn=null;try{rn=restaurant}catch(e){}
+    var dirNeg=rn&&(rn.direccion||rn.direccion_restaurante||rn.direccion_comercial)||'';
+    var ubi=(String(o.observaciones||'').match(/Ubicaci[oó]n[^:]{0,20}:\s*(https?:\/\/[^\s|·]+)/i)||[])[1]||(o.latitud_entrega&&o.longitud_entrega?'https://www.google.com/maps?q='+o.latitud_entrega+','+o.longitud_entrega:'');
+    b+='<div class="pdoCard pdoRuta"><h4>Recorrido</h4>'
+      +'<div class="pdRStop"><i></i><div><small>Recojo · Tu negocio</small><b>'+E(rn&&rn.nombre||'Tu negocio')+'</b>'+(dirNeg?'<span>'+E(dirNeg)+'</span>':'')+(o.motorizado_id&&st.k!=='cancel'?'<span>Motorizado: <strong>'+E(mn||'Asignado')+'</strong></span>':'')+'</div></div>'
+      +'<div class="pdRStop fin"><i></i><div><small>Entrega · Cliente</small><b>'+E(o.nombre_cliente||'Cliente')+'</b>'+(o.telefono_cliente?'<span>'+E(o.telefono_cliente)+'</span>':'')+(o.direccion_entrega?'<span>'+E(o.direccion_entrega)+'</span>':'')+(o.referencia_entrega?'<span class="ref">Referencia: '+E(o.referencia_entrega)+'</span>':'')+'</div></div>'
+      +'<div class="pdoPair"><button type="button" class="pdoBtn" onclick="businessWhatsApp(\''+E(id)+'\')">WhatsApp</button>'+(tel?'<a class="pdoBtn" href="tel:'+E(tel)+'">Llamar</a>':'')+'</div>'
+      +(ubi?'<a class="pdoBtn pdRMap" href="'+E(ubi)+'" target="_blank" rel="noopener">Ver ubicación del cliente</a>':'')+'</div>';
     b+='<div class="pdoCard pdoPed"><h4>Pedido'+(items.length?'<span class="pdAcnt">'+items.length+(items.length===1?' producto':' productos')+'</span>':'')+'</h4><div class="pdOrgItems">'+lines+'</div>'+dh
       +'<div class="pdOrgSum"><div class="pdOrgRow"><span>Productos</span><b>'+(Number.isFinite(sub)?money(sub):'—')+'</b></div><div class="pdOrgRow"><span>Delivery'+(dsub?'<small class="pdOrgNote">'+E(dsub)+'</small>':'')+'</span><b>'+(Number.isFinite(del)?money(del):'Por confirmar')+'</b></div>'+dsubs+'<div class="pdOrgTot"><span>Total</span><b>'+(Number.isFinite(total)?money(total):'—')+'</b></div></div>';
-    var n=nota(o.observaciones);if(n)b+='<div class="pdoNote"><b>Nota del cliente:</b> '+E(n)+'</div>';
+    var n=nota(o.observaciones);
     var cp=comprobante(o.observaciones);
     if(cp)b+='<div class="pdoNote"><b>Comprobante solicitado</b><br>'+(cp.tipo==='factura'?'Factura · RUC '+E(cp.numero)+'<br>'+E(cp.razon_social||'')+(cp.direccion_fiscal?'<br>'+E(cp.direccion_fiscal):''):'Boleta · DNI '+E(cp.numero)+(cp.nombre?'<br>'+E(cp.nombre):''))+'</div>';
     if(/PRODUCTO_MAYOR_18_VERIFICAR_DNI/.test(String(o.observaciones||'')))b+='<div class="pdoNote warn">Producto +18: el motorizado verificará el DNI del cliente al entregar.</div>';
     b+='</div>';
+    if(n)b+='<div class="pdoCard"><h4>Notas del servicio</h4><div class="pdRNota">'+E(n)+'</div></div>';
+    if(st.k!=='nuevo'){
+      var mp=String(o.metodo_pago||'').toLowerCase(),pa=String(o.pago_acordado||'').toLowerCase();
+      var mtx=pa==='solo_delivery'?'Productos pagados al negocio':pa==='pagado'?'Todo pagado':mp==='efectivo'?'Efectivo':mp==='yape'?'Yape':(o.metodo_pago||'No registrado');
+      var etx=o.pago_confirmado===true?'Pago confirmado':pa==='efectivo'?'El motorizado cobra en efectivo':pa==='yape'?'El motorizado cobra con Yape (QR)':pa==='solo_delivery'?'El motorizado cobra solo el delivery':pa==='pagado'?'El motorizado no cobra':'Pendiente';
+      var cob=pa==='pagado'?0:pa==='solo_delivery'?(Number(o.costo_delivery)||0):(Number(o.total)||0);
+      var ef=efectivo(o),pex='';
+      if(mp==='efectivo'&&ef&&Number(ef.monto)>0)pex='<div class="pdOrgRow"><span>Paga con</span><b>'+money(ef.monto)+'</b></div><div class="pdOrgRow"><span>Vuelto</span><b>'+money(Math.max(0,Number(ef.vuelto!=null?ef.vuelto:(ef.monto-(Number(o.total)||0)))||0))+'</b></div>';
+      b+='<div class="pdoCard pdoPed"><h4>Pago</h4><div class="pdOrgRow"><span>Método de pago</span><b>'+E(mtx)+'</b></div><div class="pdOrgRow"><span>Estado del pago</span><b><span class="pdRPill">'+E(etx)+'</span></b></div>'+pex+'<div class="pdOrgTot"><span>'+(pa==='solo_delivery'?'Delivery · cobrar al cliente':'Monto a cobrar')+'</span><b>'+money(cob)+'</b></div></div>';
+    }
     if(st.k==='nuevo')b+=cuerpoNuevo(o,id);
     else if(st.k==='cobrar')b+='<div class="pdoCard"><h4>Cobro</h4><div class="pdoNote" style="margin:0">Escribe al cliente por WhatsApp con el total y confirma cuando hayas recibido el pago.</div></div>';
     var main='';
@@ -8001,6 +8015,31 @@ html body #pdoModal .pdoPed .pdOrgSub em{font-style:normal!important}
 html body #pdoModal .pdoPed .pdOrgTot{display:flex!important;align-items:baseline!important;justify-content:space-between!important;gap:10px!important;margin:6px 0 0!important;padding:10px 0 0!important;border-top:1px solid var(--fr-line,#F1E4DA)!important}
 html body #pdoModal .pdoPed .pdOrgTot > span{font-size:16px!important;font-weight:800!important;color:var(--fr-orange,#C4410C)!important}
 html body #pdoModal .pdoPed .pdOrgTot > b{font-size:22px!important;font-weight:800!important;color:var(--fr-orange,#C4410C)!important}
+</style>
+
+<style id="pd-neg-detalle-admin-2">
+/* Recorrido y pago como en el admin */
+html body #pdoModal .pdoRuta .pdRStop{position:relative!important;display:grid!important;grid-template-columns:18px minmax(0,1fr)!important;gap:10px!important;padding:0 0 14px!important}
+html body #pdoModal .pdoRuta .pdRStop > i{position:relative!important;display:block!important;width:12px!important;height:12px!important;margin:4px 0 0 3px!important;border-radius:50%!important;border:3px solid #C4410C!important;background:#fff!important;box-sizing:border-box!important}
+html body #pdoModal .pdoRuta .pdRStop:not(.fin)::before{content:""!important;position:absolute!important;left:8px!important;top:18px!important;bottom:0!important;width:2px!important;background:#F1E4DA!important}
+html body #pdoModal .pdoRuta .pdRStop.fin > i{background:#C4410C!important}
+html body #pdoModal .pdoRuta .pdRStop > div{display:flex!important;flex-direction:column!important;gap:3px!important;min-width:0!important}
+html body #pdoModal .pdoRuta .pdRStop small{font:700 11px/1.2 var(--font)!important;letter-spacing:.06em!important;text-transform:uppercase!important;color:#7A6A60!important}
+html body #pdoModal .pdoRuta .pdRStop b{font:800 16px/1.25 var(--font)!important;color:#1F1A17!important}
+html body #pdoModal .pdoRuta .pdRStop span{font:500 14px/1.35 var(--font)!important;color:#4A3F38!important;overflow-wrap:anywhere!important}
+html body #pdoModal .pdoRuta .pdRStop span.ref{color:#7A6A60!important}
+html body #pdoModal .pdoRuta .pdRMap{display:flex!important;align-items:center!important;justify-content:center!important;width:100%!important;margin:10px 0 0!important;text-decoration:none!important}
+html body #pdoModal .pdRNota{font:500 14.5px/1.45 var(--font)!important;color:#1F1A17!important;white-space:pre-wrap!important}
+html body #pdoModal .pdRPill{display:inline-block!important;padding:4px 10px!important;border-radius:999px!important;background:#FFF4EC!important;color:#C4410C!important;font:700 12.5px/1.2 var(--font)!important}
+/* Descartables sin íconos */
+html:root body:not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ) #pdxDescSheet .pdxDcF > span:first-child{grid-template-columns:1fr!important}
+html:root body:not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ) #pdxDescSheet .pdxDcF > span:first-child i{display:none!important}
+html:root body:not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ) #pdxDescSheet .pdxDcF > span:first-child span,html:root body:not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ) #pdxDescSheet .pdxDcF > span:first-child em{grid-row:auto!important}
+/* Mapas sin sombra ni velo oscuro */
+html:root body:not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ) .pdmc .pdmcMp::after{display:none!important;background:none!important}
+html:root body:not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ) :is(.pdmc,#pdmcFull) .pdmcPin::after{display:none!important}
+html:root body:not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ) :is(.pdmc,#pdmcFull),html:root body:not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ) :is(.pdmc,#pdmcFull) *{box-shadow:none!important;text-shadow:none!important}
+html:root body:not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ) :is(.pdmc,#pdmcFull) .pdmcPin{filter:none!important}
 </style>
 </body></html>
 
