@@ -7032,9 +7032,34 @@ armar();
   var abierto=null,sig='',pendienteCierre=false,timer=null;
   function firma(o){return [o.estado,o.pago_negocio_confirmado,o.listo_para_recojo,o.motorizado_id,o.en_local_en,o.total].join('|')}
 
+  /* Opciones de tiempo: las mismas que el negocio elige en «Mi perfil» (Tiempo de entrega) */
+  function opcTiempo(){
+    var OPC=['10–20 min','20–30 min','30–40 min'],r=null;try{r=restaurant}catch(e){}
+    var v=String(r&&r.tiempo_estimado||'').trim().replace(/\s*-\s*/,'–');
+    if(v&&!/min/i.test(v))v+=' min';
+    if(v&&/\d/.test(v)&&OPC.indexOf(v)<0)OPC=[v].concat(OPC);
+    return {ops:OPC.map(function(t){var ns=(t.match(/\d+/g)||['15']).map(Number);return {t:t,n:ns[ns.length-1]}}),def:v};
+  }
+  var DET={};
+  function marcaJSON(obs,mk){var t=String(obs||''),i=t.indexOf(mk);if(i<0)return null;var j=i+mk.length,p=0,k=j;if(t.charAt(j)!=='{')return null;for(;k<t.length;k++){if(t[k]==='{')p++;else if(t[k]==='}'){p--;if(!p){k++;break}}}try{return JSON.parse(t.slice(j,k))}catch(e){return null}}
+  function itemsDe(o,id){
+    var d=o.detalle_pedidos||o.items||o.productos;if(Array.isArray(d)&&d.length)return d;
+    var c=DET[id];if(c&&c.rows&&c.rows.length)return c.rows;
+    if(!c||(!c.busy&&!c.fin))traer(id);
+    return [];
+  }
+  function traer(id){
+    var c=DET[id]||(DET[id]={n:0});if(c.busy)return;c.busy=true;
+    var fin=function(rows){c.busy=false;c.n++;if(rows&&rows.length){c.rows=rows;c.fin=true;try{var o=buscar(id);if(o)o.detalle_pedidos=rows}catch(e){}}else if(c.n>=4)c.fin=true;
+      if(abierto===id){if(c.fin)pintar();else setTimeout(function(){if(abierto===id)pintar()},2500)}};
+    try{db.from('detalle_pedidos').select('*').eq('pedido_id',id).then(function(r){fin(r&&!r.error?r.data:null)},function(){fin(null)})}catch(e){fin(null)}
+  }
   function cuerpoNuevo(o,id){
-    var m=String(o.metodo_pago||'').toLowerCase(),sel=window.__pdxT[id]||15,h='';
-    var tiempo='<div class="pdoStepLbl">'+(m==='efectivo'?'1':'3')+' · ¿En cuánto estará listo?</div><div class="pdoChips">'+[10,15,20,30].map(function(n){return '<button type="button" class="'+(n===sel?'on':'')+'" onclick="pdoTiempo(\''+E(id)+'\','+n+')">'+n+' min</button>'}).join('')+'</div>';
+    var m=String(o.metodo_pago||'').toLowerCase(),h='';
+    var OT=opcTiempo(),defOp=OT.ops.filter(function(x){return x.t===OT.def})[0]||OT.ops[0];
+    if(!window.__pdxT[id]||!OT.ops.some(function(x){return x.n===window.__pdxT[id]}))window.__pdxT[id]=defOp.n;
+    var sel=window.__pdxT[id];
+    var tiempo='<div class="pdoStepLbl">'+(m==='efectivo'?'1':'3')+' · ¿En cuánto estará listo?</div><div class="pdoChips">'+OT.ops.map(function(x){return '<button type="button" class="'+(x.n===sel?'on':'')+'" onclick="pdoTiempo(\''+E(id)+'\','+x.n+')">'+E(x.t)+'</button>'}).join('')+'</div>';
     if(m==='efectivo'){
       window.__pdxP[id]='efectivo';
       var d=efectivo(o),tot=Number(o.total)||0;
@@ -7054,8 +7079,23 @@ armar();
   function armar(o){
     var id=String(o.id),st=stage(o),total=Number(o.total),del=Number(o.costo_delivery);
     var sub=Number.isFinite(Number(o.subtotal))?Number(o.subtotal):(Number.isFinite(total)&&Number.isFinite(del)?total-del:NaN);
-    var items=Array.isArray(o.detalle_pedidos)?o.detalle_pedidos:[];
-    var lines=items.map(function(x){var q=Math.max(1,Number(x.cantidad)||1),s=Number(x.subtotal!=null?x.subtotal:x.total_linea),u=Number(x.precio_unitario!=null?x.precio_unitario:x.precio);var v=Number.isFinite(s)?s:Number.isFinite(u)?u*q:null;return '<div class="pdoItem"><span><b>'+q+'×</b>'+E(x.nombre_producto||x.nombre||'Producto')+'</span><em>'+(v!==null?money(v):'')+'</em></div>'}).join('')||'<div class="pdoItem"><span>Detalle no disponible</span></div>';
+    var items=itemsDe(o,id);
+    var valor=function(x){var q=Math.max(1,Number(x.cantidad||x.qty)||1),s=Number(x.subtotal!=null?x.subtotal:x.total_linea),u=Number(x.precio_unitario!=null?x.precio_unitario:x.precio);return Number.isFinite(s)&&s>0?s:Number.isFinite(u)?u*q:null};
+    if(!Number.isFinite(sub)&&items.length)sub=items.reduce(function(a,x){return a+(valor(x)||0)},0);
+    var lines=items.map(function(x){var q=Math.max(1,Number(x.cantidad||x.qty)||1),v=valor(x);return '<div class="pdOrgItem"><b>'+q+'×</b><span>'+E(x.nombre_producto||x.producto_nombre||x.nombre||(x.productos&&x.productos.nombre)||'Producto')+'</span><em>'+(v!==null?money(v):'')+'</em></div>'}).join('')
+      ||'<div class="pdOrgEmpty">'+(DET[id]&&DET[id].fin?'No se encontraron los productos de este pedido.':'Cargando productos…')+'</div>';
+    var dh='',dm=marcaJSON(o.observaciones,'__PIDEMAS_DESCARTABLES__');
+    if(dm){var ya=items.map(function(x){return String(x.nombre_producto||x.nombre||'').trim().toLowerCase()});var dl=(Array.isArray(dm.items)?dm.items:[]).map(function(x){return{n:String(x&&x.n||'').trim(),p:Number(x&&x.p)||0}}).filter(function(x){return x.n&&!(x.p>0&&ya.indexOf(x.n.toLowerCase())>=0)});var cpp=Number(dm.cubiertos_precio)||0;
+      dh='<div class="pdADesc"><b>Con descartables</b>'+dl.map(function(x){return '<div class="pdADescRow"><span>'+E(x.n)+'</span><em>'+(x.p>0?money(x.p):'Incluido')+'</em></div>'}).join('')+'<div class="pdADescRow"><span>Cubiertos</span><em>'+(dm.cubiertos===true?(cpp>0?money(cpp):'Sí · gratis'):'No')+'</em></div></div>'}
+    var dsub='',dsubs='';
+    try{var dd=window.pdTarifa&&window.pdTarifa.desgloseDePedido&&window.pdTarifa.desgloseDePedido(o.observaciones);
+      if(dd){var km=Number(dd.km),det=Array.isArray(dd.detalle)?dd.detalle:[],PP=[];
+        if(Number.isFinite(km)&&km>0)PP.push(km.toFixed(1)+' km');
+        if(dd.zona)PP.push('Zona '+dd.zona);
+        if(det.length===1){var cc=String(det[0].concepto||'').trim();if(cc&&!(dd.zona&&/^zona/i.test(cc)))PP.push(cc)}
+        else dsubs=det.map(function(x){return '<div class="pdOrgSub"><span>'+E(x.concepto)+'</span><em>'+(Number(x.monto)<0?'− ':'')+money(Math.abs(Number(x.monto)))+'</em></div>'}).join('');
+        if(Number(dd.descuento_delivery)>0)dsubs+='<div class="pdOrgSub"><span>Descuento'+(dd.codigo_descuento?' ('+E(dd.codigo_descuento)+')':'')+'</span><em>− '+money(dd.descuento_delivery)+'</em></div>';
+        dsub=PP.join(' · ')}}catch(x){}
     var pillTxt=st.k==='cancel'?'Cancelado':st.k==='nuevo'?'Nuevo':STEPS[st.i];
     var pillCls=st.k==='nuevo'?'nuevo':st.k==='cancel'?'cancel':'';
     var mn=o.motorizado_nombre||o.nombre_motorizado||'';
@@ -7070,7 +7110,8 @@ armar();
       +(o.motorizado_id&&st.k!=='cancel'?'<div class="pdoRow"><span>Motorizado</span><b>'+E(mn||'Asignado')+'</b></div>':'')
       +(o.direccion_entrega?'<div class="pdoRow"><span>Entrega</span><b>'+E(o.direccion_entrega)+'</b></div>':'')+(o.referencia_entrega?'<div class="pdoRow"><span>Referencia</span><b>'+E(o.referencia_entrega)+'</b></div>':'')
       +'<div class="pdoPair"><button type="button" class="pdoBtn" onclick="businessWhatsApp(\''+E(id)+'\')">WhatsApp</button>'+(tel?'<a class="pdoBtn" href="tel:'+E(tel)+'">Llamar</a>':'')+'</div></div>';
-    b+='<div class="pdoCard"><h4>Pedido</h4>'+lines+'<div style="margin-top:6px"><div class="pdoRow"><span>Productos</span><b>'+(Number.isFinite(sub)?money(sub):'—')+'</b></div><div class="pdoRow"><span>Delivery</span><b>'+(Number.isFinite(del)?money(del):'Por confirmar')+'</b></div><div class="pdoRow t"><span>Total</span><b>'+(Number.isFinite(total)?money(total):'—')+'</b></div></div>';
+    b+='<div class="pdoCard pdoPed"><h4>Pedido'+(items.length?'<span class="pdAcnt">'+items.length+(items.length===1?' producto':' productos')+'</span>':'')+'</h4><div class="pdOrgItems">'+lines+'</div>'+dh
+      +'<div class="pdOrgSum"><div class="pdOrgRow"><span>Productos</span><b>'+(Number.isFinite(sub)?money(sub):'—')+'</b></div><div class="pdOrgRow"><span>Delivery'+(dsub?'<small class="pdOrgNote">'+E(dsub)+'</small>':'')+'</span><b>'+(Number.isFinite(del)?money(del):'Por confirmar')+'</b></div>'+dsubs+'<div class="pdOrgTot"><span>Total</span><b>'+(Number.isFinite(total)?money(total):'—')+'</b></div></div>';
     var n=nota(o.observaciones);if(n)b+='<div class="pdoNote"><b>Nota del cliente:</b> '+E(n)+'</div>';
     var cp=comprobante(o.observaciones);
     if(cp)b+='<div class="pdoNote"><b>Comprobante solicitado</b><br>'+(cp.tipo==='factura'?'Factura · RUC '+E(cp.numero)+'<br>'+E(cp.razon_social||'')+(cp.direccion_fiscal?'<br>'+E(cp.direccion_fiscal):''):'Boleta · DNI '+E(cp.numero)+(cp.nombre?'<br>'+E(cp.nombre):''))+'</div>';
@@ -7932,6 +7973,34 @@ html:root body:not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#
 html:root body:not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ) :is([id*="Mapa"],[id*="mapa"],[id*="Map"],[class*="Mapa"],[class*="mapa"],[class*="mapWrap"],.leaflet-container),
 html:root body:not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ) :is([id*="Mapa"],[id*="mapa"],[id*="Map"],[class*="Mapa"],[class*="mapa"],[class*="mapWrap"],.leaflet-container) *{box-shadow:none!important;text-shadow:none!important}
 html:root body:not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ) .leaflet-marker-shadow{display:none!important}
+</style>
+
+<style id="pd-neg-detalle-admin">
+/* Detalle del pedido igual al del admin */
+html body #pdoModal .pdoPed h4{display:flex!important;align-items:center!important;justify-content:space-between!important;gap:8px!important}
+html body #pdoModal .pdoPed .pdAcnt{font:700 12px/1 var(--font)!important;letter-spacing:0!important;text-transform:none!important;color:#7A6A60!important;background:#FFF4EC!important;border-radius:999px!important;padding:5px 10px!important}
+html body #pdoModal .pdoPed .pdOrgItems{display:flex!important;flex-direction:column!important}
+html body #pdoModal .pdoPed .pdOrgItem{display:grid!important;grid-template-columns:auto minmax(0,1fr) auto!important;gap:10px!important;align-items:baseline!important;padding:12px 0!important;border-top:1px solid var(--fr-line,#F1E4DA)!important;font-size:15px!important}
+html body #pdoModal .pdoPed .pdOrgItem:first-child{border-top:0!important;padding-top:2px!important}
+html body #pdoModal .pdoPed .pdOrgItem > b{font-weight:800!important;color:var(--fr-orange,#C4410C)!important}
+html body #pdoModal .pdoPed .pdOrgItem > span{font-weight:700!important;color:var(--fr-ink,#1F1A17)!important;min-width:0!important;overflow-wrap:anywhere!important}
+html body #pdoModal .pdoPed .pdOrgItem > em{font-style:normal!important;font-weight:800!important;color:var(--fr-orange,#C4410C)!important;white-space:nowrap!important}
+html body #pdoModal .pdoPed .pdOrgEmpty{padding:6px 0 10px!important;color:var(--fr-muted,#7A6A60)!important;font-weight:600!important}
+html body #pdoModal .pdoPed .pdADesc{margin:8px 0 0!important;padding:10px 12px!important;border-radius:12px!important;background:#FFF4EC!important;display:flex!important;flex-direction:column!important;gap:4px!important}
+html body #pdoModal .pdoPed .pdADesc > b{font:800 13px/1.2 var(--font)!important;color:#C4410C!important;margin:0 0 2px!important}
+html body #pdoModal .pdoPed .pdADescRow{display:flex!important;justify-content:space-between!important;gap:10px!important;font-size:13.5px!important}
+html body #pdoModal .pdoPed .pdADescRow span{color:#4A3F38!important;font-weight:600!important}
+html body #pdoModal .pdoPed .pdADescRow em{font-style:normal!important;font-weight:700!important;color:#1F1A17!important}
+html body #pdoModal .pdoPed .pdOrgSum{margin:10px 0 0!important;padding:8px 0 0!important;border-top:1px solid var(--fr-line,#F1E4DA)!important}
+html body #pdoModal .pdoPed .pdOrgRow{display:flex!important;align-items:baseline!important;justify-content:space-between!important;gap:10px!important;padding:6px 0!important;font-size:15px!important}
+html body #pdoModal .pdoPed .pdOrgRow > span{font-weight:500!important;color:var(--fr-muted,#7A6A60)!important;display:flex!important;flex-direction:column!important;gap:2px!important}
+html body #pdoModal .pdoPed .pdOrgRow > span small{font-size:12px!important;color:#9A8B80!important;font-weight:500!important}
+html body #pdoModal .pdoPed .pdOrgRow > b{font-weight:700!important;color:var(--fr-ink,#1F1A17)!important;text-align:right!important}
+html body #pdoModal .pdoPed .pdOrgSub{display:flex!important;justify-content:space-between!important;gap:10px!important;padding:2px 0 2px 10px!important;font-size:12.5px!important;color:#9A8B80!important}
+html body #pdoModal .pdoPed .pdOrgSub em{font-style:normal!important}
+html body #pdoModal .pdoPed .pdOrgTot{display:flex!important;align-items:baseline!important;justify-content:space-between!important;gap:10px!important;margin:6px 0 0!important;padding:10px 0 0!important;border-top:1px solid var(--fr-line,#F1E4DA)!important}
+html body #pdoModal .pdoPed .pdOrgTot > span{font-size:16px!important;font-weight:800!important;color:var(--fr-orange,#C4410C)!important}
+html body #pdoModal .pdoPed .pdOrgTot > b{font-size:22px!important;font-weight:800!important;color:var(--fr-orange,#C4410C)!important}
 </style>
 </body></html>
 
