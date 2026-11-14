@@ -5795,7 +5795,7 @@ window.pdMapa={elegir,tarjeta,coords,linkDe,leaflet,PIN,repintar:()=>tarjetas.fo
       return `<div class="x-cashInfo"><b class="t">Paga en efectivo al recibir</b><div class="r"><span>El motorizado cobra</span><b>${money(tot)}</b></div>${info}</div>${tiempo}${fin}`;
     }
     const pg=window.__pdxP[id]||'';
-    const ops=[['yape','Cliente paga productos + delivery'],['solo_delivery','Cliente paga delivery'],['pagado','Yo pago delivery']];
+    const ops=[['yape','Cliente paga productos + delivery'],['solo_delivery','Cliente paga solo delivery'],['pagado','Cliente pagó todo, yo pago']];
     const del=Number(o.costo_delivery)||0;
     const qr=cfg&&cfg.url?`<img src="${E(cfg.url)}" alt="QR de Yape de Pidemás">`:'';
     const datos=[cfg&&cfg.numero?'Yape '+cfg.numero:'',cfg&&cfg.titular||''].filter(Boolean).join(' · ')||'Yape de Pidemás';
@@ -7069,7 +7069,7 @@ armar();
     var ob=String(o.observaciones||'');
     if(!window.__pdxP[id]&&/pagará al motorizado con QR/i.test(ob))window.__pdxP[id]='yape';
     var pg=window.__pdxP[id]||'';
-    var ops=[['yape','Cliente paga productos + delivery'],['solo_delivery','Cliente paga solo el delivery'],['pagado','Yo pago el delivery']];
+    var ops=[['yape','Cliente paga productos + delivery'],['solo_delivery','Cliente paga solo delivery'],['pagado','Cliente pagó todo, yo pago']];
     var cfg=yape(),del=Number(o.costo_delivery)||0;
     var num=cfg.numero?String(cfg.numero).replace(/\D/g,'').replace(/^(\d{3})(\d{3})(\d{3})$/,'$1 $2 $3'):'';
     var delPay=pg==='pagado'?'<div class="pdoNote"><b>Yapea '+money(del)+' a Pidemás</b><br>El cliente ya te pagó todo. Yapea el delivery y envía la captura.<div class="pdoQr">'+(cfg.url?'<img src="'+E(cfg.url)+'" alt="QR de Yape de Pidemás">':'')+'<div><b>'+E(num?'Yape '+num:'Yape de Pidemás')+'</b><small>'+E(cfg.titular||'Pidemás')+' · Pedido '+E(code(id))+'</small></div></div><div class="pdoPair"><button type="button" class="pdoBtn" onclick="pdoCaptura(\''+E(id)+'\')">Enviar captura por WhatsApp</button></div>'+(window.__pdxCap[id]?'<div style="margin-top:8px;font-weight:700;color:#1B7F3B">Captura enviada · ya puedes confirmar</div>':'')+'</div>':'';
@@ -7134,7 +7134,7 @@ armar();
     if(st.k==='nuevo')b+=cuerpoNuevo(o,id);
     else if(st.k==='cobrar')b+='<div class="pdoCard"><h4>Cobro</h4><div class="pdoNote" style="margin:0">Escribe al cliente por WhatsApp con el total y confirma cuando hayas recibido el pago.</div></div>';
     var main='';
-    if(st.k==='nuevo')main='<button type="button" class="pdoBtn main" onclick="pdoAccion(\''+E(id)+'\',\'confirmar\')">Confirmar y enviar a Pidemás</button>';
+    if(st.k==='nuevo'){var bloq=window.__pdxP[id]==='pagado'&&!window.__pdxCap[id];main='<button type="button" class="pdoBtn main'+(bloq?' pdoOff':'')+'"'+(bloq?' aria-disabled="true"':'')+' onclick="pdoAccion(\''+E(id)+'\',\'confirmar\')">Confirmar y enviar a Pidemás</button>'}
     else if(st.k==='cobrar')main='<button type="button" class="pdoBtn main" onclick="pdoAccion(\''+E(id)+'\',\'cobrado\')">Pago recibido</button>';
     else if(st.k==='preparar')main='<button type="button" class="pdoBtn main" onclick="pdoAccion(\''+E(id)+'\',\'listo\')">Pedido listo para recojo</button>';
     var foot='<div class="pdoFoot"><div class="pdoErr" id="pdoErr"></div>'+main+'<div class="pdoPair"><button type="button" class="pdoBtn" onclick="pdxTrack(\''+E(id)+'\')">Ver seguimiento</button></div></div>';
@@ -7165,7 +7165,7 @@ armar();
     try{
       if(tipo==='confirmar'){
         if(!window.__pdxP[id]){error('Primero elige cómo quedó el pago con el cliente.','#pdoPagoBox');return}
-        if(window.__pdxP[id]==='pagado'&&!window.__pdxCap[id]){error('Primero yapea el delivery a Pidemás y envía la captura.','#pdoPagoBox');return}
+        if(window.__pdxP[id]==='pagado'&&!window.__pdxCap[id]){var msj='Debes confirmar el pago con Administración para continuar. Yapea el delivery al QR de Pidemás y envía la captura por WhatsApp.';if(window.pdInfo)window.pdInfo(msj);else error(msj,'#pdoPagoBox');var pb=document.getElementById('pdoPagoBox');if(pb)pb.scrollIntoView({behavior:'smooth',block:'center'});return}
         pendienteCierre=true;await window.pdxConfirmar(id);
       }else if(tipo==='cobrado'){pendienteCierre=true;await window.businessConfirmPayment(id)}
       else if(tipo==='listo'){pendienteCierre=true;await window.businessMarkReady(id)}
@@ -8040,6 +8040,10 @@ html:root body:not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#
 html:root body:not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ) :is(.pdmc,#pdmcFull) .pdmcPin::after{display:none!important}
 html:root body:not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ) :is(.pdmc,#pdmcFull),html:root body:not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ) :is(.pdmc,#pdmcFull) *{box-shadow:none!important;text-shadow:none!important}
 html:root body:not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ) :is(.pdmc,#pdmcFull) .pdmcPin{filter:none!important}
+</style>
+
+<style id="pd-neg-pago-bloqueo">
+html body #pdoModal .pdoBtn.main.pdoOff{background:#E7DDD6!important;border-color:#E7DDD6!important;color:#9A8B80!important;-webkit-text-fill-color:#9A8B80!important;box-shadow:none!important}
 </style>
 </body></html>
 
