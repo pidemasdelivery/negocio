@@ -22,7 +22,8 @@ dialog[data-pdm-hoja]::backdrop{background:var(--pdmu-velo)!important;-webkit-ba
 [data-pdm-hoja="auto"]{height:auto!important}
 [data-pdm-hoja][data-pdm-grip]::before{content:""!important;display:block!important;position:absolute!important;top:8px!important;left:50%!important;width:40px!important;height:5px!important;margin:0 0 0 -20px!important;border-radius:3px!important;background:#E8D9CE!important;z-index:5!important;pointer-events:none!important;opacity:1!important;transform:none!important}
 [data-pdm-oculto]{display:none!important}
-[data-pdm-cab]{position:sticky!important;top:0!important;z-index:4!important;background-color:#fff!important}
+[data-pdm-cab]{position:sticky!important;top:0!important;z-index:4!important;background-color:#fff!important;box-shadow:0 -64px 0 0 #fff!important}
+[data-pdm-grip] > [data-pdm-cab]::after{content:""!important;display:block!important;position:absolute!important;top:-14px!important;left:50%!important;width:40px!important;height:5px!important;margin:0 0 0 -20px!important;border-radius:3px!important;background:#E8D9CE!important;pointer-events:none!important}
 [data-pdm-cab] [data-pdm-titulo]{margin:0!important;font:800 19px/1.25 var(--font,Inter,system-ui,sans-serif)!important;letter-spacing:-.2px!important;color:#C4410C!important;text-transform:none!important}
 [data-pdm-pie]{position:sticky!important;bottom:0!important;z-index:4!important;background-color:#fff!important}
 /* abrir y cerrar rápido */
@@ -85,6 +86,7 @@ body>.toast button{background:#FFF4EC!important;color:#C4410C!important;border:1
 }
 </style>
 
+
 <style id="pd-cargando">
 html.pdCarga,html.pdCarga body{background:#FFF9F5!important}
 html.pdCarga body>*{visibility:hidden!important}
@@ -97,7 +99,7 @@ html.pdCarga.pdCargaSale body::before,html.pdCarga.pdCargaSale body::after{opaci
 h.classList.add("pdCarga");var fin=false,t0=Date.now(),q=0,fuentes=false;
 try{document.fonts.ready.then(function(){fuentes=true})}catch(e){fuentes=true}
 /* ¿Hay sesión guardada? Entonces se espera el panel; si no, el login */
-var ses=false;try{for(var i=0;i<localStorage.length;i++){var k=localStorage.key(i)||"";if(/^sb-.*-auth-token$/.test(k)&&localStorage.getItem(k)){ses=true;break}}}catch(e){}
+var ses=false;try{ses=!!localStorage.getItem("pidemas-negocio-sesion")}catch(e){}
 function ve(id){var e=document.getElementById(id);if(!e)return false;if(e.hidden||e.classList.contains("hidden"))return false;var c=getComputedStyle(e);return c.display!=="none"&&e.getClientRects().length>0}
 function salir(){if(fin)return;fin=true;h.classList.add("pdCargaSale");setTimeout(function(){h.classList.remove("pdCarga","pdCargaSale")},300)}
 window.pdQuitarCarga=salir;
@@ -2825,7 +2827,7 @@ html body #pdInstalar .shr{display:inline-block;vertical-align:-3px;width:16px;h
   <button data-tab="perfil" type="button"><span style="display:block;height:24px;margin-bottom:3px;line-height:24px"><svg viewBox="0 0 24 24" width="23" height="23" aria-hidden="true" style="display:inline-block;vertical-align:middle;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><circle cx="12" cy="8" r="3.5"></circle><path d="M4.5 20c.5-4 3.2-6 7.5-6s7 2 7.5 6"></path></svg></span>Mi perfil</button>
 </nav>
 <script>
-const SUPABASE_URL='https://escxesvzndmyfuteawey.supabase.co',SUPABASE_KEY='sb_publishable_pCP210JJcN3NP3a6Y2c--w_c7C0PjaU',db=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);const $=id=>document.getElementById(id);let session=null,restaurant=null,products=[],categories=[];
+const SUPABASE_URL='https://escxesvzndmyfuteawey.supabase.co',SUPABASE_KEY='sb_publishable_pCP210JJcN3NP3a6Y2c--w_c7C0PjaU',db=supabase.createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{storageKey:'pidemas-negocio-sesion',persistSession:true,autoRefreshToken:true}});const $=id=>document.getElementById(id);let session=null,restaurant=null,products=[],categories=[];
 window.addEventListener('DOMContentLoaded',()=>{if($('copiarEnlaceCarta'))$('copiarEnlaceCarta').addEventListener('click',copiarEnlaceIndividualCarta);if($('compartirEnlaceCarta'))$('compartirEnlaceCarta').addEventListener('click',compartirEnlaceIndividualCarta);if($('verMiCarta'))$('verMiCarta').addEventListener('click',verEnlaceIndividualCarta);});
 function show(e,t){if(e){e.textContent=t;e.classList.remove('hidden')}}function hide(e){if(e)e.classList.add('hidden')}function esc(v){return String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}function stockCol(p){return ['stock','stock_actual','cantidad_stock','existencias','cantidad_disponible'].find(k=>Object.prototype.hasOwnProperty.call(p||{},k))||null}
 function getEnlaceIndividualCarta(){
@@ -2918,7 +2920,7 @@ async function enter(uid){
   try{const pr=await db.from('perfiles').select('*').eq('id',uid).maybeSingle();if(!pr.error)profile=pr.data||null}catch(e){console.warn('No se pudo leer perfil:',e)}
   if(profile?.activo===false){show($('loginMsg'),'Esta cuenta está inactiva.');return}
   /* Cuenta de otro panel (motorizado o administrador): no es un negocio */
-  if(profile&&['motorizado','administrador'].includes(String(profile.rol||''))){try{await db.auth.signOut()}catch(e){}show($('loginMsg'),'Esta cuenta es de '+profile.rol+'. Este panel es solo para negocios: entra con la cuenta de tu negocio.');return}
+  if(profile&&['motorizado','administrador'].includes(String(profile.rol||''))){try{await db.auth.signOut({scope:'local'})}catch(e){}show($('loginMsg'),'Esta cuenta es de '+profile.rol+'. Este panel es solo para negocios: entra con la cuenta de tu negocio.');return}
   try{restaurant=await findRestaurant(uid)}catch(e){console.error('Error de vinculación:',e);show($('loginMsg'),'No se pudo verificar la vinculación del negocio: '+(e?.message||'error desconocido'));return}
   if(!restaurant){show($('loginMsg'),'Esta cuenta todavía no está vinculada a un negocio. Verifica la vinculación en Supabase.');return}
   // Al primer ingreso, completar solo los perfiles sin horario. Los horarios
@@ -3703,7 +3705,7 @@ function switchPanelTab(tab){
 }
 
 document.querySelectorAll('.stockBtn').forEach(btn=>btn.addEventListener('click',()=>{const input=$(btn.dataset.stockTarget);if(!input)return;const current=Math.max(0,Math.floor(Number(input.value||0)));const step=Number(btn.dataset.stockStep||0);input.value=Math.max(0,current+step);input.dispatchEvent(new Event('input',{bubbles:true}));}));document.querySelectorAll('.priceBtn').forEach(btn=>btn.addEventListener('click',()=>{const input=$(btn.dataset.priceTarget);if(!input)return;const current=Math.max(0,Number(input.value||0));const step=Number(btn.dataset.priceStep||0);const next=Math.max(0,Math.round((current+step)*100)/100);input.value=next.toFixed(2);input.dispatchEvent(new Event('input',{bubbles:true}));}));
-async function init(){try{setupLoginOptions();$('loginBtn').addEventListener('click',login);$('password').addEventListener('keydown',e=>{if(e.key==='Enter')login()});document.querySelectorAll('#nav button').forEach(b=>b.addEventListener('click',()=>switchPanelTab(b.dataset.tab)));$('logout').addEventListener('click',async()=>{hide($('nav'));await db.auth.signOut();location.reload()});const {data,error}=await db.auth.getSession();if(error)throw error;if(data.session){session=data.session;await enter(data.session.user.id)}}catch(e){console.error('Error inicializando panel:',e);show($('loginMsg'),'No se pudo iniciar el panel: '+(e?.message||'error desconocido'))}}init();
+async function init(){try{setupLoginOptions();$('loginBtn').addEventListener('click',login);$('password').addEventListener('keydown',e=>{if(e.key==='Enter')login()});document.querySelectorAll('#nav button').forEach(b=>b.addEventListener('click',()=>switchPanelTab(b.dataset.tab)));$('logout').addEventListener('click',async()=>{hide($('nav'));await db.auth.signOut({scope:'local'});location.reload()});const {data,error}=await db.auth.getSession();if(error)throw error;if(data.session){session=data.session;await enter(data.session.user.id)}}catch(e){console.error('Error inicializando panel:',e);show($('loginMsg'),'No se pudo iniciar el panel: '+(e?.message||'error desconocido'))}}init();
 </script>
 
 
