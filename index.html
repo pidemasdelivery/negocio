@@ -23,7 +23,7 @@ dialog[data-pdm-hoja]::backdrop{background:var(--pdmu-velo)!important;-webkit-ba
 [data-pdm-hoja][data-pdm-grip]::before{content:""!important;display:block!important;position:absolute!important;top:8px!important;left:50%!important;width:40px!important;height:5px!important;margin:0 0 0 -20px!important;border-radius:3px!important;background:#E8D9CE!important;z-index:5!important;pointer-events:none!important;opacity:1!important;transform:none!important}
 [data-pdm-oculto]{display:none!important}
 [data-pdm-cab]{position:sticky!important;top:0!important;z-index:4!important;background-color:#fff!important;box-shadow:0 -64px 0 0 #fff!important}
-[data-pdm-grip] > [data-pdm-cab]::after{content:""!important;display:block!important;position:absolute!important;top:-14px!important;left:50%!important;width:40px!important;height:5px!important;margin:0 0 0 -20px!important;border-radius:3px!important;background:#E8D9CE!important;pointer-events:none!important}
+[data-pdm-grip] > [data-pdm-cab][data-pdm-cab-ancho]::after{content:""!important;display:block!important;position:absolute!important;top:-14px!important;left:50%!important;width:40px!important;height:5px!important;margin:0 0 0 -20px!important;border-radius:3px!important;background:#E8D9CE!important;pointer-events:none!important}
 [data-pdm-cab] [data-pdm-titulo]{margin:0!important;font:800 19px/1.25 var(--font,Inter,system-ui,sans-serif)!important;letter-spacing:-.2px!important;color:#C4410C!important;text-transform:none!important}
 [data-pdm-pie]{position:sticky!important;bottom:0!important;z-index:4!important;background-color:#fff!important}
 /* abrir y cerrar rápido */
@@ -85,6 +85,7 @@ body>.toast button{background:#FFF4EC!important;color:#C4410C!important;border:1
 @keyframes pdFhUp{from{transform:translateY(40px);opacity:0}}
 }
 </style>
+
 
 
 <style id="pd-cargando">
@@ -3954,7 +3955,7 @@ async function init(){try{setupLoginOptions();$('loginBtn').addEventListener('cl
       const now=sn(o),b=prev.get(id);
       if(!b){if(now.estado!=='cancelado')alertUser({kind:'nuevo',sticky:stage(o).k==='nuevo',key:'nuevo:'+id,pedidoId:id,title:'Nuevo pedido '+code(id),text:describe(o),actions:acts(o),orden:o});continue}
       if(now.estado!==b.estado){
-        if(now.estado==='cancelado'){ack(id);alertUser({kind:'cancel',pedidoId:id,title:'Pedido '+code(id)+' cancelado',text:'Administración canceló este pedido. No lo prepares.'})}
+        if(now.estado==='cancelado'){ack(id);alertUser({kind:'cancel',pedidoId:id,title:'Pedido '+code(id)+' cancelado',text:String(o.cancelado_por||'')==='negocio'?'Anulaste este pedido. Pidemás ya fue avisado.':'Administración canceló este pedido. No lo prepares.'})}
         else if(stage(o).k!=='nuevo')ack(id);
         if(['asignado'].includes(now.estado)&&b.estado!=='asignado')alertUser({kind:'info',pedidoId:id,title:'Motorizado asignado a '+code(id),text:'Ten el pedido listo para cuando llegue.'});
         if(['en_camino','en_entrega','camino_entrega'].includes(now.estado)&&!['en_camino','en_entrega','camino_entrega'].includes(b.estado))alertUser({kind:'ok',pedidoId:id,title:'El motorizado recogió '+code(id),text:'Va camino al cliente.'});
@@ -4078,6 +4079,7 @@ async function init(){try{setupLoginOptions();$('loginBtn').addEventListener('cl
     trkTimer=setInterval(()=>paintTrk(true),15000);
   };
   function closeSheet(){trkOpen=null;editId=null;clearInterval(trkTimer);$('pdxSheet')?.classList.remove('open');document.documentElement.style.overflow='';document.documentElement.classList.remove('pdxSheetOpen')}
+  window.pdxOpenSheet=openSheet;window.pdxCloseSheet=closeSheet;
   const closeTrk=closeSheet;
   document.addEventListener('keydown',e=>{if(e.key==='Escape'&&trkOpen)closeTrk()});
 
@@ -5921,6 +5923,7 @@ window.pdMapa={elegir,tarjeta,coords,linkDe,leaflet,PIN,repintar:()=>tarjetas.fo
     try{if(window.pdHorarioDia&&pdHorarioDia()===false){abierto=false;tit='Pidemás no atiende hoy';const p=window.pdHorario&&pdHorario.proxima();sub='La tienda no recibe pedidos hoy.'+(p?' Vuelve '+p.cuando+' desde las '+p.hora:'')}
       else if(window.pdHorarioDia){const d=pdHorarioDia();const n=new Date();const m=Number(new Intl.DateTimeFormat('en-US',{timeZone:'America/Lima',hour:'2-digit',hour12:false}).format(n))%24*60+Number(new Intl.DateTimeFormat('en-US',{timeZone:'America/Lima',minute:'2-digit'}).format(n));
         if(abierto&&d&&(m<d.abre||m>=d.ultimo)){abierto=false;tit='Fuera del horario de Pidemás';sub='Pidemás recibe pedidos de '+pdHoraTxt(d.abre)+' a '+pdHoraTxt(d.ultimo)+'.'}}}catch(e){}
+    try{const pz=r.pausado_hasta?new Date(r.pausado_hasta).getTime():0;if(pz>Date.now()){abierto=false;tit='Pedidos en pausa';sub='Vuelves a recibir pedidos a las '+new Date(pz).toLocaleTimeString('es-PE',{timeZone:'America/Lima',hour:'numeric',minute:'2-digit'})+'. Puedes reanudar desde «Pausar pedidos».'}}catch(_){}
     if(r.visible_admin===false){abierto=false;tit='Oculto por administración';sub='El administrador quitó la visibilidad de tu negocio. Ponte en contacto con el administrador.'}else if(r.activo===false){abierto=false;tit='Oculto en la tienda';sub='Tu negocio no aparece en la tienda. Actívalo en Productos › «Negocio visible en la tienda».'}
     // ¿cierra pronto? (minutos hasta el cierre del negocio o el último pedido de Pidemás, lo que llegue antes)
     let clase=abierto?'on':'off';
@@ -8097,7 +8100,7 @@ html:root body:not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#
     });
   }
   setInterval(limpiarNotas,800);
-  window.pdUDatos={ped:id=>PED.get(String(id)),neg:id=>NEG.get(String(id)),fase,PASOS,money,hace,codigo,cargar:ids=>cargar(ids.map(String),true)};
+  window.pdUDatos={items:id=>ITEMS.get(String(id)),ped:id=>PED.get(String(id)),neg:id=>NEG.get(String(id)),fase,PASOS,money,hace,codigo,cargar:ids=>cargar(ids.map(String),true)};
   /* ----- dónde va y qué se esconde ----- */
   function host(card){
     if(ROL==='admin')return card.querySelector(':scope > button.pdList > .pdbBody');
@@ -8543,6 +8546,7 @@ function cabecera(h){
       if(!t.hasAttribute('data-pdm-titulo'))t.setAttribute('data-pdm-titulo','');
     }
     const p=getComputedStyle(head).position;if(p!=='fixed'&&p!=='absolute')head.setAttribute('data-pdm-cab','');
+    try{const hw=head.getBoundingClientRect().width,hj=(head.closest('[data-pdm-hoja]')||head.parentElement).getBoundingClientRect().width;if(hj&&hw>=hj*0.8)head.setAttribute('data-pdm-cab-ancho','');else head.removeAttribute('data-pdm-cab-ancho')}catch(e){}
   }
   /* pie con botones: el último bloque de abajo queda fijo */
   let cont=h;if(h.children.length===1&&h.firstElementChild!==head)cont=h.firstElementChild;
@@ -8772,6 +8776,277 @@ document.addEventListener('keydown',e=>{const i=e.target;if(!apto(i))return;if(e
 try{const orig=HTMLInputElement.prototype.showPicker;if(orig)HTMLInputElement.prototype.showPicker=function(){if(apto(this)){abrir(this);return}return orig.apply(this,arguments)}}catch(e){}
 })();
 </script>
+<script id="pd-negocio-mejoras-js">
+/* Mis pagos · Calificaciones · Aviso por demora en aceptar · Anular con motivo · Pausar pedidos
+   · Agotados rápido · Reportes · Programados · Tiempo real de preparación */
+(function(){
+  if(window.__pdNegMej)return;window.__pdNegMej=1;
+  const $=id=>document.getElementById(id);
+  const E=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const M=n=>'S/ '+(Number(n)||0).toFixed(2);
+  const D=()=>{try{return db}catch(e){return window.db}};
+  const R=()=>{try{return restaurant}catch(e){return null}};
+  const OR=()=>{try{return Array.isArray(businessOrders)?businessOrders:[]}catch(e){return []}};
+  const PR=()=>{try{return Array.isArray(products)?products:[]}catch(e){return []}};
+  const T=v=>{const t=new Date(v).getTime();return Number.isFinite(t)?t:0};
+  const ref=id=>'#'+String(id||'').replace(/-/g,'').slice(0,8).toUpperCase();
+  const est=o=>String(o&&o.estado||'').toLowerCase();
+  const hora=t=>new Date(t).toLocaleTimeString('es-PE',{timeZone:'America/Lima',hour:'numeric',minute:'2-digit'});
+  const fH=v=>{try{return new Date(v).toLocaleString('es-PE',{timeZone:'America/Lima',day:'2-digit',month:'short',hour:'numeric',minute:'2-digit'})}catch(e){return ''}};
+  const sub=o=>{const s=Number(o.subtotal);if(Number.isFinite(s))return s;const t=Number(o.total),d=Number(o.costo_delivery);return Number.isFinite(t)?t-(Number.isFinite(d)?d:0):0};
+  const alerta=a=>{try{window.pdAlert&&window.pdAlert(a)}catch(e){}};
+  function hoja(t){if(window.pdxOpenSheet){const b=window.pdxOpenSheet(t);const sh=$('pdxSheet');if(sh){sh.style.setProperty('z-index','2147483647','important');if(sh!==document.body.lastElementChild)document.body.appendChild(sh)}if(b){b.innerHTML='<div class="pdnBody"><p class="pdnMut">Cargando…</p></div>';return b.firstElementChild}}return null}
+  const cerrar=()=>{try{window.pdxCloseSheet&&window.pdxCloseSheet()}catch(e){}};
+  const ok=t=>(window.pdExito||window.pdAviso||alert)(t);
+  const err=t=>(window.pdAviso||alert)(t);
+  function programado(o){try{if(o.programado_para)return T(o.programado_para);const s=String(o.observaciones||''),i=s.indexOf('__PIDEMAS_DELIVERY__');if(i<0)return 0;const m=s.slice(i).match(/"programado":"([^"]+)"/);return m?T(m[1]):0}catch(e){return 0}}
+  const pausaHasta=()=>{const r=R();const t=r&&r.pausado_hasta?T(r.pausado_hasta):0;return t>Date.now()?t:0};
+
+  /* ---------- Tarjeta de herramientas en Inicio ---------- */
+  const IC={
+    pausa:'<rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/>',
+    play:'<path d="M7 5l12 7-12 7z"/>',
+    ago:'<circle cx="12" cy="12" r="9"/><path d="M5.6 5.6l12.8 12.8"/>',
+    pago:'<rect x="3" y="6" width="18" height="12" rx="2"/><circle cx="12" cy="12" r="2.5"/>',
+    rep:'<path d="M3 3v18h18"/><path d="M7 15l4-4 3 3 5-6"/>',
+    cal:'<path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1-4.4-4.3 6.1-.9z"/>'};
+  const svg=p=>'<svg viewBox="0 0 24 24" aria-hidden="true">'+p+'</svg>';
+  function tools(){
+    const home=$('pdHomeCard');if(!home||!home.parentNode)return;
+    let c=$('pdnTools');
+    if(!c){c=document.createElement('section');c.id='pdnTools';c.addEventListener('click',e=>{const b=e.target.closest('[data-n]');if(!b)return;({pausa,agotados,pagos,reportes,calificaciones})[b.dataset.n]()})}
+    if(c.previousElementSibling!==home)home.after(c);
+    const pz=pausaHasta();
+    const ag=PR().filter(p=>p.disponible===false).length;
+    const prox=OR().filter(o=>!['entregado','cancelado'].includes(est(o))).map(o=>({o,t:programado(o)})).filter(x=>x.t>Date.now()).sort((a,b)=>a.t-b.t)[0];
+    const h=(prox?'<div class="pdnProg">🗓 Pedido programado '+E(ref(prox.o.id))+' para las <b>'+E(hora(prox.t))+'</b></div>':'')
+      +'<button type="button" data-n="pausa" class="pdnT '+(pz?'on':'')+'">'+svg(pz?IC.play:IC.pausa)+'<span><b>'+(pz?'En pausa':'Pausar pedidos')+'</b><small>'+(pz?'Hasta las '+E(hora(pz))+' · reanudar':'Si estás saturado')+'</small></span></button>'
+      +'<button type="button" data-n="agotados" class="pdnT">'+svg(IC.ago)+'<span><b>Agotados</b><small>'+(ag?ag+' producto'+(ag===1?'':'s')+' agotado'+(ag===1?'':'s'):'Apaga un producto rápido')+'</small></span></button>'
+      +'<button type="button" data-n="pagos" class="pdnT">'+svg(IC.pago)+'<span><b>Mis pagos</b><small>Lo que te paga Pidemás</small></span></button>'
+      +'<button type="button" data-n="reportes" class="pdnT">'+svg(IC.rep)+'<span><b>Reportes</b><small>Ventas y tiempos</small></span></button>'
+      +'<button type="button" data-n="calificaciones" class="pdnT wide">'+svg(IC.cal)+'<span><b>Calificaciones</b><small>'+(calProm?'★ '+calProm.toFixed(1)+' de 5 · '+calN+' opinión'+(calN===1?'':'es'):'Lo que opinan tus clientes')+'</small></span></button>';
+    if(c.__h!==h){c.__h=h;c.innerHTML=h}
+  }
+  let calProm=0,calN=0;
+  async function leerCal(){const r=R();if(!r||!D())return [];const q=await D().from('calificaciones').select('pedido_id,estrellas_negocio,comentario,creado_en').eq('negocio_id',r.id).order('creado_en',{ascending:false}).limit(300);
+    const L=(q.data||[]).filter(c=>Number(c.estrellas_negocio)>0);calN=L.length;calProm=L.length?L.reduce((s,c)=>s+Number(c.estrellas_negocio),0)/L.length:0;return L}
+
+  /* ---------- 5. Pausar pedidos ---------- */
+  async function guardarPausa(hasta){
+    const r=R();if(!r)return;
+    const {error}=await D().from('negocios').update({pausado_hasta:hasta}).eq('id',r.id);
+    if(error){err('No se pudo guardar: '+error.message);return false}
+    r.pausado_hasta=hasta;tools();return true;
+  }
+  function pausa(){
+    const b=hoja('Pausar pedidos');if(!b)return;const pz=pausaHasta();
+    b.innerHTML=(pz?'<div class="pdnStat warn"><span>Estás en pausa hasta</span><b>'+E(hora(pz))+'</b></div><button type="button" class="x-btn" data-p="0">Reanudar ahora</button><p class="pdnMut">O alarga la pausa:</p>':'<p class="pdnMut">Mientras estés en pausa, tu negocio aparece como cerrado en la tienda y nadie podrá pedirte. Los pedidos que ya tienes siguen igual.</p>')
+      +'<div class="pdnChips">'+[[15,'15 min'],[30,'30 min'],[60,'1 hora'],[120,'2 horas']].map(x=>'<button type="button" data-p="'+x[0]+'">'+x[1]+'</button>').join('')+'</div>';
+    b.onclick=async e=>{const x=e.target.closest('[data-p]');if(!x)return;const m=+x.dataset.p;x.disabled=true;
+      const hasta=m?new Date(Date.now()+m*60000).toISOString():null;
+      if(await guardarPausa(hasta)){cerrar();ok(m?'Pedidos en pausa hasta las '+hora(T(hasta))+'.':'Listo, ya recibes pedidos otra vez.')}else x.disabled=false};
+  }
+  setInterval(()=>{const r=R();if(r&&r.pausado_hasta&&!pausaHasta()&&T(r.pausado_hasta)>0&&!r.__pzAvisado){r.__pzAvisado=1;alerta({kind:'info',title:'Terminó la pausa',text:'Tu negocio ya vuelve a recibir pedidos.'})}},30000);
+
+  /* ---------- 6. Agotados rápido ---------- */
+  async function setDisp(id,v){const {error}=await D().from('productos_negocio').update({disponible:v}).eq('id',id).eq('negocio_id',R().id);if(error)throw error;const p=PR().find(x=>String(x.id)===String(id));if(p)p.disponible=v}
+  function agotados(){
+    const b=hoja('Agotados');if(!b)return;let q='';
+    const pint=()=>{const L=PR().filter(p=>!q||String(p.nombre||'').toLowerCase().includes(q)).sort((a,c)=>(a.disponible===false?0:1)-(c.disponible===false?0:1)||String(a.nombre).localeCompare(String(c.nombre)));
+      $('pdnAgL').innerHTML=L.length?L.map(p=>'<div class="pdnRow"><span><b>'+E(p.nombre||'Producto')+'</b><small>'+(p.disponible===false?'Agotado · no aparece para pedir':M(p.precio))+'</small></span><button type="button" class="pdnSw '+(p.disponible===false?'':'on')+'" data-id="'+E(p.id)+'" aria-label="'+(p.disponible===false?'Activar':'Agotar')+'"><i></i></button></div>').join(''):'<p class="pdnMut">No hay productos.</p>'};
+    b.innerHTML='<p class="pdnMut">Apaga lo que se terminó. Vuelve a prenderlo cuando tengas otra vez.</p><input class="x-in" id="pdnAgQ" placeholder="Buscar producto" autocomplete="off"><div id="pdnAgL"></div>';
+    pint();$('pdnAgQ').oninput=e=>{q=e.target.value.trim().toLowerCase();pint()};
+    b.onclick=async e=>{const s=e.target.closest('.pdnSw');if(!s)return;const p=PR().find(x=>String(x.id)===s.dataset.id);if(!p)return;const v=p.disponible===false;s.disabled=true;
+      try{await setDisp(p.id,v);pint();tools()}catch(x){err('No se pudo cambiar: '+(x.message||x));s.disabled=false}};
+  }
+
+  /* ---------- 1. Mis pagos ---------- */
+  async function pagos(){
+    const b=hoja('Mis pagos');if(!b)return;const r=R();
+    const desde=new Date(Date.now()-60*864e5).toISOString();
+    const q=await D().from('pedidos').select('id,estado,subtotal,total,costo_delivery,pago_acordado,metodo_pago,creado_en,entregado_en,negocio_pagado_en,negocio_pagado_metodo,negocio_pagado_monto,delivery_negocio_cobrado_en').eq('negocio_id',r.id).eq('estado','entregado').gte('creado_en',desde).order('creado_en',{ascending:false}).limit(1000);
+    if(q.error){b.innerHTML='<p class="pdnErr">No se pudo leer: '+E(q.error.message)+'</p>';return}
+    const P=q.data||[];
+    const cobra=P.filter(p=>!['solo_delivery','pagado'].includes(String(p.pago_acordado||''))&&sub(p)>0);
+    const pend=cobra.filter(p=>!p.negocio_pagado_en),pag=cobra.filter(p=>p.negocio_pagado_en);
+    const deb=P.filter(p=>String(p.pago_acordado||'')==='pagado'&&!p.delivery_negocio_cobrado_en&&Number(p.costo_delivery)>0);
+    const tP=pend.reduce((s,p)=>s+sub(p),0),tD=deb.reduce((s,p)=>s+(Number(p.costo_delivery)||0),0);
+    const fila=(p,v,x)=>'<div class="pdnRow"><span><b>'+E(ref(p.id))+'</b><small>'+E(fH(p.entregado_en||p.creado_en))+(x?' · '+E(x):'')+'</small></span><b>'+M(v)+'</b></div>';
+    b.innerHTML='<div class="pdnStat"><span>Pidemás te debe</span><b>'+M(tP)+'</b></div>'
+      +'<p class="pdnMut">Son los pedidos que el cliente le pagó a Pidemás (al motorizado o por Yape). Te corresponde el valor de los productos.</p>'
+      +(pend.length?'<div class="pdnLbl">Por pagarte ('+pend.length+')</div>'+pend.map(p=>fila(p,sub(p))).join(''):'<p class="pdnOk">✓ Estás al día: Pidemás no te debe nada.</p>')
+      +(deb.length?'<div class="pdnStat warn"><span>Tú le debes a Pidemás (delivery)</span><b>'+M(tD)+'</b></div>'+deb.map(p=>fila(p,p.costo_delivery,'delivery')).join(''):'')
+      +(pag.length?'<div class="pdnLbl">Ya te pagamos (últimos 60 días)</div>'+pag.slice(0,40).map(p=>fila(p,p.negocio_pagado_monto??sub(p),'pagado el '+fH(p.negocio_pagado_en)+(p.negocio_pagado_metodo?' · '+p.negocio_pagado_metodo:''))).join(''):'');
+  }
+
+  /* ---------- 2. Calificaciones ---------- */
+  async function calificaciones(){
+    const b=hoja('Calificaciones');if(!b)return;
+    let L;try{L=await leerCal()}catch(e){L=[]}
+    if(!L.length){b.innerHTML='<p class="pdnMut">Todavía no tienes calificaciones. Cuando tus clientes califiquen sus pedidos, las verás aquí.</p>';return}
+    const dist=[5,4,3,2,1].map(n=>[n,L.filter(c=>Math.round(c.estrellas_negocio)===n).length]);
+    const st=v=>'★'.repeat(Math.round(v))+'☆'.repeat(5-Math.round(v));
+    b.innerHTML='<div class="pdnCal"><b>'+calProm.toFixed(1)+'</b><span class="pdnStars">'+st(calProm)+'</span><small>'+L.length+' calificación'+(L.length===1?'':'es')+'</small></div>'
+      +'<div class="pdnDist">'+dist.map(([n,c])=>'<div><span>'+n+'★</span><i><s style="width:'+(L.length?Math.round(c*100/L.length):0)+'%"></s></i><b>'+c+'</b></div>').join('')+'</div>'
+      +'<div class="pdnLbl">Comentarios recientes</div>'+(L.filter(c=>c.comentario).slice(0,25).map(c=>'<div class="pdnRow"><span><b class="pdnStars">'+st(c.estrellas_negocio)+'</b><small>'+E(c.comentario)+' · '+E(fH(c.creado_en))+'</small></span></div>').join('')||'<p class="pdnMut">Sin comentarios todavía.</p>');
+    tools();
+  }
+
+  /* ---------- 7 y 9. Reportes (incluye tiempo real de preparación) ---------- */
+  async function reportes(dias){
+    dias=dias||7;const b=hoja('Reportes');if(!b)return;const r=R();
+    const desde=new Date(Date.now()-(dias===1?(Date.now()-new Date(new Date().toLocaleDateString('en-CA',{timeZone:'America/Lima'})+'T00:00:00-05:00').getTime()):dias*864e5)).toISOString();
+    const q=await D().from('pedidos').select('id,estado,subtotal,total,costo_delivery,creado_en,negocio_aceptado_en,listo_para_recojo_en,tiempo_preparacion_min,entregado_en,cancelado_por,motivo_cancelacion').eq('negocio_id',r.id).gte('creado_en',desde).limit(3000);
+    if(q.error){b.innerHTML='<p class="pdnErr">'+E(q.error.message)+'</p>';return}
+    const P=q.data||[],ent=P.filter(p=>est(p)==='entregado'),can=P.filter(p=>est(p)==='cancelado');
+    const venta=ent.reduce((s,p)=>s+sub(p),0);
+    const prep=P.map(p=>p.negocio_aceptado_en&&p.listo_para_recojo_en?{real:(T(p.listo_para_recojo_en)-T(p.negocio_aceptado_en))/60000,dijo:Number(p.tiempo_preparacion_min)||0}:null).filter(x=>x&&x.real>=0&&x.real<300);
+    const avg=a=>a.length?a.reduce((s,x)=>s+x,0)/a.length:0;
+    const real=avg(prep.map(x=>x.real)),dijo=avg(prep.filter(x=>x.dijo).map(x=>x.dijo)),aTiempo=prep.filter(x=>x.dijo&&x.real<=x.dijo+2).length,conDijo=prep.filter(x=>x.dijo).length;
+    const horas=new Array(24).fill(0);P.filter(p=>est(p)!=='cancelado').forEach(p=>{horas[+new Date(p.creado_en).toLocaleString('en-US',{timeZone:'America/Lima',hour:'numeric',hour12:false})%24]++});const mx=Math.max(1,...horas);
+    let top=[];
+    try{const ids=ent.map(p=>p.id);const items=[];for(let i=0;i<ids.length;i+=80){const d=await D().from('detalle_pedidos').select('*').in('pedido_id',ids.slice(i,i+80));if(!d.error&&d.data)items.push(...d.data)}
+      const g=new Map();items.forEach(x=>{const k=String(x.nombre_producto||x.producto_nombre||x.nombre||'Producto');const c=g.get(k)||{n:0,v:0};const q2=Number(x.cantidad)||1;c.n+=q2;const s2=Number(x.subtotal??x.total_linea);c.v+=Number.isFinite(s2)?s2:(Number(x.precio_unitario??x.precio)||0)*q2;g.set(k,c)});top=[...g].sort((a,c)=>c[1].n-a[1].n).slice(0,8)}catch(e){}
+    const mot=new Map();can.forEach(p=>{const k=(p.motivo_cancelacion||'Sin motivo')+(p.cancelado_por?' ('+p.cancelado_por+')':'');mot.set(k,(mot.get(k)||0)+1)});
+    const csv=['Pedido;Estado;Productos;Total;Creado;Aceptado;Listo;Min. prometidos;Entregado;Motivo anulación',...P.map(p=>[ref(p.id),p.estado,sub(p).toFixed(2),Number(p.total||0).toFixed(2),fH(p.creado_en),p.negocio_aceptado_en?fH(p.negocio_aceptado_en):'',p.listo_para_recojo_en?fH(p.listo_para_recojo_en):'',p.tiempo_preparacion_min||'',p.entregado_en?fH(p.entregado_en):'',p.motivo_cancelacion||''].join(';'))].join('\n');
+    b.innerHTML='<div class="pdnChips">'+[[1,'Hoy'],[7,'7 días'],[30,'30 días']].map(x=>'<button type="button" data-d="'+x[0]+'" class="'+(x[0]===dias?'on':'')+'">'+x[1]+'</button>').join('')+'</div>'
+      +'<div class="pdnGrid"><div><span>Pedidos</span><b>'+P.length+'</b></div><div><span>Entregados</span><b>'+ent.length+'</b></div><div><span>Vendido</span><b>'+M(venta)+'</b></div><div><span>Ticket promedio</span><b>'+M(ent.length?venta/ent.length:0)+'</b></div><div><span>Anulados</span><b>'+can.length+'</b></div><div><span>Tasa de anulación</span><b>'+(P.length?Math.round(can.length*100/P.length):0)+'%</b></div></div>'
+      +'<div class="pdnLbl">Tiempo de preparación</div>'+(prep.length?'<div class="pdnGrid"><div><span>Tardas en promedio</span><b>'+Math.round(real)+' min</b></div><div><span>Prometes en promedio</span><b>'+(dijo?Math.round(dijo)+' min':'—')+'</b></div></div><p class="pdnMut">'+(conDijo?'Cumpliste a tiempo '+aTiempo+' de '+conDijo+' pedidos ('+Math.round(aTiempo*100/conDijo)+'%). ':'')+(dijo&&real>dijo+3?'Sueles tardar más de lo que prometes: elige un tiempo un poco mayor al aceptar.':dijo&&real<dijo-5?'Sueles terminar antes: puedes prometer menos tiempo y vender más.':'Tus tiempos van bien.')+'</p>':'<p class="pdnMut">Aún no hay pedidos marcados como listos en este periodo.</p>')
+      +'<div class="pdnLbl">Lo más vendido</div>'+(top.length?top.map(([k,x])=>'<div class="pdnRow"><span><b>'+E(k)+'</b><small>'+M(x.v)+'</small></span><b>'+x.n+'</b></div>').join(''):'<p class="pdnMut">Sin ventas en este periodo.</p>')
+      +'<div class="pdnLbl">Tus horas fuertes</div><div class="pdnHoras">'+horas.map((n,h)=>n?'<div><span>'+(h%12||12)+(h<12?' am':' pm')+'</span><i><s style="width:'+Math.max(4,Math.round(n*100/mx))+'%"></s></i><b>'+n+'</b></div>':'').join('')+'</div>'
+      +(mot.size?'<div class="pdnLbl">Motivos de anulación</div>'+[...mot].sort((a,c)=>c[1]-a[1]).map(([k,n])=>'<div class="pdnRow"><span><b>'+E(k)+'</b></span><b>'+n+'</b></div>').join(''):'')
+      +'<a class="x-btn light pdnCsv" download="reporte-'+dias+'d.csv" href="data:text/csv;charset=utf-8,'+encodeURIComponent('﻿'+csv)+'">Descargar Excel (CSV)</a>';
+    b.onclick=e=>{const d=e.target.closest('[data-d]');if(d)reportes(+d.dataset.d)};
+  }
+
+  /* ---------- 4. Anular con motivo ---------- */
+  const ANULABLE=['pendiente','confirmado','aceptado','asignado','pedido_aceptado','camino_recojo'];
+  function idModal(m){const b=m.querySelector('.pdoFoot [onclick*="pdxTrack("]')||m.querySelector('[onclick*="pdoAccion("]')||m.querySelector('[onclick*="pdoTiempo("]')||m.querySelector('[onclick*="pdxTrack("]');const t=b&&b.getAttribute('onclick')||'';const r=t.match(/\('([^']+)'/);return r?r[1]:''}
+  function pedido(id){return OR().find(x=>String(x.id)===String(id))||(window.pdUDatos&&pdUDatos.ped&&pdUDatos.ped(id))||null}
+  function botonAnular(){
+    const m=$('pdoModal');if(!m)return;const foot=m.querySelector('.pdoFoot');if(!foot||!foot.getClientRects().length)return;
+    const id=idModal(m),o=pedido(id);let b=foot.querySelector(':scope > .pdnAnular');
+    const puede=o&&ANULABLE.includes(est(o))&&!o.en_camino_en;
+    if(!puede){if(b)b.remove();return}
+    if(!b){b=document.createElement('button');b.type='button';b.className='pdnAnular';b.textContent='No puedo atender este pedido';b.onclick=e=>{e.preventDefault();e.stopPropagation();anular(b.dataset.id)}}
+    b.dataset.id=id;if(b!==foot.lastElementChild)foot.appendChild(b);
+  }
+  function itemsDe(o){return Array.isArray(o.detalle_pedidos)&&o.detalle_pedidos.length?o.detalle_pedidos:(window.pdUDatos&&pdUDatos.items?pdUDatos.items(o.id)||[]:[])}
+  function prodDe(it){const pid=it.producto_id||it.product_id||it.producto_negocio_id;const n=String(it.nombre_producto||it.producto_nombre||it.nombre||'').trim().toLowerCase();return PR().find(p=>pid&&String(p.id)===String(pid))||PR().find(p=>String(p.nombre||'').trim().toLowerCase()===n)||null}
+  async function devolverStock(o){
+    for(const it of itemsDe(o)){const p=prodDe(it);if(!p)continue;const q=Math.max(1,Math.floor(Number(it.cantidad)||1));
+      try{const r=await D().rpc('increment_product_negocio_stock',{p_product_id:p.id,p_quantity:q});
+        if(r.error&&p.stock!=null&&p.stock!==undefined){await D().from('productos_negocio').update({stock:Math.max(0,Number(p.stock)||0)+q}).eq('id',p.id);p.stock=(Number(p.stock)||0)+q}}catch(e){}}
+  }
+  function anular(id){
+    const o=pedido(id);if(!o)return;const b=hoja('¿Por qué no puedes atenderlo?');if(!b)return;
+    const MOT=['Sin stock','Negocio cerrado o sin personal','No llego a tiempo','El cliente no pagó o no responde','Otro'];let m='';
+    const its=itemsDe(o);
+    b.innerHTML='<p class="pdnMut">Pedido '+E(ref(o.id))+' · '+E(o.nombre_cliente||'Cliente')+'. Pidemás será avisado al instante para hablar con el cliente.</p><div class="pdnChips col">'+MOT.map(x=>'<button type="button" data-m="'+E(x)+'">'+E(x)+'</button>').join('')+'</div>'
+      +'<div id="pdnAgo" hidden><div class="pdnLbl">¿Qué productos se agotaron?</div>'+(its.map((it,i)=>{const p=prodDe(it);return p?'<label class="pdnChk"><input type="checkbox" value="'+E(p.id)+'" checked><span>'+E(p.nombre)+'</span></label>':''}).join('')||'<p class="pdnMut">No se identificaron los productos.</p>')+'<p class="pdnMut">Los marcaremos como agotados para que no te los vuelvan a pedir.</p></div>'
+      +'<input class="x-in" id="pdnAnDet" maxlength="120" placeholder="Detalle (opcional)"><p class="pdnErr" id="pdnAnMsg"></p><button type="button" class="x-btn pdnRojo" id="pdnAnOk" style="background:#B42318!important;border-color:#B42318!important;color:#fff!important">Anular pedido</button><button type="button" class="x-btn light" id="pdnAnNo">Volver</button>';
+    b.onclick=async e=>{
+      const x=e.target.closest('[data-m]');if(x){m=x.dataset.m;b.querySelectorAll('[data-m]').forEach(z=>z.classList.toggle('on',z===x));$('pdnAgo').hidden=m!=='Sin stock';return}
+      if(e.target.closest('#pdnAnNo'))return cerrar();
+      if(!e.target.closest('#pdnAnOk'))return;
+      const det=($('pdnAnDet').value||'').trim();if(!m){$('pdnAnMsg').textContent='Elige un motivo.';return}if(m==='Otro'&&!det){$('pdnAnMsg').textContent='Escribe el motivo.';return}
+      const motivo=[m!=='Otro'?m:'',det].filter(Boolean).join(' · ');
+      if(!(await pdConfirmar('¿Anular el pedido '+ref(o.id)+'?\nMotivo: '+motivo)))return;
+      const btn=$('pdnAnOk');btn.disabled=true;btn.textContent='Anulando…';
+      try{
+        const fresh=await D().from('pedidos').select('estado,en_camino_en').eq('id',o.id).maybeSingle();
+        if(fresh.data&&(!ANULABLE.includes(est(fresh.data))||fresh.data.en_camino_en))throw new Error('El pedido ya avanzó y no se puede anular desde aquí. Escribe a Pidemás.');
+        if(m==='Sin stock'){for(const i of [...b.querySelectorAll('#pdnAgo input:checked')])try{await setDisp(i.value,false)}catch(_){}}
+        else await devolverStock(o);
+        const obs=[o.observaciones||'','Anulado a pedido del negocio: '+motivo].filter(Boolean).join(' | ');
+        let r=await D().from('pedidos').update({estado:'cancelado',cancelado_en:new Date().toISOString(),cancelado_por:'negocio',motivo_cancelacion:motivo,observaciones:obs}).eq('id',o.id).eq('negocio_id',R().id).select('id').maybeSingle();
+        if(r.error)throw r.error;if(!r.data)throw new Error('No se pudo actualizar el pedido.');
+        o.estado='cancelado';o.cancelado_por='negocio';cerrar();
+        try{document.querySelector('#pdoModal .pdoX, #pdoModal [data-close], #pdoModal .pdoClose')?.click()}catch(_){}
+        ok('Pedido anulado. Pidemás ya fue avisado.');try{await loadBusinessOrders()}catch(_){}
+      }catch(x){$('pdnAnMsg').textContent=x.message||String(x);btn.disabled=false;btn.textContent='Anular pedido'}
+    };
+  }
+
+  /* ---------- 3, 8 y 9. Avisos: demora en aceptar, programados y tiempo real ---------- */
+  const visto=new Set(),listos=new Map();
+  function vigilar(){
+    const now=Date.now();
+    OR().forEach(o=>{const id=String(o.id),s=est(o);
+      if(s==='pendiente'){const min=(now-T(o.creado_en))/60000;
+        [[2,'Pedido '+ref(id)+' espera hace 2 min','Acéptalo ahora, el cliente está esperando tu confirmación.'],[4,'¡Pedido '+ref(id)+' sin aceptar hace 4 min!','Si no lo aceptas pronto, Pidemás llamará a tu negocio.']].forEach(([u,t,x])=>{
+          if(min>=u&&min<u+15&&!visto.has(id+':'+u)){visto.add(id+':'+u);alerta({kind:'nuevo',key:'demora:'+id,pedidoId:id,title:t,text:x});try{navigator.vibrate&&navigator.vibrate([400,150,400,150,400])}catch(_){}}})}
+      const pt=programado(o);
+      if(pt&&!['entregado','cancelado'].includes(s)&&pt-now<=40*60000&&pt-now>-10*60000&&!visto.has(id+':prog')){visto.add(id+':prog');alerta({kind:'nuevo',key:'prog:'+id,pedidoId:id,title:'Programado '+ref(id)+' para las '+hora(pt),text:'Empieza a prepararlo para que esté listo a tiempo.'})}
+      const l=o.listo_para_recojo===true;
+      if(listos.has(id)&&!listos.get(id)&&l&&o.negocio_aceptado_en){const real=Math.round(((o.listo_para_recojo_en?T(o.listo_para_recojo_en):now)-T(o.negocio_aceptado_en))/60000),dijo=Number(o.tiempo_preparacion_min)||0;
+        if(real>=0&&real<300)alerta({kind:'ok',pedidoId:id,title:'Lo preparaste en '+real+' min',text:dijo?(real<=dijo?'¡A tiempo! Prometiste '+dijo+' min.':'Prometiste '+dijo+' min. La próxima elige un poco más de tiempo.'):'Buen trabajo.'})}
+      listos.set(id,l);
+    });
+  }
+
+  let n=0;
+  setInterval(()=>{if(!R()||!D())return;n++;try{tools()}catch(e){}try{botonAnular()}catch(e){}if(n%10===1)try{vigilar()}catch(e){}if(n===3||n%600===0)leerCal().then(tools).catch(()=>{})},1000);
+  window.pdNeg={pausa,agotados,pagos,reportes,calificaciones};
+})();
+</script>
+<style id="pd-negocio-mejoras-css">
+html body:not(.pdpm-open) #pedidosTab#pedidosTab#pedidosTab#pedidosTab#pedidosTab#pedidosTab > #pdnTools#pdnTools#pdnTools#pdnTools#pdnTools{display:grid!important}
+html body.pdpm-open #pdnTools#pdnTools#pdnTools{display:none!important}
+html:root body #pdnTools{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:0 0 14px}
+html:root body #pdnTools .pdnProg{grid-column:1/-1;padding:10px 12px;border-radius:14px;background:#FFF1E8;border:1px solid #F1C9B6;font:600 13.5px var(--font,Inter,sans-serif);color:#7A2E0E}
+html:root body #pdnTools .pdnT{all:unset;box-sizing:border-box;display:flex;align-items:center;gap:10px;min-height:64px;padding:10px 12px;border-radius:16px;background:#fff;border:1px solid #F1E4DC;cursor:pointer;-webkit-tap-highlight-color:transparent}
+html:root body #pdnTools .pdnT.wide{grid-column:1/-1}
+html:root body #pdnTools#pdnTools#pdnTools .pdnT svg{display:block!important;flex:0 0 22px!important;width:22px!important;height:22px!important;fill:none!important;stroke:#C4410C!important;stroke-width:1.9!important;stroke-linecap:round;stroke-linejoin:round;visibility:visible!important;opacity:1!important}
+html:root body #pdnTools .pdnT span{display:flex;flex-direction:column;min-width:0}
+html:root body #pdnTools .pdnT b{font:800 14px var(--font,Inter,sans-serif);color:#1F1A17}
+html:root body #pdnTools .pdnT small{font:500 12px/1.3 var(--font,Inter,sans-serif);color:#6E625A}
+html:root body #pdnTools .pdnT.on{background:#C4410C;border-color:#C4410C}
+html:root body #pdnTools .pdnT.on b,html:root body #pdnTools .pdnT.on small{color:#fff}
+html:root body #pdnTools#pdnTools#pdnTools .pdnT.on svg{stroke:#fff!important;fill:#fff!important}
+html:root body .pdnBody{display:flex;flex-direction:column;gap:10px;font-family:var(--font,Inter,sans-serif)}
+html:root body .pdnMut{margin:0;font:500 13.5px/1.45 var(--font,Inter,sans-serif);color:#6E625A}
+html:root body .pdnErr{margin:0;min-height:0;font:600 13.5px var(--font,Inter,sans-serif);color:#B42318}
+html:root body .pdnErr:empty{display:none}
+html:root body .pdnOk{margin:0;font:700 14px var(--font,Inter,sans-serif);color:#1F6B3A}
+html:root body .pdnLbl{margin:8px 0 0;font:800 14px var(--font,Inter,sans-serif);color:#1F1A17}
+html:root body .pdnStat{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:14px 16px;border-radius:16px;background:#C4410C;color:#fff}
+html:root body .pdnStat span{font:600 13.5px var(--font,Inter,sans-serif)}
+html:root body .pdnStat b{font:800 22px var(--font,Inter,sans-serif)}
+html:root body .pdnStat.warn{background:#FFF1E8;color:#7A2E0E;border:1px solid #F1C9B6}
+html:root body .pdnRow{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid #F5ECE6}
+html:root body .pdnRow > span{display:flex;flex-direction:column;min-width:0;gap:2px}
+html:root body .pdnRow b{font:700 14px var(--font,Inter,sans-serif);color:#1F1A17}
+html:root body .pdnRow small{font:500 12.5px/1.35 var(--font,Inter,sans-serif);color:#6E625A}
+html:root body .pdnChips{display:flex;flex-wrap:wrap;gap:8px}
+html:root body .pdnChips.col{flex-direction:column}
+html:root body .pdnChips button{all:unset;box-sizing:border-box;padding:10px 14px;border-radius:999px;border:1px solid #F1C9B6;background:#fff;color:#1F1A17;font:600 14px var(--font,Inter,sans-serif);cursor:pointer;text-align:center}
+html:root body .pdnChips.col button{border-radius:14px;text-align:left;padding:12px 14px}
+html:root body .pdnChips button.on{background:#C4410C;border-color:#C4410C;color:#fff}
+html:root body .pdnGrid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+html:root body .pdnGrid div{display:flex;flex-direction:column;gap:2px;padding:10px 12px;border-radius:14px;background:#FFF9F5;border:1px solid #F1E4DC}
+html:root body .pdnGrid span{font:600 12px var(--font,Inter,sans-serif);color:#6E625A}
+html:root body .pdnGrid b{font:800 17px var(--font,Inter,sans-serif);color:#1F1A17}
+html:root body .pdnHoras,html:root body .pdnDist{display:flex;flex-direction:column;gap:5px}
+html:root body .pdnHoras div,html:root body .pdnDist div{display:grid;grid-template-columns:44px 1fr 28px;align-items:center;gap:8px;font:600 12.5px var(--font,Inter,sans-serif);color:#6E625A}
+html:root body .pdnHoras i,html:root body .pdnDist i{display:block;height:10px;border-radius:6px;background:#F5ECE6;overflow:hidden}
+html:root body .pdnHoras s,html:root body .pdnDist s{display:block;height:100%;background:#C4410C;border-radius:6px}
+html:root body .pdnHoras b,html:root body .pdnDist b{text-align:right;color:#1F1A17}
+html:root body .pdnCal{display:flex;flex-direction:column;align-items:center;gap:2px;padding:8px 0}
+html:root body .pdnCal > b{font:900 40px var(--font,Inter,sans-serif);color:#1F1A17}
+html:root body .pdnCal small{font:600 13px var(--font,Inter,sans-serif);color:#6E625A}
+html:root body .pdnStars{color:#F59E0B!important;letter-spacing:1px;font-size:16px}
+html:root body .pdnRow b.pdnStars{font-size:14px}
+html:root body .pdnSw{all:unset;box-sizing:border-box;position:relative;flex:0 0 50px;width:50px;height:30px;border-radius:999px;background:#E5DCD6;cursor:pointer;transition:background .15s}
+html:root body .pdnSw i{position:absolute;top:3px;left:3px;width:24px;height:24px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.2);transition:transform .15s}
+html:root body .pdnSw.on{background:#1F9D55}
+html:root body .pdnSw.on i{transform:translateX(20px)}
+html:root body .pdnChk{display:flex;align-items:center;gap:10px;padding:8px 0;font:600 14px var(--font,Inter,sans-serif);color:#1F1A17}
+html:root body .pdnChk input{width:20px;height:20px;accent-color:#C4410C}
+html:root body .pdnRojo{background:#B42318!important;border-color:#B42318!important;color:#fff!important}
+html:root body .pdnCsv{text-decoration:none;display:flex;align-items:center;justify-content:center;margin-top:6px}
+html:root body #pdoModal .pdoFoot > .pdnAnular{all:unset;box-sizing:border-box;display:block;width:100%;margin-top:8px;padding:12px;border-radius:14px;border:1px solid #F3C2BC;background:#FEF3F2;color:#B42318;font:700 14px var(--font,Inter,sans-serif);text-align:center;cursor:pointer}
+</style>
 </body></html>
 
 <script id="pidemas-negocio-pro-js">
