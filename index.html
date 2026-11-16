@@ -8457,7 +8457,7 @@ html:root body:not(#pdZ#pdZ#pdZ#pdZ#pdZ#pdZ#pdZ#pdZ#pdZ#pdZ#pdZ#pdZ#pdZ#pdZ#pdZ#
 (function(){
 if(window.__pdmu)return;window.__pdmu=1;
 /* Pantallas completas que NO son ventanas: carga, ingreso, mapas grandes, menú lateral, avisos arriba */
-const NO=/pdCarga|piCartaCarga|loginView|login|Login|pdmcFull|pdubMapa|pdmpMapa|pdVerMapa|Mapa|Suspend|PermGate|Confeti|confeti|MenuShade|pdMenu|sideMenu|drawer|Drawer|pdxAlerts|toast|Toast|pdfx|pdInstalar|pdUpd|pdA\b|splash|Splash/;
+const NO=/pdnOv|pdCarga|piCartaCarga|loginView|login|Login|pdmcFull|pdubMapa|pdmpMapa|pdVerMapa|Mapa|Suspend|PermGate|Confeti|confeti|MenuShade|pdMenu|sideMenu|drawer|Drawer|pdxAlerts|toast|Toast|pdfx|pdInstalar|pdUpd|pdA\b|splash|Splash/;
 const POSIBLE=/modal|Modal|sheet|Sheet|overlay|Overlay|dialog|Dialog|hoja|Hoja|velo|Velo|popup|Popup|Bg\b|Fondo|Wrap\b|pdpm|pdcf|pdDlg|pdExito|Exito|Shade/;
 const vw=()=>innerWidth,vh=()=>innerHeight;
 function nombre(e){return (e.id||'')+' '+(typeof e.className==='string'?e.className:'')}
@@ -8798,8 +8798,12 @@ try{const orig=HTMLInputElement.prototype.showPicker;if(orig)HTMLInputElement.pr
   let ovCerrar=null;
   function hoja(t){
     cerrar();
-    const ov=document.createElement('div');ov.id='pdnOv';ov.className='pdnOv';ov.setAttribute('role','dialog');ov.setAttribute('aria-modal','true');ov.setAttribute('aria-label',t);
-    ov.innerHTML='<div class="pdnSh"><div class="pdnHd"><h2>'+E(t)+'</h2><button type="button" class="pdnX" aria-label="Cerrar">&times;</button></div><div class="pdnBody"><p class="pdnMut">Cargando…</p></div></div>';
+    const ov=document.createElement('div');ov.id='pdnOv';ov.className='pdnOv';
+    ov.innerHTML='<div class="pdnSh" role="dialog" aria-modal="true" aria-label="'+E(t)+'"><div class="pdnHd"><h2>'+E(t)+'</h2><button type="button" class="pdnX" aria-label="Cerrar">&times;</button></div><div class="pdnBody"><p class="pdnMut">Cargando…</p></div></div>';
+    (function(){const st=(el,o)=>{for(const k in o)el.style.setProperty(k,o[k],'important')};
+      st(ov.querySelector('.pdnSh'),{'border-radius':'24px 24px 0 0','border':'1px solid #EFE3DA','border-bottom':'0','box-shadow':'none','padding':'0','margin':'0','background':'#fff'});
+      st(ov.querySelector('.pdnHd'),{'border-radius':'24px 24px 0 0','border':'0','border-bottom':'1px solid #EFE3DA','box-shadow':'none','margin':'0','background':'#fff'});
+      st(ov.querySelector('.pdnBody'),{'border-radius':'0','border':'0','box-shadow':'none','margin':'0','background':'#FFF9F5'});})();
     document.body.appendChild(ov);document.documentElement.classList.add('pdnOvOpen');
     requestAnimationFrame(()=>ov.classList.add('open'));
     const fin=()=>{if(!ov.isConnected)return;ov.classList.remove('open');document.documentElement.classList.remove('pdnOvOpen');setTimeout(()=>ov.remove(),180);if(ovCerrar===fin)ovCerrar=null};
@@ -9151,6 +9155,8 @@ buscar();
 @keyframes pdxUp{from{transform:translateY(100%);opacity:1}to{transform:none;opacity:1}}
 @keyframes pnaUp{from{transform:translateY(100%);opacity:1}to{transform:none;opacity:1}}
 </style>
+<style id="pd-velo-recto">html body [data-pdm-velo][data-pdm-velo][data-pdm-velo],html body [data-pd-sin-velo][data-pd-sin-velo][data-pd-sin-velo],html body .pdnOv.pdnOv.pdnOv{border-radius:0!important;border:0!important;box-shadow:none!important;outline:0!important}</style>
+<style id="pd-pdn-fix">html:root body:not(#pdQn#pdQn#pdQn#pdQn#pdQn#pdQn#pdQn#pdQn#pdQn#pdQn#pdQn#pdQn#pdQn#pdQn#pdQn#pdQn#pdQn#pdQn#pdQn#pdQn#pdQn#pdQn#pdQn#pdQn#pdQn#pdQn#pdQn#pdQn#pdQn#pdQn#pdQn#pdQn#pdQn#pdQn#pdQn#pdQn#pdQn#pdQn#pdQn#pdQn) #pdnOv#pdnOv .pdnSh{border-radius:24px 24px 0 0!important;border:1px solid #EFE3DA!important;border-bottom:0!important;box-shadow:none!important;padding:0!important;margin:0!important;background:#fff!important}html:root body:not(#pdQn#pdQn#pdQn#pdQn#pdQn#pdQn#pdQn#pdQn#pdQn#pdQn#pdQn#pdQn#pdQn#pdQn#pdQn#pdQn#pdQn#pdQn#pdQn#pdQn#pdQn#pdQn#pdQn#pdQn#pdQn#pdQn#pdQn#pdQn#pdQn#pdQn#pdQn#pdQn#pdQn#pdQn#pdQn#pdQn#pdQn#pdQn#pdQn#pdQn) #pdnOv#pdnOv .pdnHd{border-radius:24px 24px 0 0!important;border:0!important;border-bottom:1px solid #EFE3DA!important;box-shadow:none!important;margin:0!important}html:root body:not(#pdQn#pdQn#pdQn#pdQn#pdQn#pdQn#pdQn#pdQn#pdQn#pdQn#pdQn#pdQn#pdQn#pdQn#pdQn#pdQn#pdQn#pdQn#pdQn#pdQn#pdQn#pdQn#pdQn#pdQn#pdQn#pdQn#pdQn#pdQn#pdQn#pdQn#pdQn#pdQn#pdQn#pdQn#pdQn#pdQn#pdQn#pdQn#pdQn#pdQn) #pdnOv#pdnOv .pdnBody{border-radius:0!important;border:0!important;box-shadow:none!important;margin:0!important}</style>
 </body></html>
 
 <script id="pidemas-negocio-pro-js">
