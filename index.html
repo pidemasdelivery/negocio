@@ -8795,8 +8795,24 @@ try{const orig=HTMLInputElement.prototype.showPicker;if(orig)HTMLInputElement.pr
   const fH=v=>{try{return new Date(v).toLocaleString('es-PE',{timeZone:'America/Lima',day:'2-digit',month:'short',hour:'numeric',minute:'2-digit'})}catch(e){return ''}};
   const sub=o=>{const s=Number(o.subtotal);if(Number.isFinite(s))return s;const t=Number(o.total),d=Number(o.costo_delivery);return Number.isFinite(t)?t-(Number.isFinite(d)?d:0):0};
   const alerta=a=>{try{window.pdAlert&&window.pdAlert(a)}catch(e){}};
-  function hoja(t){if(window.pdxOpenSheet){const b=window.pdxOpenSheet(t);const sh=$('pdxSheet');if(sh){sh.style.setProperty('z-index','2147483647','important');if(sh!==document.body.lastElementChild)document.body.appendChild(sh)}if(b){b.innerHTML='<div class="pdnBody"><p class="pdnMut">Cargando…</p></div>';return b.firstElementChild}}return null}
-  const cerrar=()=>{try{window.pdxCloseSheet&&window.pdxCloseSheet()}catch(e){}};
+  let ovCerrar=null;
+  function hoja(t){
+    cerrar();
+    const ov=document.createElement('div');ov.id='pdnOv';ov.className='pdnOv';ov.setAttribute('role','dialog');ov.setAttribute('aria-modal','true');ov.setAttribute('aria-label',t);
+    ov.innerHTML='<div class="pdnSh"><div class="pdnHd"><h2>'+E(t)+'</h2><button type="button" class="pdnX" aria-label="Cerrar">&times;</button></div><div class="pdnBody"><p class="pdnMut">Cargando…</p></div></div>';
+    document.body.appendChild(ov);document.documentElement.classList.add('pdnOvOpen');
+    requestAnimationFrame(()=>ov.classList.add('open'));
+    const fin=()=>{if(!ov.isConnected)return;ov.classList.remove('open');document.documentElement.classList.remove('pdnOvOpen');setTimeout(()=>ov.remove(),180);if(ovCerrar===fin)ovCerrar=null};
+    ovCerrar=fin;ov.querySelector('.pdnX').onclick=fin;ov.addEventListener('click',e=>{if(e.target===ov)fin()});
+    /* arrastrar hacia abajo para cerrar */
+    const sh=ov.querySelector('.pdnSh'),hd=ov.querySelector('.pdnHd');let y0=null,dy=0;
+    hd.addEventListener('touchstart',e=>{y0=e.touches[0].clientY;dy=0;sh.style.transition='none'},{passive:true});
+    hd.addEventListener('touchmove',e=>{if(y0==null)return;dy=Math.max(0,e.touches[0].clientY-y0);sh.style.transform='translateY('+dy+'px)'},{passive:true});
+    hd.addEventListener('touchend',()=>{sh.style.transition='';if(dy>90)fin();else sh.style.transform='';y0=null});
+    return ov.querySelector('.pdnBody');
+  }
+  function cerrar(){try{ovCerrar&&ovCerrar()}catch(e){}}
+  document.addEventListener('keydown',e=>{if(e.key==='Escape')cerrar()});
   const ok=t=>(window.pdExito||window.pdAviso||alert)(t);
   const err=t=>(window.pdAviso||alert)(t);
   function programado(o){try{if(o.programado_para)return T(o.programado_para);const s=String(o.observaciones||''),i=s.indexOf('__PIDEMAS_DELIVERY__');if(i<0)return 0;const m=s.slice(i).match(/"programado":"([^"]+)"/);return m?T(m[1]):0}catch(e){return 0}}
@@ -9004,7 +9020,24 @@ html:root body #pdnTools .pdnT small{font:500 12px/1.3 var(--font,Inter,sans-ser
 html:root body #pdnTools .pdnT.on{background:#C4410C;border-color:#C4410C}
 html:root body #pdnTools .pdnT.on b,html:root body #pdnTools .pdnT.on small{color:#fff}
 html:root body #pdnTools#pdnTools#pdnTools .pdnT.on svg{stroke:#fff!important;fill:#fff!important}
-html:root body .pdnBody{display:flex;flex-direction:column;gap:10px;font-family:var(--font,Inter,sans-serif)}
+html:root body .pdnBody{display:flex;flex-direction:column;gap:10px;box-sizing:border-box;font-family:var(--font,Inter,sans-serif)}
+html:root body .pdnOv{position:fixed;inset:0;z-index:2147483647;display:flex;align-items:flex-end;background:rgba(31,26,23,0);transition:background .18s ease}
+html:root body .pdnOv.open{background:rgba(31,26,23,.52)}
+html:root body .pdnOv .pdnSh{position:relative;width:100%;max-height:calc(100% - 56px);display:flex;flex-direction:column;background:#fff;border-radius:24px 24px 0 0;overflow:hidden;transform:translateY(100%);transition:transform .2s ease;font-family:var(--font,Inter,sans-serif)}
+html:root body .pdnOv.open .pdnSh{transform:translateY(0)}
+html:root body .pdnOv .pdnSh::before{content:'';position:absolute;top:8px;left:50%;width:40px;height:5px;margin-left:-20px;border-radius:99px;background:#EFE3DA;z-index:5}
+html:root body .pdnOv .pdnHd{flex:0 0 auto;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:22px 16px 12px;background:#fff;border-bottom:1px solid #EFE3DA;touch-action:none}
+html:root body .pdnOv .pdnHd h2{margin:0;font:800 19px/1.25 var(--font,Inter,sans-serif);color:#C4410C;letter-spacing:-.01em}
+html:root body .pdnOv .pdnX{all:unset;box-sizing:border-box;flex:0 0 40px;width:40px;height:40px;display:grid;place-items:center;border-radius:12px;background:#fff;border:1px solid #EFE3DA;color:#1F1A17;font-size:22px;line-height:1;cursor:pointer}
+html:root body .pdnOv .pdnBody{flex:1 1 auto;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;background:#FFF9F5;padding:14px 16px calc(20px + env(safe-area-inset-bottom))}
+html.pdnOvOpen,html.pdnOvOpen body{overflow:hidden!important}
+html:root body .pdnOv .pdnRow{background:#fff;border:1px solid #EFE3DA;border-radius:14px;padding:12px 14px;margin:0}
+html:root body .pdnOv .pdnGrid div{background:#fff;border-color:#EFE3DA}
+html:root body .pdnOv .pdnChips button{background:#fff}
+html:root body .pdnOv .pdnCal,html:root body .pdnOv .pdnDist,html:root body .pdnOv .pdnHoras{background:#fff;border:1px solid #EFE3DA;border-radius:16px;padding:14px}
+html:root body .pdnOv .pdnLbl{margin-top:6px}
+html:root body .pdnOv input.x-in{background:#fff}
+
 html:root body .pdnMut{margin:0;font:500 13.5px/1.45 var(--font,Inter,sans-serif);color:#6E625A}
 html:root body .pdnErr{margin:0;min-height:0;font:600 13.5px var(--font,Inter,sans-serif);color:#B42318}
 html:root body .pdnErr:empty{display:none}
@@ -9044,7 +9077,7 @@ html:root body .pdnSw.on i{transform:translateX(20px)}
 html:root body .pdnChk{display:flex;align-items:center;gap:10px;padding:8px 0;font:600 14px var(--font,Inter,sans-serif);color:#1F1A17}
 html:root body .pdnChk input{width:20px;height:20px;accent-color:#C4410C}
 html:root body .pdnRojo{background:#B42318!important;border-color:#B42318!important;color:#fff!important}
-html:root body .pdnCsv{text-decoration:none;display:flex;align-items:center;justify-content:center;margin-top:6px}
+html:root body .pdnOv a.pdnCsv{text-decoration:none!important;display:flex!important;align-items:center;justify-content:center;min-height:48px;margin-top:6px;border-radius:14px;border:1px solid #C4410C;background:#fff;color:#C4410C!important;font:800 14.5px var(--font,Inter,sans-serif)}
 html:root body #pdoModal .pdoFoot > .pdnAnular{all:unset;box-sizing:border-box;display:block;width:100%;margin-top:8px;padding:12px;border-radius:14px;border:1px solid #F3C2BC;background:#FEF3F2;color:#B42318;font:700 14px var(--font,Inter,sans-serif);text-align:center;cursor:pointer}
 </style>
 </body></html>
