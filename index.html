@@ -2117,7 +2117,8 @@ html body #pdxPerf#pdxPerf#pdxPerf#pdxPerf#pdxPerf#pdxPerf#pdxPerf#pdxPerf #pdxL
 html.pdxSheetOpen body #nav#nav#nav#nav#nav#nav#nav#nav#nav#nav{display:none!important}
 </style>
 
-<meta name="pd-version" content="20261106204500"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover"><title>Pidemás | Panel Negocio</title>
+<meta name="pd-instalacion" content="1">
+<meta name="pd-version" content="202611161652"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover"><title>Pidemás | Panel Negocio</title>
 <link rel="manifest" href="manifest.webmanifest">
 <meta name="theme-color" content="#FFF9F5">
 <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
@@ -2454,6 +2455,7 @@ html:root body:not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#
   const visto=new WeakMap();
   function revisarMsg(el){
     if(!el||el.closest('#pdDlg,#pdAvisoPila,#pdPermGate,#pdAlerts,#pdxAlerts,#pdAvisoStack'))return;
+    if(el.closest('.pdpaW,.pdpa,.pidemas-order-modal-content,#pdoBody,.adminOrderCard,.pdDS')||el.querySelector('.pdpaW,button,input,select,textarea')||el.children.length>4)return;
     const t=(el.textContent||'').replace(/\s+/g,' ').trim();
     if(!t){if(el.dataset.pdExitoOculto){el.style.removeProperty('display');delete el.dataset.pdExitoOculto}return}
     if(visto.get(el)===t)return;visto.set(el,t);
@@ -2620,6 +2622,22 @@ html:root body:not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#
 html:root body:not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ) #pdxDescSheet #pdxDescMsg:empty{display:none!important}
 html:root body:not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ):not(#pdZ) #pdxDescSheet #pdxDescMsg{font:600 12.5px/1.3 var(--font)!important;color:#1E7A43!important;padding:0 4px!important}
 </style>
+
+<style id="pd-neg-yape-css">
+#pdnTools .pdnT.falta small{color:#C4410C!important;font-weight:700!important}
+.pdnYNota{display:flex;flex-direction:column;gap:4px;padding:12px 14px;border-radius:14px;background:#FFF4EC;border:1px solid #F1C9B6;font:500 14px/1.45 Inter,system-ui,sans-serif;color:#1F1A17}
+.pdnYNota b{font:800 15px Inter,system-ui,sans-serif;color:#9A330A}
+.pdnYQr{display:flex;align-items:center;justify-content:center;width:220px!important;height:220px!important;min-height:220px!important;flex:0 0 auto!important;margin:14px auto 6px;border-radius:16px;background:#fff;border:1px solid #EFE3DA;overflow:hidden}
+.pdnYQr img{width:100%!important;height:100%!important;max-height:none!important;object-fit:contain!important;display:block}
+.pdnYQr.vacio{border-style:dashed;color:#6B5E55;font:600 14px Inter,system-ui,sans-serif;text-align:center;padding:16px;box-sizing:border-box}
+.pdnYLb{display:block;margin:12px 0 6px;font:700 14px Inter,system-ui,sans-serif;color:#1F1A17}
+.pdnYBtns{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:16px}
+.pdnYBtns .x-btn{width:100%;margin:0}
+html:root body .pdnYBtns #pdnYSave:is(#pdnYSave,#pyX#pyX#pyX#pyX#pyX#pyX#pyX#pyX){background:#C4410C!important;color:#fff!important;border:0!important;min-height:48px!important;border-radius:14px!important;font:800 15px Inter,system-ui,sans-serif!important}
+html:root body .pdnYBtns #pdnYPick:is(#pdnYPick,#pyX#pyX#pyX#pyX#pyX#pyX#pyX#pyX){min-height:48px!important;border-radius:14px!important;font:800 15px Inter,system-ui,sans-serif!important}
+.pdnYBtns .x-btn.ghost{background:#fff!important;color:#C4410C!important;border:1.5px solid #C4410C!important}
+.pdnYQuitar{display:block;margin:12px auto 0;background:none;border:0;color:#B42318;font:700 14px Inter,system-ui,sans-serif;min-height:44px;cursor:pointer}
+</style>
 </head><body>
 <style id="pd-instalar-css">
 /* Instalar la app (igual que en la Tienda) */
@@ -2645,6 +2663,7 @@ html body #pdInstalar .shr{display:inline-block;vertical-align:-3px;width:16px;h
   const instalada=()=>matchMedia('(display-mode: standalone)').matches||matchMedia('(display-mode: fullscreen)').matches||navigator.standalone===true;
   const ua=navigator.userAgent||'';
   const iOS=/iphone|ipad|ipod/i.test(ua)||(/macintosh/i.test(ua)&&navigator.maxTouchPoints>1);
+  const android=/android/i.test(ua)&&!/wv\)|; wv/i.test(ua);
   const iOSSafari=iOS&&/safari/i.test(ua)&&!/crios|fxios|edgios|opios|gsa\//i.test(ua);
   const NO='pdInstalarNo:'+location.pathname.replace(/[^/]*$/,''),DIAS=14; /* cada app guarda su propia respuesta */
   const descartado=()=>{const t=Number(ls.get(NO)||0);return t&&Date.now()-t<DIAS*864e5};
@@ -2653,13 +2672,14 @@ html body #pdInstalar .shr{display:inline-block;vertical-align:-3px;width:16px;h
       const cs=getComputedStyle(el);if(cs.position!=='fixed'||cs.display==='none'||cs.visibility==='hidden'||el.hidden)continue;
       const r=el.getBoundingClientRect();if(r.width*r.height>W*H*0.45)return true}return false}
   let aviso=null,card=null,intentos=0;
-  addEventListener('beforeinstallprompt',e=>{e.preventDefault();aviso=e;programar(6000)});
+  addEventListener('beforeinstallprompt',e=>{e.preventDefault();aviso=e;programar(400)});
+  setTimeout(function(){if(!aviso&&android&&!instalada())programar(0)},3000);
   addEventListener('appinstalled',()=>{ls.set(NO,String(Date.now()+3650*864e5));if(card)card.hidden=true});
   function programar(ms){if(instalada()||descartado()||card&&!card.hidden)return;clearTimeout(programar.t);programar.t=setTimeout(intentar,ms)}
   function intentar(){
     if(instalada()||descartado())return;
-    if(!aviso&&!iOSSafari)return;
-    if(hayVentana()||document.activeElement&&/INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName)){if(++intentos<40)programar(5000);return}
+    if(!aviso&&!iOSSafari&&!android)return;
+    if(hayVentana()||document.activeElement&&/INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName)){if(++intentos<40)programar(1500);return}
     mostrar();
   }
   function mostrar(){
@@ -2668,6 +2688,7 @@ html body #pdInstalar .shr{display:inline-block;vertical-align:-3px;width:16px;h
     const ico='<span class="ico"'+(icono?' style="background-image:url(\''+icono.replace(/'/g,'%27')+'\')"':'')+'>'+(icono?'':'P')+'</span>';
     card.innerHTML=aviso
       ?ico+'<span class="tx"><b>Instala '+NOMBRE+'</b><small>Ábrela desde tu inicio, más rápida y a pantalla completa.</small></span><span class="bt"><button type="button" class="si">Instalar</button><button type="button" class="no">Ahora no</button></span>'
+      :android?ico+'<span class="tx"><b>Instala '+NOMBRE+'</b><small>Toca ⋮ (arriba a la derecha) y luego «Instalar app» o «Agregar a pantalla principal». Si ya la tienes, ábrela desde tu inicio.</small></span><span class="bt"><button type="button" class="no">Entendido</button></span>'
       :ico+'<span class="tx"><b>Instala '+NOMBRE+'</b><small>Toca <svg class="shr" viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V3"/><path d="m7 8 5-5 5 5"/><path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7"/></svg> Compartir y luego «Agregar a inicio».</small></span><span class="bt"><button type="button" class="no">Entendido</button></span>';
     card.hidden=false;
     const hd=document.querySelector('header.top,header');const r=hd&&hd.getBoundingClientRect();
@@ -2676,7 +2697,7 @@ html body #pdInstalar .shr{display:inline-block;vertical-align:-3px;width:16px;h
     const si=card.querySelector('.si');
     if(si)si.onclick=async()=>{const ev=aviso;aviso=null;card.hidden=true;if(!ev)return;try{ev.prompt();const r=await ev.userChoice;if(r&&r.outcome!=='accepted')ls.set(NO,String(Date.now()))}catch(e){}};
   }
-  if(iOSSafari&&!instalada())programar(12000);
+  if(iOSSafari&&!instalada())programar(400);
 })();
 </script>
 
@@ -3495,6 +3516,10 @@ function businessOrderDetails(o){
     return `${esc(name)} × ${qty}${price}`;
   }).join('<br>')||'Detalle no disponible; revisar detalle_pedidos';
 }
+function pdYapeTexto(o){
+  try{const r=restaurant||{};if(String(o&&o.metodo_pago||'').toLowerCase()!=='yape'||!(r.yape_qr_url||r.yape_numero))return '';
+    return '\n\n*Puedes pagar por Yape:*'+(r.yape_numero?'\nNúmero: '+r.yape_numero:'')+(r.yape_titular?'\nTitular: '+r.yape_titular:'')+(r.yape_qr_url?'\nQR: '+r.yape_qr_url:'')+'\n\nCuando pagues, envíanos la captura por aquí.';}catch(e){return ''}
+}
 async function businessWhatsApp(orderOrId){
   // El botón envía el ID del pedido; recuperar el objeto completo antes de leer el teléfono.
   const o = (orderOrId && typeof orderOrId === 'object')
@@ -3568,7 +3593,7 @@ async function businessWhatsApp(orderOrId){
   const deliveryText=Number.isFinite(delivery)?`S/ ${deliveryValue.toFixed(2)}`:'por confirmar';
   const totalText=Number.isFinite(total)?`S/ ${total.toFixed(2)}`:'por confirmar';
   const detailText=itemLines.length?itemLines.join('\n'):'Detalle de productos no disponible en el registro.';
-  const message=`Hola${o.nombre_cliente?' '+o.nombre_cliente:''}, te contacto de ${restaurant?.nombre||'tu negocio'} por tu pedido #${code}.\n\n*Detalle de tu pedido:*\n${detailText}\n\nSubtotal de productos: ${subtotalText}\nDelivery: ${deliveryText}\n*TOTAL A PAGAR: ${totalText}*\n\nQueremos coordinar el pago para continuar con el pedido.`;
+  const message=`Hola${o.nombre_cliente?' '+o.nombre_cliente:''}, te contacto de ${restaurant?.nombre||'tu negocio'} por tu pedido #${code}.\n\n*Detalle de tu pedido:*\n${detailText}\n\nSubtotal de productos: ${subtotalText}\nDelivery: ${deliveryText}\n*TOTAL A PAGAR: ${totalText}*\n\nQueremos coordinar el pago para continuar con el pedido.${pdYapeTexto(o)}`;
   const url=`https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
   // Abrir desde la acción directa del usuario para evitar bloqueos del navegador móvil.
   const link=document.createElement('a');
@@ -4547,9 +4572,10 @@ async function init(){try{setupLoginOptions();$('loginBtn').addEventListener('cl
     const pago=window.__pdxP[id];
     if(!pago){show($('businessOrdersMsg'),'Primero coordina el pago con el cliente y elige cómo quedó.');document.querySelector(`[data-order="${CSS.escape(String(id))}"] .x-pChips`)?.scrollIntoView({behavior:'smooth',block:'center'});return}
     const min=window.__pdxT[id]||15,now=new Date().toISOString();
-    const txt={efectivo:'el motorizado cobrará todo en efectivo',yape:'el motorizado cobrará todo con Yape (QR)',solo_delivery:'el motorizado cobrará solo el delivery',pagado:'el motorizado no cobrará nada (tú ya pagaste el delivery a Pidemás)'}[pago];
+    if(pago==='yape_negocio'){const rr=(typeof restaurant!=='undefined'&&restaurant)||{};if(!rr.yape_qr_url){show($('businessOrdersMsg'),'Primero sube tu QR de Yape: el motorizado se lo mostrará al cliente para que pague.');if(typeof window.pdNegYape==='function')window.pdNegYape();return}}
+    const txt={efectivo:'el motorizado cobrará todo en efectivo',yape:'el motorizado cobrará todo con Yape (QR)',yape_negocio:'el motorizado cobrará todo con TU QR de Yape (el dinero llega a tu cuenta) y luego Pidemás te cobrará el delivery',solo_delivery:'el motorizado cobrará solo el delivery',pagado:'el motorizado no cobrará nada (tú ya pagaste el delivery a Pidemás)'}[pago];
     if(!(await pdConfirmar('¿Confirmas el pedido? Se enviará a Pidemás para asignar motorizado y '+txt+'.')))return;
-    const patch={estado:'confirmado',pago_acordado:pago,metodo_pago:pago==='pagado'?(o.metodo_pago||'yape'):pago==='solo_delivery'?(String(o.metodo_pago||'').toLowerCase()==='efectivo'?'efectivo':'yape'):pago,pago_confirmado:pago==='pagado',pago_negocio_confirmado:true,pago_negocio_confirmado_en:now,negocio_aceptado_en:now,tiempo_preparacion_min:min};
+    const patch={estado:'confirmado',pago_acordado:pago,metodo_pago:pago==='yape_negocio'?'yape':pago==='pagado'?(o.metodo_pago||'yape'):pago==='solo_delivery'?(String(o.metodo_pago||'').toLowerCase()==='efectivo'?'efectivo':'yape'):pago,pago_confirmado:pago==='pagado',pago_negocio_confirmado:true,pago_negocio_confirmado_en:now,negocio_aceptado_en:now,tiempo_preparacion_min:min};
     if(pago==='pagado'&&window.__pdxCap&&window.__pdxCap[id])patch.observaciones=[o.observaciones||'','DELIVERY PAGADO POR EL NEGOCIO A PIDEMÁS (captura enviada por WhatsApp)'].filter(Boolean).join(' | ');
     await updateBusinessOrder(id,patch,'Pedido confirmado y enviado a Pidemás. Prepáralo: estará listo en '+min+' min.');
   };
@@ -6042,7 +6068,7 @@ window.pdMapa={elegir,tarjeta,coords,linkDe,leaflet,PIN,repintar:()=>tarjetas.fo
       return `<div class="x-cashInfo"><b class="t">Paga en efectivo al recibir</b><div class="r"><span>El motorizado cobra</span><b>${money(tot)}</b></div>${info}</div>${tiempo}${fin}`;
     }
     const pg=window.__pdxP[id]||'';
-    const ops=[['yape','Cliente paga productos + delivery'],['solo_delivery','Cliente paga solo delivery'],['pagado','Cliente pagó todo, yo pago']];
+    const ops=[['yape_negocio','Paga todo al recibir con mi Yape'],['solo_delivery','Me pagó productos, falta el delivery'],['pagado','Cliente pagó todo, yo pago']];
     const del=Number(o.costo_delivery)||0;
     const qr=cfg&&cfg.url?`<img src="${E(cfg.url)}" alt="QR de Yape de Pidemás">`:'';
     const datos=[cfg&&cfg.numero?'Yape '+cfg.numero:'',cfg&&cfg.titular||''].filter(Boolean).join(' · ')||'Yape de Pidemás';
@@ -6461,6 +6487,11 @@ window.pdTxt=function(s){
         if(tipo==='Recojo y entrega'&&!fin)C.push({t:'Paga quien recibe'});
       }
       if(!pc&&!cancel&&mm==='Efectivo'){const d=efectivoMarca(o);if(d&&Number(d.monto)>0)C.push({t:'Paga con <b>'+money(d.monto)+'</b> · vuelto <b>'+money(Math.max(0,Number(d.monto)-tot))+'</b>'})}
+    }else if(pa==='yape_negocio'){
+      C.push(pc?{t:'Cobrado con el Yape del negocio · <b>'+money(tot)+'</b>',c:'ok'}:{t:(fin?'Pago por confirmar':'Cobrar')+' <b>'+money(tot)+'</b> con el Yape del negocio',c:fin?'warn':'dk'});
+      if(o.yape_negocio_estado==='esperando')C.push({t:'Esperando que el negocio confirme el Yape',c:'warn'});else if(o.yape_negocio_estado==='llego')C.push({t:'El negocio confirmó que le llegó el Yape',c:'ok'});else if(o.yape_negocio_estado==='no_llego')C.push({t:'Al negocio NO le llegó el Yape',c:'warn'});
+      if(o.delivery_negocio_cobrado_en)C.push({t:'Delivery pagado a Pidemás',c:'ok'});
+      else if(PANEL!=='moto'&&fin)C.push({t:'Cobrar delivery <b>'+money(del)+'</b> al negocio',c:'warn'});
     }else if(pa==='pagado'){
       C.push({t:'Pagó todo al negocio',c:'dk'});
       if(/DELIVERY PAGADO POR EL NEGOCIO/i.test(ob)||o.delivery_negocio_cobrado_en)C.push({t:'Delivery pagado a Pidemás',c:'ok'});
@@ -7314,13 +7345,16 @@ armar();
       return '<div class="pdoCard"><h4>Pago · efectivo</h4><div class="pdoRow"><span>El motorizado cobra</span><b>'+money(tot)+'</b></div>'+info+'</div><div class="pdoCard"><h4>Preparación</h4>'+tiempo+'</div>';
     }
     var ob=String(o.observaciones||'');
-    if(!window.__pdxP[id]&&/pagará al motorizado con QR/i.test(ob))window.__pdxP[id]='yape';
-    var pg=window.__pdxP[id]||'';
-    var ops=[['yape','Cliente paga productos + delivery'],['solo_delivery','Cliente paga solo delivery'],['pagado','Cliente pagó todo, yo pago']];
+    if(!window.__pdxP[id]&&/pagará al motorizado con QR/i.test(ob))window.__pdxP[id]='yape_negocio';
+    var pg=window.__pdxP[id]||'',delPayQr='';
+    var ops=[['yape_negocio','Paga todo al recibir con mi Yape'],['solo_delivery','Me pagó productos, falta el delivery'],['pagado','Cliente pagó todo, yo pago']];
+    var rq=null;try{rq=restaurant}catch(e){}
+    if(pg==='yape_negocio'&&!(rq&&rq.yape_qr_url))delPayQr='<div class="pdoNote warn"><b>Sube tu QR de Yape</b><br>El motorizado se lo mostrará al cliente para que te pague directo a ti.<div class="pdoPair"><button type="button" class="pdoBtn" onclick="window.pdNegYape&&pdNegYape()">Subir mi QR</button></div></div>';
+    else if(pg==='yape_negocio')delPayQr='<div class="pdoNote">El motorizado le mostrará <b>tu QR</b> al cliente y cobrará '+money(o.total)+'. Cuando el cliente pague, confirmas aquí si te llegó. Luego Pidemás te cobra el delivery.</div>';
     var cfg=yape(),del=Number(o.costo_delivery)||0;
     var num=cfg.numero?String(cfg.numero).replace(/\D/g,'').replace(/^(\d{3})(\d{3})(\d{3})$/,'$1 $2 $3'):'';
     var delPay=pg==='pagado'?'<div class="pdoNote"><b>Yapea '+money(del)+' a Pidemás</b><br>El cliente ya te pagó todo. Yapea el delivery y envía la captura.<div class="pdoQr">'+(cfg.url?'<img src="'+E(cfg.url)+'" alt="QR de Yape de Pidemás">':'')+'<div><b>'+E(num?'Yape '+num:'Yape de Pidemás')+'</b><small>'+E(cfg.titular||'Pidemás')+' · Pedido '+E(code(id))+'</small></div></div><div class="pdoPair"><button type="button" class="pdoBtn" onclick="pdoCaptura(\''+E(id)+'\')">Enviar captura por WhatsApp</button></div>'+(window.__pdxCap[id]?'<div style="margin-top:8px;font-weight:700;color:#1B7F3B">Captura enviada · ya puedes confirmar</div>':'')+'</div>':'';
-    return '<div class="pdoCard" id="pdoPagoBox"><h4>Pago</h4><div class="pdoNote" style="margin:0 0 10px">El cliente eligió pagar con <b>Yape</b> y coordinar contigo.</div><div class="pdoStepLbl">1 · Coordina el pago</div><div class="pdoPair" style="margin-top:0"><button type="button" class="pdoBtn" onclick="businessWhatsApp(\''+E(id)+'\')">Escribir por WhatsApp</button></div><div class="pdoStepLbl">2 · ¿Cómo quedó el pago?</div><div class="pdoOps">'+ops.map(function(x){return '<button type="button" class="'+(x[0]===pg?'on':'')+'" onclick="pdoPago(\''+E(id)+'\',\''+x[0]+'\')">'+x[1]+'</button>'}).join('')+'</div>'+delPay+'</div><div class="pdoCard"><h4>Preparación</h4>'+tiempo+'</div>';
+    return '<div class="pdoCard" id="pdoPagoBox"><h4>Pago</h4><div class="pdoNote" style="margin:0 0 10px">El cliente eligió pagar con <b>Yape</b> y coordinar contigo.</div><div class="pdoStepLbl">1 · Coordina el pago</div><div class="pdoPair" style="margin-top:0"><button type="button" class="pdoBtn" onclick="businessWhatsApp(\''+E(id)+'\')">Escribir por WhatsApp</button></div><div class="pdoStepLbl">2 · ¿Cómo quedó el pago?</div><div class="pdoOps">'+ops.map(function(x){return '<button type="button" class="'+(x[0]===pg?'on':'')+'" onclick="pdoPago(\''+E(id)+'\',\''+x[0]+'\')">'+x[1]+'</button>'}).join('')+'</div>'+delPay+delPayQr+'</div><div class="pdoCard"><h4>Preparación</h4>'+tiempo+'</div>';
   }
 
   function armar(o){
@@ -7371,8 +7405,8 @@ armar();
     if(n)b+='<div class="pdoCard"><h4>Notas del servicio</h4><div class="pdRNota">'+E(n)+'</div></div>';
     if(st.k!=='nuevo'){
       var mp=String(o.metodo_pago||'').toLowerCase(),pa=String(o.pago_acordado||'').toLowerCase();
-      var mtx=pa==='solo_delivery'?'Productos pagados al negocio':pa==='pagado'?'Todo pagado':mp==='efectivo'?'Efectivo':mp==='yape'?'Yape':(o.metodo_pago||'No registrado');
-      var etx=o.pago_confirmado===true?'Pago confirmado':pa==='efectivo'?'El motorizado cobra en efectivo':pa==='yape'?'El motorizado cobra con Yape (QR)':pa==='solo_delivery'?'El motorizado cobra solo el delivery':pa==='pagado'?'El motorizado no cobra':'Pendiente';
+      var mtx=pa==='yape_negocio'?'Yape del negocio':pa==='solo_delivery'?'Productos pagados al negocio':pa==='pagado'?'Todo pagado':mp==='efectivo'?'Efectivo':mp==='yape'?'Yape':(o.metodo_pago||'No registrado');
+      var etx=o.pago_confirmado===true?'Pago confirmado':pa==='efectivo'?'El motorizado cobra en efectivo':pa==='yape'?'El motorizado cobra con Yape (QR)':pa==='yape_negocio'?'El motorizado cobra todo con tu QR de Yape':pa==='solo_delivery'?'El motorizado cobra solo el delivery':pa==='pagado'?'El motorizado no cobra':'Pendiente';
       var cob=pa==='pagado'?0:pa==='solo_delivery'?(Number(o.costo_delivery)||0):(Number(o.total)||0);
       var ef=efectivo(o),pex='';
       if(mp==='efectivo'&&ef&&Number(ef.monto)>0)pex='<div class="pdOrgRow"><span>Paga con</span><b>'+money(ef.monto)+'</b></div><div class="pdOrgRow"><span>Vuelto</span><b>'+money(Math.max(0,Number(ef.vuelto!=null?ef.vuelto:(ef.monto-(Number(o.total)||0)))||0))+'</b></div>';
@@ -7388,12 +7422,63 @@ armar();
     return head+'<div class="pdoBody" id="pdoBody">'+b+'</div>'+foot;
   }
 
+
+  /* ===== Pedido por pasos (desplegables) ===== */
+  var PASO_OPEN={};
+  function pasosNeg(sh,o){
+    var st=stage(o);if(st.k==='cancel')return;
+    var body=sh.querySelector('#pdoBody');if(!body)return;
+    var f=st.k==='nuevo'||st.k==='cobrar'?0:st.k==='preparar'?1:st.k==='listo'?2:st.k==='camino'?3:4;
+    var id=String(o.id),mn=o.motorizado_nombre||o.nombre_motorizado||'El motorizado';
+    var cards=[].slice.call(body.children);
+    var h4=function(c){var h=c.querySelector(':scope > h4');return h?h.textContent.trim():''};
+    var B=[[],[],[],[],[]];
+    var estado=cards[0]&&cards[0].querySelector('.pdoBars, .pdoStep')?cards[0]:null;
+    cards.forEach(function(c){
+      if(c===estado)return;
+      var t=h4(c);
+      if(c.classList.contains('pdoRuta'))B[f<=2?2:f].push(c);
+      else if(/^Pedido/.test(t)||/^Notas/.test(t))B[f===0?0:1].push(c);
+      else if(/^Pago$/.test(t))B[f<3?0:f].push(c);
+      else B[f===0?0:f].push(c);
+    });
+    var tmin=Number(o.tiempo_preparacion_min)||0,lista=o.negocio_aceptado_en&&tmin?new Date(new Date(o.negocio_aceptado_en).getTime()+tmin*60000):null;
+    var hh=function(d){try{return d.toLocaleTimeString('es-PE',{timeZone:'America/Lima',hour:'numeric',minute:'2-digit'})}catch(e){return ''}};
+    var info=function(k,v,extra){var d=document.createElement('div');d.className='pdpaI';d.innerHTML='<small>'+E(k)+'</small>'+v+(extra||'');return d};
+    if(f===1&&lista)B[1].unshift(info('Debe estar listo','<b>'+E(hh(lista))+'</b>'));
+    if(f>=2){
+      if(o.motorizado_id)B[2].unshift(info('Motorizado','<b>'+E(mn)+'</b>',o.en_local_en?'<span>Llegó a tu local. Pídele el código y compáralo:</span><span class="cod">'+E(o.codigo_recojo||'—')+'</span>':'<span>'+(f===2?'Va camino a tu local.':'Ya recogió el pedido.')+'</span>'));
+      else B[2].unshift(info('Motorizado','<b>Por asignar</b>','<span>Pidemás está asignando un motorizado.</span>'));
+    }
+    var pa=String(o.pago_acordado||'').toLowerCase();
+    if(pa==='yape_negocio'&&f>=3){var ye=o.yape_negocio_estado||'';B[f].unshift(info('Cobro con tu Yape','<b>'+money(o.total)+'</b>','<span>'+(f===4?'Cobrado con tu Yape. Pidemás te cobrará el delivery.':ye==='llego'?'Confirmaste que te llegó el Yape.':ye==='no_llego'?'Le avisaste al motorizado que no te llegó.':ye==='esperando'?'El motorizado espera tu confirmación.':'El motorizado mostrará tu QR al cliente.')+'</span>'))}
+    var PAT={yape_negocio:'Paga todo con tu Yape',solo_delivery:'Te pagó productos · falta delivery',pagado:'Te pagó todo',efectivo:'Efectivo al recibir',yape:'Yape con QR de Pidemás'};
+    var pasos=[
+      ['Aceptar el pedido',[PAT[pa]||'',tmin?'listo en '+tmin+' min':''].filter(Boolean).join(' · ')||'Confirmado'],
+      ['Preparar el pedido','Listo para recojo'+(o.listo_para_recojo_en?' · '+hh(new Date(o.listo_para_recojo_en)):'')],
+      ['Entregar al motorizado','Entregado a '+mn+(o.codigo_recojo?' · código '+o.codigo_recojo:'')],
+      ['En camino al cliente','Llegó donde el cliente'],
+      ['Entregado','Pedido entregado'+(o.entregado_en?' · '+hh(new Date(o.entregado_en)):'')]];
+    var op=PASO_OPEN[id]||(PASO_OPEN[id]={});
+    var W=document.createElement('div');W.className='pdpaW';
+    pasos.forEach(function(p,i){
+      var done=i<f||(f===4&&i===4),cur=i===f&&f!==4,lock=i>f;
+      var abierto=lock?false:(i in op?op[i]:(cur||(f===4&&i===4)));
+      var d=document.createElement('div');d.className='pdpa'+(cur?' cur':done?' done':' lock')+(abierto?' open':'');
+      d.innerHTML='<button type="button" class="pdpaH"'+(lock?' disabled':' aria-expanded="'+abierto+'"')+'><span class="pdpaN">'+(done?'✓':(i+1))+'</span><span class="pdpaT"><b>'+E(p[0])+'</b>'+(done&&!abierto?'<small>'+E(p[1])+'</small>':lock?'<small>Se muestra en su momento</small>':'')+'</span>'+(lock?'<svg class="pdpaL" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>':'<span class="pdpaC"></span>')+'</button><div class="pdpaB"></div>';
+      var bb=d.querySelector('.pdpaB');B[i].forEach(function(c){bb.appendChild(c)});
+      if(!lock)d.querySelector('.pdpaH').addEventListener('click',function(){op[i]=!d.classList.contains('open');d.classList.toggle('open',op[i]);var sm=d.querySelector('.pdpaT small');if(done){if(op[i]&&sm)sm.remove();else if(!op[i]&&!sm)d.querySelector('.pdpaT').insertAdjacentHTML('beforeend','<small>'+E(p[1])+'</small>')}this.setAttribute('aria-expanded',op[i])});
+      W.appendChild(d);
+    });
+    if(estado)estado.classList.add('pdpaHide');
+    body.insertBefore(W,body.firstChild);
+  }
   function el(){var m=document.getElementById('pdoModal');if(!m){m=document.createElement('div');m.id='pdoModal';m.setAttribute('role','dialog');m.setAttribute('aria-modal','true');m.innerHTML='<div class="pdoSheet" id="pdoSheet"></div>';m.addEventListener('click',function(e){if(e.target===m)window.pdoCerrar()});document.body.appendChild(m)}return m}
   function pintar(){
     if(!abierto)return;var o=buscar(abierto);var sh=document.getElementById('pdoSheet');if(!sh)return;
     if(!o){window.pdoCerrar();return}
     var bd=document.getElementById('pdoBody'),top=bd?bd.scrollTop:0;
-    sh.innerHTML=armar(o);sig=firma(o);
+    sh.innerHTML=armar(o);sig=firma(o);try{pasosNeg(sh,o)}catch(e){console.warn('[pasos]',e)}
     var nb=document.getElementById('pdoBody');if(nb)nb.scrollTop=top;
   }
   function error(msg,sel){var e=document.getElementById('pdoErr');if(e){e.textContent=msg;e.classList.add('show')}var t=sel&&document.querySelector(sel);if(t)t.scrollIntoView({behavior:'smooth',block:'center'})}
@@ -8457,7 +8542,7 @@ html:root body:not(#pdZ#pdZ#pdZ#pdZ#pdZ#pdZ#pdZ#pdZ#pdZ#pdZ#pdZ#pdZ#pdZ#pdZ#pdZ#
 (function(){
 if(window.__pdmu)return;window.__pdmu=1;
 /* Pantallas completas que NO son ventanas: carga, ingreso, mapas grandes, menú lateral, avisos arriba */
-const NO=/pdnOv|pdCarga|piCartaCarga|loginView|login|Login|pdmcFull|pdubMapa|pdmpMapa|pdVerMapa|Mapa|Suspend|PermGate|Confeti|confeti|MenuShade|pdMenu|sideMenu|drawer|Drawer|pdxAlerts|toast|Toast|pdfx|pdInstalar|pdUpd|pdA\b|splash|Splash/;
+const NO=/pdnOv|pdYNOv|pdCarga|piCartaCarga|loginView|login|Login|pdmcFull|pdubMapa|pdmpMapa|pdVerMapa|Mapa|Suspend|PermGate|Confeti|confeti|MenuShade|pdMenu|sideMenu|drawer|Drawer|pdxAlerts|toast|Toast|pdfx|pdInstalar|pdUpd|pdA\b|splash|Splash/;
 const POSIBLE=/modal|Modal|sheet|Sheet|overlay|Overlay|dialog|Dialog|hoja|Hoja|velo|Velo|popup|Popup|Bg\b|Fondo|Wrap\b|pdpm|pdcf|pdDlg|pdExito|Exito|Shade/;
 const vw=()=>innerWidth,vh=()=>innerHeight;
 function nombre(e){return (e.id||'')+' '+(typeof e.className==='string'?e.className:'')}
@@ -8542,8 +8627,9 @@ function cabecera(h){
   }
   /* pie con botones: el último bloque de abajo queda fijo */
   let cont=h;if(h.children.length===1&&h.firstElementChild!==head)cont=h.firstElementChild;
-  const ult=[...cont.children].filter(c=>visto(c)&&c!==head).pop();
-  if(ult&&ult!==head&&ult.querySelector('button,a,[role="button"]')){
+  h.querySelectorAll('[data-pdm-pie]').forEach(x=>x.removeAttribute('data-pdm-pie'));
+  const kids=[...cont.children].filter(c=>visto(c)&&c!==head);const ult=kids.length>1?kids[kids.length-1]:null;
+  if(ult&&ult!==head&&ult!==cont.firstElementChild&&!ult.matches(CERRAR)&&!ult.querySelector(CERRAR)&&!ult.querySelector('[data-pdm-titulo],h1,h2')&&ult.querySelector('button,a,[role="button"]')){
     const r=ult.getBoundingClientRect();
     if(r.height<230&&!ult.querySelector('ul,ol,table')&&ult.querySelectorAll('button,a').length<=4){const p=getComputedStyle(ult).position;if(p!=='fixed'&&p!=='absolute')ult.setAttribute('data-pdm-pie','')}
   }
@@ -8821,12 +8907,13 @@ try{const orig=HTMLInputElement.prototype.showPicker;if(orig)HTMLInputElement.pr
     ago:'<circle cx="12" cy="12" r="9"/><path d="M5.6 5.6l12.8 12.8"/>',
     pago:'<rect x="3" y="6" width="18" height="12" rx="2"/><circle cx="12" cy="12" r="2.5"/>',
     rep:'<path d="M3 3v18h18"/><path d="M7 15l4-4 3 3 5-6"/>',
-    cal:'<path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1-4.4-4.3 6.1-.9z"/>'};
+    cal:'<path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1-4.4-4.3 6.1-.9z"/>',
+    qr:'<rect x="4" y="4" width="6" height="6" rx="1"/><rect x="14" y="4" width="6" height="6" rx="1"/><rect x="4" y="14" width="6" height="6" rx="1"/><path d="M14 14h2v2h-2zM18 18h2v2h-2zM14 18h2M18 14h2"/>'};
   const svg=p=>'<svg viewBox="0 0 24 24" aria-hidden="true">'+p+'</svg>';
   function tools(){
     const home=$('pdHomeCard');if(!home||!home.parentNode)return;
     let c=$('pdnTools');
-    if(!c){c=document.createElement('section');c.id='pdnTools';c.addEventListener('click',e=>{const b=e.target.closest('[data-n]');if(!b)return;({pausa,agotados,pagos,reportes,calificaciones})[b.dataset.n]()})}
+    if(!c){c=document.createElement('section');c.id='pdnTools';c.addEventListener('click',e=>{const b=e.target.closest('[data-n]');if(!b)return;({pausa,agotados,pagos,reportes,calificaciones,yape})[b.dataset.n]()})}
     if(c.previousElementSibling!==home)home.after(c);
     const pz=pausaHasta();
     const ag=PR().filter(p=>p.disponible===false).length;
@@ -8836,10 +8923,63 @@ try{const orig=HTMLInputElement.prototype.showPicker;if(orig)HTMLInputElement.pr
       +'<button type="button" data-n="agotados" class="pdnT">'+svg(IC.ago)+'<span><b>Agotados</b><small>'+(ag?ag+' producto'+(ag===1?'':'s')+' agotado'+(ag===1?'':'s'):'Apaga un producto rápido')+'</small></span></button>'
       +'<button type="button" data-n="pagos" class="pdnT">'+svg(IC.pago)+'<span><b>Mis pagos</b><small>Lo que te paga Pidemás</small></span></button>'
       +'<button type="button" data-n="reportes" class="pdnT">'+svg(IC.rep)+'<span><b>Reportes</b><small>Ventas y tiempos</small></span></button>'
-      +'<button type="button" data-n="calificaciones" class="pdnT wide">'+svg(IC.cal)+'<span><b>Calificaciones</b><small>'+(calProm?'★ '+calProm.toFixed(1)+' de 5 · '+calN+' opinión'+(calN===1?'':'es'):'Lo que opinan tus clientes')+'</small></span></button>';
+      +'<button type="button" data-n="calificaciones" class="pdnT">'+svg(IC.cal)+'<span><b>Calificaciones</b><small>'+(calProm?'★ '+calProm.toFixed(1)+' de 5 · '+calN+' '+(calN===1?'opinión':'opiniones'):'Lo que opinan tus clientes')+'</small></span></button>'
+      +'<button type="button" data-n="yape" class="pdnT'+(yapeListo()?'':' falta')+'">'+svg(IC.qr)+'<span><b>Mi Yape (QR)</b><small>'+(yapeListo()?'Listo para cobrar':'Súbelo para cobrar')+'</small></span></button>';
     if(c.__h!==h){c.__h=h;c.innerHTML=h}
   }
   let calProm=0,calN=0;
+
+  /* ---------- Mi Yape (QR del negocio) ---------- */
+  function yapeListo(){const r=R();return !!(r&&r.yape_qr_url)}
+  function yape(){
+    const b=hoja('Mi Yape (QR)');if(!b)return;const r=R();if(!r)return;
+    let file=null,prev='';
+    b.innerHTML='<div class="pdnYNota"><b>Sube solo el QR, recortado</b><span>Recorta la captura para que se vea únicamente el cuadro del QR, sin el resto de la pantalla. Así el cliente lo puede escanear sin problema.</span></div>'
+      +'<div class="pdnYQr" id="pdnYQr"></div>'
+      +'<label class="pdnYLb" for="pdnYNum">Número de Yape</label><input class="x-in" id="pdnYNum" type="tel" inputmode="numeric" maxlength="9" autocomplete="off" placeholder="9 dígitos">'
+      +'<label class="pdnYLb" for="pdnYTit">Titular (como sale en tu Yape)</label><input class="x-in" id="pdnYTit" type="text" maxlength="60" autocomplete="off" placeholder="Nombre del titular">'
+      +'<input type="file" id="pdnYFile" accept="image/png,image/jpeg,image/webp" hidden>'
+      +'<div class="pdnYBtns"><button type="button" class="x-btn ghost" id="pdnYPick">'+(r.yape_qr_url?'Cambiar QR':'Elegir QR')+'</button><button type="button" class="x-btn" id="pdnYSave">Guardar</button></div>'
+      +(r.yape_qr_url?'<button type="button" class="pdnYQuitar" id="pdnYDel">Quitar mi QR</button>':'')
+      +'<p class="pdnErr" id="pdnYMsg" hidden></p>'
+      +'<p class="pdnMut">Va en el WhatsApp para coordinar el pago. Y si eliges «Paga todo al recibir con mi Yape», el motorizado se lo muestra al cliente para que te pague directo a ti.</p>';
+    $('pdnYNum').value=r.yape_numero||'';$('pdnYTit').value=r.yape_titular||'';
+    const msg=t=>{const m=$('pdnYMsg');m.textContent=t||'';m.hidden=!t};
+    const pint=()=>{const box=$('pdnYQr');const u=prev||r.yape_qr_url;box.innerHTML=u?'<img src="'+E(u)+'" alt="QR de Yape">':'<span>Aún no subes tu QR</span>';box.classList.toggle('vacio',!u)};
+    pint();
+    $('pdnYPick').onclick=()=>$('pdnYFile').click();
+    $('pdnYFile').onchange=()=>{const f=$('pdnYFile').files[0];$('pdnYFile').value='';if(!f)return;msg('');
+      if(!/^image\//.test(f.type)){msg('Elige una imagen (PNG o JPG).');return}
+      if(f.size>5*1024*1024){msg('La imagen pesa más de 5 MB.');return}
+      const u=URL.createObjectURL(f),im=new Image();
+      im.onload=()=>{const k=Math.max(im.width,im.height)/Math.max(1,Math.min(im.width,im.height));
+        if(k>1.3){URL.revokeObjectURL(u);msg('Esta imagen no es solo el QR (es muy alargada). Recórtala para que quede únicamente el cuadro del QR y vuelve a elegirla.');return}
+        if(Math.min(im.width,im.height)<250){URL.revokeObjectURL(u);msg('La imagen es muy pequeña y el QR no se podría leer. Usa una captura más nítida.');return}
+        file=f;prev=u;pint()};
+      im.onerror=()=>{URL.revokeObjectURL(u);msg('No se pudo abrir esa imagen.')};im.src=u};
+    $('pdnYSave').onclick=async()=>{
+      const num=$('pdnYNum').value.replace(/\D/g,''),tit=$('pdnYTit').value.trim();msg('');
+      if(!file&&!r.yape_qr_url){msg('Elige la imagen de tu QR.');return}
+      if(num.length!==9){msg('El número de Yape debe tener 9 dígitos.');return}
+      if(!tit){msg('Escribe el nombre del titular, tal como sale en tu Yape.');return}
+      const bt=$('pdnYSave');bt.disabled=true;
+      try{
+        let url=r.yape_qr_url||null;const old=url;
+        if(file){const ext=file.type==='image/png'?'png':file.type==='image/webp'?'webp':'jpg';const path='yape/'+r.id+'/qr-'+Date.now()+'.'+ext;const st=D().storage.from('restaurantes');
+          const up=await st.upload(path,file,{upsert:true,contentType:file.type,cacheControl:'31536000'});if(up.error)throw up.error;url=st.getPublicUrl(path).data.publicUrl}
+        const {error}=await D().from('negocios').update({yape_qr_url:url,yape_numero:num,yape_titular:tit}).eq('id',r.id);if(error)throw error;
+        r.yape_qr_url=url;r.yape_numero=num;r.yape_titular=tit;
+        if(file&&old&&old!==url){const mk='/storage/v1/object/public/restaurantes/',i=old.indexOf(mk);if(i>=0)D().storage.from('restaurantes').remove([decodeURIComponent(old.slice(i+mk.length).split('?')[0])]).catch(()=>{})}
+        tools();cerrar();ok('Tu Yape quedó guardado');
+      }catch(x){msg('No se pudo guardar: '+(x.message||x));bt.disabled=false}
+    };
+    const del=$('pdnYDel');if(del)del.onclick=async()=>{
+      if(!(await (window.pdConfirmar?window.pdConfirmar('¿Quitar tu QR de Yape? Ya no se enviará en el mensaje de pago.'):Promise.resolve(true))))return;
+      const old=r.yape_qr_url;const {error}=await D().from('negocios').update({yape_qr_url:null}).eq('id',r.id);if(error){msg('No se pudo quitar: '+error.message);return}
+      r.yape_qr_url=null;const mk='/storage/v1/object/public/restaurantes/',i=String(old).indexOf(mk);if(i>=0)D().storage.from('restaurantes').remove([decodeURIComponent(old.slice(i+mk.length).split('?')[0])]).catch(()=>{});
+      tools();cerrar();ok('Quitaste tu QR de Yape');};
+  }
+  window.pdNegYape=yape;
   async function leerCal(){const r=R();if(!r||!D())return [];const q=await D().from('calificaciones').select('pedido_id,estrellas_negocio,comentario,creado_en').eq('negocio_id',r.id).order('creado_en',{ascending:false}).limit(300);
     const L=(q.data||[]).filter(c=>Number(c.estrellas_negocio)>0);calN=L.length;calProm=L.length?L.reduce((s,c)=>s+Number(c.estrellas_negocio),0)/L.length:0;return L}
 
@@ -8879,9 +9019,9 @@ try{const orig=HTMLInputElement.prototype.showPicker;if(orig)HTMLInputElement.pr
     const q=await D().from('pedidos').select('id,estado,subtotal,total,costo_delivery,pago_acordado,metodo_pago,creado_en,entregado_en,negocio_pagado_en,negocio_pagado_metodo,negocio_pagado_monto,delivery_negocio_cobrado_en').eq('negocio_id',r.id).eq('estado','entregado').gte('creado_en',desde).order('creado_en',{ascending:false}).limit(1000);
     if(q.error){b.innerHTML='<p class="pdnErr">No se pudo leer: '+E(q.error.message)+'</p>';return}
     const P=q.data||[];
-    const cobra=P.filter(p=>!['solo_delivery','pagado'].includes(String(p.pago_acordado||''))&&sub(p)>0);
+    const cobra=P.filter(p=>!['solo_delivery','pagado','yape_negocio'].includes(String(p.pago_acordado||''))&&sub(p)>0);
     const pend=cobra.filter(p=>!p.negocio_pagado_en),pag=cobra.filter(p=>p.negocio_pagado_en);
-    const deb=P.filter(p=>String(p.pago_acordado||'')==='pagado'&&!p.delivery_negocio_cobrado_en&&Number(p.costo_delivery)>0);
+    const deb=P.filter(p=>['pagado','yape_negocio'].includes(String(p.pago_acordado||''))&&!p.delivery_negocio_cobrado_en&&Number(p.costo_delivery)>0);
     const tP=pend.reduce((s,p)=>s+sub(p),0),tD=deb.reduce((s,p)=>s+(Number(p.costo_delivery)||0),0);
     const fila=(p,v,x)=>'<div class="pdnRow"><span><b>'+E(ref(p.id))+'</b><small>'+E(fH(p.entregado_en||p.creado_en))+(x?' · '+E(x):'')+'</small></span><b>'+M(v)+'</b></div>';
     b.innerHTML='<div class="pdnStat"><span>Pidemás te debe</span><b>'+M(tP)+'</b></div>'
@@ -9134,6 +9274,9 @@ buscar();
 })();
 </script>
 <style id="pd-hojas-sin-brinco">
+/* el fondo aparece de una vez (sin desvanecer) para que la ventana no se vea transparente al subir */
+@keyframes pdDlgFondo{from{opacity:1}to{opacity:1}}
+@keyframes pdSelFade{from{opacity:1}to{opacity:1}}
 /* Las ventanas suben desde abajo en un solo movimiento, sin saltito ni parpadeo */
 @keyframes pdDlgSube{from{transform:translateY(100%);opacity:1}to{transform:none;opacity:1}}
 @keyframes pdFhUp{from{transform:translateY(100%);opacity:1}to{transform:none;opacity:1}}
@@ -9158,9 +9301,12 @@ var NO=/(no se|no pud|error|falt|intenta|revisa|se guardar[áa]|guardar\b|en viv
 var MSG=/msg|Msg|mensaje|Mensaje|aviso|Aviso|status|estado|Ok\b|exito|Exito|ok\b/;
 var HOJA='[data-pdm-hoja],.pdnSh,.pdsmHoja,.pdPwHoja,.pdxSheetCard,.pcSheet,.sheet,[role=dialog],.pdmSheet,.pdoSheet,.pdpm-sheet';
 var CERRAR='.pdnX,.pdsmX,.pdPwX,.pcX,.pdpm-x,.pdoX,[data-close],[aria-label="Cerrar"],[aria-label="cerrar"],.close,.closeBtn,.x-icon';
-var ocupado=0;
+var ocupado=0,yaAviso=0,mio=false;
+function envolver(n){var f=window[n];if(typeof f!=='function'||f.__pdGA)return;var w=function(){if(!mio)yaAviso=Date.now();return f.apply(this,arguments)};w.__pdGA=1;try{window[n]=w}catch(_){}}
+setInterval(function(){envolver('pdExito');envolver('toast')},700);
 function avisar(t){
-  ocupado=Date.now();
+  if(Date.now()-yaAviso<3000)return;/* la app ya mostró su propio aviso: no se repite */
+  mio=true;setTimeout(function(){mio=false},0);
   t=String(t||'Guardado').trim().replace(/^✓\s*/,'');
   try{if(typeof window.pdExito==='function'){window.pdExito(t);return}}catch(_){}
   try{if(typeof window.toast==='function'){window.toast('✓ '+t);return}}catch(_){}
@@ -9175,21 +9321,177 @@ function cerrarHoja(h){
   try{document.dispatchEvent(new KeyboardEvent('keydown',{key:'Escape',bubbles:true}))}catch(_){}
 }
 var hechos=new WeakMap();
+var PROG=/^(guardando|actualizando|enviando|subiendo|procesando|registrando)\b/i;
+function esMensaje(el,txt){return el.getAttribute('role')==='status'||el.hasAttribute('aria-live')||MSG.test((el.id||'')+' '+(typeof el.className==='string'?el.className:''))||/^✓/.test(txt)}
+function ocultar(el,si){if(si){el.setAttribute('data-pd-msg-oculto','');el.style.setProperty('display','none','important')}else if(el.hasAttribute('data-pd-msg-oculto')){el.removeAttribute('data-pd-msg-oculto');el.style.removeProperty('display')}}
 function revisar(el){
-  if(!el||el.nodeType!==1)return;if(Date.now()-ocupado<2500)return;
-  var txt=(el.textContent||'').trim();if(txt.length<5||txt.length>170)return;
-  if(!OK.test(txt)||NO.test(txt))return;
-  if(el.closest('button,label,h1,h2,h3,strong.title,input,textarea,select'))return;
-  var esMsg=el.getAttribute('role')==='status'||el.hasAttribute('aria-live')||MSG.test((el.id||'')+' '+(typeof el.className==='string'?el.className:''))||/^✓/.test(txt);
-  if(!esMsg)return;
-  var h=el.closest(HOJA);if(!h||!h.getClientRects().length)return;
-  if(hechos.get(el)===txt)return;hechos.set(el,txt);
-  avisar(txt);
-  setTimeout(function(){if(h.isConnected&&h.getClientRects().length)cerrarHoja(h)},450);
+  if(!el||el.nodeType!==1)return;
+  var txt=(el.textContent||'').trim();
+  if(el.closest('button,label,h1,h2,h3,input,textarea,select'))return;
+  var h=el.closest(HOJA);if(!h)return;
+  if(txt.length>170)return;
+  if(!txt){return}
+  var msg=esMensaje(el,txt);
+  /* mensaje de «guardando…»: no se muestra, el botón ya indica que está trabajando */
+  if(msg&&PROG.test(txt)){ocultar(el,true);return}
+  if(msg&&OK.test(txt)&&!NO.test(txt)){
+    ocultar(el,true);
+    if(Date.now()-ocupado<2500||hechos.get(el)===txt)return;hechos.set(el,txt);ocupado=Date.now();
+    if(h.getClientRects().length)cerrarHoja(h);
+    setTimeout(function(){avisar(txt)},260);
+    return;
+  }
+  if(msg)ocultar(el,false);/* los errores sí se ven en la ventana */
 }
 new MutationObserver(function(ms){for(var i=0;i<ms.length;i++){var m=ms[i];var t=m.type==='characterData'?m.target.parentElement:m.target;revisar(t);if(m.type==='childList'){for(var j=0;j<m.addedNodes.length;j++){var n=m.addedNodes[j];if(n.nodeType===1){revisar(n);var k=n.querySelectorAll&&n.querySelectorAll('[role=status],[aria-live]');if(k)for(var q=0;q<k.length;q++)revisar(k[q])}}}}}).observe(document.documentElement,{subtree:true,childList:true,characterData:true,attributes:true,attributeFilter:['class']});
 })();
 </script>
+<script id="pd-actualizar">
+/* Actualizaciones:
+   · Normales (pd-version): la app se actualiza sola, sin preguntar, en un momento en que no estés usando una ventana ni escribiendo.
+   · Que requieren reinstalar (pd-instalacion: cambia ícono, nombre o pantalla de arranque): solo entonces se muestra un aviso. */
+(function(){
+  if(window.__pdActualizar)return;window.__pdActualizar=1;
+  var mv=document.querySelector('meta[name="pd-version"]');if(!mv)return;var V=mv.content;
+  var mi=document.querySelector('meta[name="pd-instalacion"]');var I=mi?mi.content:'1';
+  var ls={get:function(k){try{return localStorage.getItem(k)}catch(e){return null}},set:function(k,v){try{localStorage.setItem(k,v)}catch(e){}}};
+  var url=location.pathname,ultimo=0,pendiente=false,toque=Date.now();
+  var instalada=matchMedia('(display-mode: standalone)').matches||matchMedia('(display-mode: fullscreen)').matches||navigator.standalone===true;
+  ['pointerdown','keydown','scroll','touchstart'].forEach(function(e){addEventListener(e,function(){toque=Date.now()},{passive:true,capture:true})});
+
+  /* --- 1. actualización normal: silenciosa --- */
+  function chequear(){
+    if(document.hidden||Date.now()-ultimo<60000)return;ultimo=Date.now();
+    fetch(url+'?pdv='+Date.now(),{cache:'no-store'}).then(function(r){return r.ok?r.text():''}).then(function(t){
+      var m=t&&t.match(/<meta name="pd-version" content="([^"]+)"/);if(m&&m[1]!==V){pendiente=true;intentar()}
+    }).catch(function(){});
+  }
+  function ocupado(){
+    var a=document.activeElement;if(a&&/^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName))return true;
+    var hs=document.querySelectorAll('[data-pdm-hoja],.pdnSh,.pdsmHoja,.pdPwHoja,[role=dialog],dialog[open]');
+    for(var i=0;i<hs.length;i++){if(hs[i].getClientRects().length&&hs[i].id!=='pdInstalar')return true}
+    return Date.now()-toque<20000;
+  }
+  function recargar(){var fin=function(){location.reload()};
+    try{if(navigator.serviceWorker)navigator.serviceWorker.getRegistrations().then(function(rs){rs.forEach(function(r){try{r.update()}catch(_){}})}).catch(function(){})}catch(_){}
+    fetch(location.href,{cache:'reload'}).then(fin,fin);setTimeout(fin,3000)}
+  function intentar(){if(!pendiente)return;if(document.hidden||!ocupado())recargar()}
+  setInterval(intentar,5000);
+  document.addEventListener('visibilitychange',function(){if(document.hidden){if(pendiente)recargar()}else chequear()});
+  addEventListener('focus',chequear);
+  setTimeout(chequear,2500);setInterval(chequear,5*60000);
+
+  /* --- 2. actualización que requiere reinstalar: solo esta avisa --- */
+  if(instalada){
+    var guardada=ls.get('pd-instalacion');
+    if(!guardada){ls.set('pd-instalacion',I)}
+    else if(Number(I)>Number(guardada)&&ls.get('pd-instalacion-no')!==I){setTimeout(avisoReinstalar,1500)}
+  }
+  addEventListener('appinstalled',function(){ls.set('pd-instalacion',I)});
+  function avisoReinstalar(){
+    if(document.getElementById('pdReinstalar'))return;
+    var d=document.createElement('div');d.id='pdReinstalar';d.setAttribute('role','status');
+    d.innerHTML='<span class="pdaIco" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg></span><span class="pdaTx"><b>Reinstala la app</b><small>Hay una mejora en el ícono o la pantalla de inicio. Borra la app y vuelve a instalarla desde el enlace de siempre.</small></span><span class="pdaBt"><button type="button" class="ok">Entendido</button></span>';
+    d.querySelector('.ok').onclick=function(){ls.set('pd-instalacion-no',I);d.remove()};
+    document.body.appendChild(d);
+  }
+  var st=document.createElement('style');st.textContent='#pdReinstalar{position:fixed;left:12px;right:12px;top:calc(10px + env(safe-area-inset-top));z-index:2147483647;display:flex;align-items:center;gap:12px;padding:12px 12px 12px 14px;border-radius:16px;background:#fff;border:1px solid #F1C9B6;box-shadow:0 10px 30px rgba(31,26,23,.16);font-family:var(--font,Inter,system-ui,sans-serif)}#pdReinstalar .pdaIco{flex:0 0 38px;width:38px;height:38px;border-radius:12px;display:grid;place-items:center;background:#FFF1E8;color:#C4410C}#pdReinstalar .pdaIco svg{width:20px;height:20px}#pdReinstalar .pdaTx{flex:1;min-width:0;display:flex;flex-direction:column}#pdReinstalar b{font-weight:800;font-size:14.5px;line-height:1.25;color:#1F1A17}#pdReinstalar small{font-weight:500;font-size:12.5px;line-height:1.3;color:#6E625A}#pdReinstalar button{min-height:40px;padding:0 14px;border:0;border-radius:12px;background:#C4410C;color:#fff;font-weight:800;font-size:14px;font-family:inherit;cursor:pointer}';
+  document.head.appendChild(st);
+})();
+</script>
+
+<script id="pd-yape-negocio-neg-js">
+/* El motorizado cobró con tu Yape: confirma si te llegó. La respuesta le llega directo al motorizado. */
+(function(){
+  if(window.__pdYNN)return;window.__pdYNN=1;
+  const D=()=>{try{return db}catch(e){return window.db}};
+  const R=()=>{try{return restaurant}catch(e){return null}};
+  const money=n=>'S/ '+(Number(n)||0).toFixed(2);
+  const E=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const cod=id=>'#'+String(id||'').replace(/-/g,'').slice(0,8).toUpperCase();
+  let cola=[],abierto=null,avisados={};
+  function cerrar(){const ov=document.getElementById('pdYNOv');if(ov){ov.classList.remove('open');setTimeout(()=>ov.remove(),180)}if(!document.getElementById('pdnOv'))document.documentElement.classList.remove('pdnOvOpen');abierto=null}
+  function mostrar(p){
+    abierto=p.id;
+    let ov=document.getElementById('pdYNOv');if(ov)ov.remove();
+    ov=document.createElement('div');ov.id='pdYNOv';
+    ov.innerHTML='<div class="sh" role="dialog" aria-modal="true" aria-labelledby="pdYNT"><div class="hd"><h2 id="pdYNT">¿Te llegó el Yape?</h2></div><div class="bd">'
+      +'<div class="mt"><small>Pedido '+E(cod(p.id))+(p.nombre_cliente?' · '+E(p.nombre_cliente):'')+'</small><b>'+E(money(p.total))+'</b></div>'
+      +'<p>El motorizado dice que el cliente ya te yapeó. Revisa tu app de Yape y responde: <b>el motorizado recibe tu respuesta al instante</b>.</p>'
+      +'<button type="button" class="si">Sí, me llegó</button><button type="button" class="no">No me llegó</button><p class="er" hidden></p></div></div>';
+    (function(){const st=(el,o)=>{for(const k in o)el.style.setProperty(k,o[k],'important')};
+      st(ov.querySelector('.sh'),{'border-radius':'24px 24px 0 0','border':'0','box-shadow':'none','margin':'0','padding':'0','background':'#fff','overflow':'hidden'});
+      st(ov.querySelector('.hd'),{'border-radius':'0','border':'0','border-bottom':'1px solid #EFE3DA','box-shadow':'none','margin':'0','background':'#fff'});
+      st(ov.querySelector('.bd'),{'border-radius':'0','border':'0','box-shadow':'none','margin':'0','background':'#FFF9F5','padding-bottom':'calc(20px + env(safe-area-inset-bottom,0px))'});})();
+    document.body.appendChild(ov);document.documentElement.classList.add('pdnOvOpen');requestAnimationFrame(()=>ov.classList.add('open'));
+    const er=ov.querySelector('.er');
+    const resp=async(v,btn)=>{ov.querySelectorAll('button').forEach(b=>b.disabled=true);er.hidden=true;
+      const {error}=await D().from('pedidos').update({yape_negocio_estado:v,yape_negocio_en:new Date().toISOString()}).eq('id',p.id).eq('yape_negocio_estado','esperando');
+      if(error){er.textContent='No se pudo enviar: '+error.message;er.hidden=false;ov.querySelectorAll('button').forEach(b=>b.disabled=false);return}
+      try{const o=(typeof businessOrders!=='undefined'?businessOrders:[]).find(x=>String(x.id)===String(p.id));if(o)o.yape_negocio_estado=v}catch(e){}
+      cola=cola.filter(x=>x.id!==p.id);cerrar();
+      (window.pdExito||window.pdAviso||function(){})(v==='llego'?'Listo: le avisamos al motorizado que te llegó el Yape':'Le avisamos al motorizado que no te llegó el Yape');
+      setTimeout(siguiente,400)};
+    ov.querySelector('.si').onclick=e=>resp('llego',e.currentTarget);
+    ov.querySelector('.no').onclick=e=>resp('no_llego',e.currentTarget);
+  }
+  function siguiente(){if(abierto||!cola.length)return;mostrar(cola[0])}
+  async function buscar(){
+    const r=R();if(!r||!r.id||!D())return;
+    try{const {data,error}=await D().from('pedidos').select('id,total,nombre_cliente,yape_negocio_estado,yape_negocio_en').eq('negocio_id',r.id).eq('yape_negocio_estado','esperando').order('yape_negocio_en',{ascending:true});
+      if(error)return;cola=data||[];
+      if(abierto&&!cola.some(x=>x.id===abierto))cerrar();
+      cola.forEach(p=>{if(!avisados[p.id]){avisados[p.id]=1;try{window.pdAlert&&window.pdAlert({kind:'nuevo',pedidoId:p.id,title:'¿Te llegó el Yape? '+cod(p.id),text:'El cliente dice que yapeó '+money(p.total)+'. Confírmalo.'})}catch(e){}}});
+      siguiente();
+    }catch(e){}
+  }
+  setInterval(buscar,5000);setTimeout(buscar,1500);
+  document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')buscar()});
+  window.pdYapeNegocioBuscar=buscar;
+})();
+</script>
+<style id="pd-yape-negocio-neg-css">
+#pdYNOv{position:fixed;inset:0;z-index:2147483647;display:flex;align-items:flex-end;justify-content:center;background:rgba(31,26,23,.22);backdrop-filter:blur(5px);-webkit-backdrop-filter:blur(5px);border-radius:0;border:0}
+#pdYNOv .sh{width:100%;max-width:560px;background:#fff;border-radius:24px 24px 0 0;transform:translateY(100%);transition:transform .2s ease;font-family:Inter,system-ui,sans-serif;color:#1F1A17;padding-bottom:env(safe-area-inset-bottom,0px)}
+#pdYNOv.open .sh{transform:none}
+#pdYNOv .hd{padding:18px 18px 14px;border-bottom:1px solid #EFE3DA}
+#pdYNOv h2{margin:0;font:800 22px Inter,system-ui,sans-serif;color:#C4410C}
+#pdYNOv .bd{padding:16px 18px 20px;background:#FFF9F5;display:flex;flex-direction:column;gap:12px}
+#pdYNOv .mt{padding:16px;border-radius:16px;background:#fff;border:1px solid #EFE3DA;text-align:center}
+#pdYNOv .mt small{display:block;font:700 14px Inter,system-ui,sans-serif;color:#6B5E55}
+#pdYNOv .mt b{display:block;font:800 40px Inter,system-ui,sans-serif;letter-spacing:-.02em}
+#pdYNOv p{margin:0;font:500 15px/1.45 Inter,system-ui,sans-serif;color:#4A3F38}
+#pdYNOv .si,#pdYNOv .no{min-height:54px;border-radius:14px;font:800 16px Inter,system-ui,sans-serif;cursor:pointer}
+#pdYNOv .si{border:0;background:#15803D;color:#fff}
+#pdYNOv .no{border:1.5px solid #B42318;background:#fff;color:#B42318}
+#pdYNOv .er{color:#B42318;font-weight:700}
+</style>
+<style id="pd-pasos-css">
+html:root body dialog#pdSeg#pdSeg .sqBody{flex:1 1 auto!important;min-height:0!important;height:auto!important}
+html:root body .pdpaW{display:flex!important;flex-direction:column!important;gap:8px!important;margin:0 0 12px!important;padding:0!important;background:none!important;border:0!important;box-shadow:none!important}
+html:root body .pdpa{display:block!important;background:#fff!important;border:1px solid #EFE3DA!important;border-radius:16px!important;overflow:hidden!important;flex:0 0 auto!important;box-shadow:none!important;margin:0!important;padding:0!important}
+html:root body .pdpa.cur{border:1.5px solid #C4410C!important}
+html:root body .pdpa.lock{background:#F6EFE9!important}
+html:root body .pdpaH{display:flex!important;align-items:center!important;gap:12px!important;width:100%!important;min-height:58px!important;height:auto!important;padding:12px 14px!important;margin:0!important;background:none!important;border:0!important;border-radius:0!important;box-shadow:none!important;text-align:left!important;font-family:Inter,system-ui,sans-serif!important;color:#1F1A17!important;cursor:pointer;justify-content:flex-start!important}
+html:root body .pdpa.lock .pdpaH{cursor:default}
+html:root body .pdpaN{flex:0 0 32px!important;width:32px!important;min-width:32px!important;max-width:32px!important;height:32px!important;min-height:32px!important;padding:0!important;line-height:1!important;box-sizing:border-box!important;border:0!important;border-radius:50%!important;display:flex!important;align-items:center!important;justify-content:center!important;font:800 14px Inter,system-ui,sans-serif!important;background:#EADFD6!important;color:#6B5E55!important}
+html:root body .pdpa.cur .pdpaN{background:#C4410C!important;color:#fff!important}
+html:root body .pdpa.done .pdpaN{background:#15803D!important;color:#fff!important}
+html:root body .pdpaT{flex:1 1 auto!important;min-width:0!important;display:block!important}
+html:root body .pdpaT b{display:block!important;font:800 16px/1.25 Inter,system-ui,sans-serif!important;color:#1F1A17!important}
+html:root body .pdpaT small{display:block!important;margin-top:2px!important;font:500 13px/1.35 Inter,system-ui,sans-serif!important;color:#6B5E55!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important}
+html:root body .pdpaC{flex:0 0 12px!important;width:10px!important;height:10px!important;border-right:2px solid #6B5E55!important;border-bottom:2px solid #6B5E55!important;transform:rotate(45deg)!important;margin:-6px 6px 0 0!important;transition:transform .2s}
+html:root body .pdpa.open .pdpaC{transform:rotate(-135deg)!important;margin-top:4px!important}
+html:root body .pdpaL{flex:0 0 18px!important;width:18px!important;height:18px!important;color:#6B5E55!important}
+html:root body .pdpaB{display:flex!important;flex-direction:column!important;gap:10px!important;padding:0 14px 14px!important;margin:0!important;background:none!important;border:0!important}
+html:root body .pdpaB > *{margin-left:0!important;margin-right:0!important;box-shadow:none!important}
+html:root body .pdpa:not(.open) .pdpaB{display:none!important}
+html:root body .pdpaI{display:flex!important;flex-direction:column!important;gap:3px!important;padding:12px!important;border-radius:12px!important;background:#FFF9F5!important;font:500 14px/1.45 Inter,system-ui,sans-serif!important;color:#1F1A17!important}
+html:root body .pdpaI small{font:800 12px Inter,system-ui,sans-serif!important;letter-spacing:.06em!important;text-transform:uppercase!important;color:#6B5E55!important}
+html:root body .pdpaI b{font:800 16px/1.3 Inter,system-ui,sans-serif!important;color:#1F1A17!important}
+html:root body .pdpaI .cod{font:900 30px Inter,system-ui,sans-serif!important;letter-spacing:.16em!important;color:#C4410C!important}
+html:root body .pdpaHide{display:none!important}
+</style>
 </body></html>
 
 <script id="pidemas-negocio-pro-js">
