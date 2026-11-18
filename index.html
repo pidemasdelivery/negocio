@@ -7590,7 +7590,7 @@ var st=document.createElement('style');st.id='pd-sin-velo-css';
 st.textContent='dialog::backdrop{background:rgba(31,26,23,.22)!important;-webkit-backdrop-filter:blur(5px)!important;backdrop-filter:blur(5px)!important}[data-pd-sin-velo]{background:rgba(31,26,23,.22)!important;background-image:none!important;-webkit-backdrop-filter:blur(5px)!important;backdrop-filter:blur(5px)!important}html body [data-pdm-velo]{background:rgba(31,26,23,.22)!important;-webkit-backdrop-filter:blur(5px)!important;backdrop-filter:blur(5px)!important}';
 (document.head||document.documentElement).appendChild(st);
 function oscuro(bg){var m=String(bg).match(/rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*([\d.]+))?\)/);if(!m)return false;var a=m[4]===undefined?1:+m[4];return a>0.06&&a<0.97&&+m[1]<150&&+m[2]<150&&+m[3]<150}
-function revisar(){
+function revisar(){if(document.getElementById('pdAppShell')){pend=0;return}
   pend=0;var W=innerWidth,H=innerHeight,L=document.body?document.body.getElementsByTagName('*'):[];
   for(var i=0;i<L.length;i++){var e=L[i];if(e.hasAttribute('data-pd-sin-velo'))continue;
     var c=getComputedStyle(e);if(c.position!=='fixed'&&c.position!=='absolute')continue;if(c.display==='none')continue;
@@ -8285,7 +8285,7 @@ input.cod{text-align:center;font-size:30px;letter-spacing:.4em;height:64px}
   function pintarDlg(){
     capa();const dl=root.getElementById('dl');
     const el=[...document.querySelectorAll(SEL)].reverse().find(vis);
-    document.documentElement.classList.remove('pdDlgOn');
+    if(document.documentElement.classList.contains('pdDlgOn'))document.documentElement.classList.remove('pdDlgOn');
     if(!el){if(orig){orig=null;firma='';dl.innerHTML=''}return}
     esconder(el);
     const m=armar(el);const tp=tipo(el,m);
@@ -9082,7 +9082,7 @@ textarea.ta:focus{border-color:#C4410C}
     const lst=root.querySelector('.list');if(lst&&root.__pag)scrollMem[root.__pag]=lst.scrollTop;
     root.innerHTML=`<style>${ESTILO}</style><div class="app">${v.head}<div class="list">${v.body}</div>${v.foot?`<div class="foot">${v.foot}</div>`:''}${nav()}</div>`;
     const nl=root.querySelector('.list');if(nl)nl.scrollTop=root.__pag===pag?(scrollMem[pag]||0):(scrollMem[pag]=0,0);root.__pag=pag;
-    document.documentElement.style.overflow='hidden';
+    if(document.documentElement.style.overflow!=='hidden')document.documentElement.style.overflow='hidden';
   }
   function ir(t,s){
     const antes=sub||tab;if(!s)origen=t||tab;tab=t||tab;sub=s||null;key='';
