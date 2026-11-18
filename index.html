@@ -1189,7 +1189,7 @@ html.pdxSheetOpen body #nav#nav#nav#nav#nav#nav#nav#nav#nav#nav{display:none!imp
 </style>
 
 <meta name="pd-instalacion" content="1">
-<meta name="pd-version" content="202611181800"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover"><title>Pidemás | Panel Negocio</title>
+<meta name="pd-version" content="202611181925"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover"><title>Pidemás | Panel Negocio</title>
 <link rel="manifest" href="manifest.webmanifest">
 <meta name="theme-color" content="#FFF9F5">
 <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
@@ -8097,7 +8097,7 @@ button{font-family:inherit;-webkit-tap-highlight-color:transparent}
   };
 
   /* Filas que se deslizan de lado (chips, categorías): sin barra de scroll y con una flecha que avanza */
-  const FL_CSS='.pdfW{position:relative}.pdfW>.pdfS{scrollbar-width:none;padding-right:52px!important}.pdfW>.pdfS::-webkit-scrollbar{display:none}.pdfA{position:absolute;right:0;top:50%;transform:translateY(-50%);width:40px;height:40px;border-radius:50%;border:1px solid #F1E4DA;background:#FFFFFF;color:#C4410C;display:flex;align-items:center;justify-content:center;box-shadow:-14px 0 14px rgba(255,249,245,.95),0 2px 6px rgba(31,26,23,.12);cursor:pointer;z-index:2;padding:0;margin:0}.pdfA svg{width:20px;height:20px;transition:transform .2s}.pdfA.fin svg{transform:rotate(180deg)}.pdfA[hidden]{display:none!important}';
+  const FL_CSS='.pdfW{position:relative}.pdfW>.pdfS{scrollbar-width:none}.pdfW>.pdfS::-webkit-scrollbar{display:none}.pdfA{position:absolute;right:0;top:50%;transform:translateY(-50%);width:40px;height:40px;border-radius:50%;border:1px solid #F1E4DA;background:#FFFFFF;color:#C4410C;display:flex;align-items:center;justify-content:center;box-shadow:-14px 0 14px rgba(255,249,245,.95),0 2px 6px rgba(31,26,23,.12);cursor:pointer;z-index:2;padding:0;margin:0}.pdfA svg{width:20px;height:20px;transition:transform .2s}.pdfA.fin svg{transform:rotate(180deg)}.pdfA[hidden]{display:none!important}';
   const FL_SEL='.chips,.cats,.chs,.dias,.qChips,.tCats';
   function flechas(root){
     if(!root||root.__pdf)return;root.__pdf=1;
@@ -8109,9 +8109,7 @@ button{font-family:inherit;-webkit-tap-highlight-color:transparent}
         if(el.closest('.chW')||(el.parentElement&&el.parentElement.classList.contains('pdfW')))return;
         const cs=getComputedStyle(el);if(cs.flexWrap==='wrap'||!/auto|scroll/.test(cs.overflowX))return;
         const w=document.createElement('div');w.className='pdfW';el.parentNode.insertBefore(w,el);w.appendChild(el);el.classList.add('pdfS');
-        const b=document.createElement('button');b.type='button';b.className='pdfA';b.setAttribute('aria-label','Ver más');b.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg>';w.appendChild(b);
-        b.addEventListener('click',e=>{e.preventDefault();e.stopPropagation();el.scrollTo({left:fin(el)?0:el.scrollLeft+Math.max(160,el.clientWidth*.6),behavior:'smooth'})});
-        el.addEventListener('scroll',()=>ver(el,b),{passive:true});ver(el,b);
+
       });
       root.querySelectorAll('.pdfW').forEach(w=>{const el=w.querySelector('.pdfS'),b=w.querySelector('.pdfA');if(el&&b)ver(el,b)});
     };
