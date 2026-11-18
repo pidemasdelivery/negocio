@@ -8041,6 +8041,14 @@ button{font-family:inherit;-webkit-tap-highlight-color:transparent}
     cur.t=setInterval(()=>{if(cur){taparBarras(cur);render()}},800);
   }
   const util={
+    calSueldo(P,rows){const S2=window.PdSueldo;if(!S2||!P||!(P.days||[]).length)return '';
+      const adv=new Map(),vac=new Map();(rows||[]).forEach(y=>{const t=String(y.tipo||'').toLowerCase(),k=String(y.fecha||'').slice(0,10),d=String(y.descripcion||'');if(t==='pago'&&/^adelanto/i.test(d))adv.set(k,(adv.get(k)||0)+(Number(y.monto)||0));if((t==='jornada'||t==='falta')&&/^(vacaciones|permiso)/i.test(d))vac.set(k,{v:/^vacaciones/i.test(d),pag:t==='jornada'})});
+      const SUB={ajuste:'Ajuste',ajusteFuturo:'Al cerrar',dia31:'En el 30',trabajado:'Trabajó',descanso:'Pagado',falta:'Falta',hoy:'Hoy',futuro:'',libre:'Libre',antes:'—'};
+      const days=P.days,re=days.filter(d=>!d.adjDay),off=re[0]?(S2.parse(re[0].date).getDay()+6)%7:0;let hayV=false;
+      const cel=days.map(d=>{const n=d.adjDay||S2.parse(d.date).getDate(),vv=!d.adjDay&&vac.get(d.date);if(vv)hayV=true;
+        const s=vv?(vv.v?'Vacac.':'Perm.'):d.adel?'Adel.':(d.status==='descanso'&&d.holiday?'Feriado':SUB[d.status]||'');const v=!d.adjDay&&adv.get(d.date);
+        return `<div class="${E(d.status)}${d.adel?' adel':''}${vv?(vv.pag?' vacp':' vacn'):''}" role="listitem" aria-label="${E((d.label||'')+' '+n+(s?': '+s:'')+(vv?(vv.pag?' pagado':' sin pago'):'')+(v?', adelanto S/ '+v.toFixed(2):''))}"><b>${n}</b><small>${E(s)}</small>${v?`<em>S/${E(Number.isInteger(v)?String(v):v.toFixed(2))}</em>`:''}</div>`}).join('');
+      return `<div class="slc" role="list">${['L','M','M','J','V','S','D'].map(y=>`<small aria-hidden="true">${y}</small>`).join('')}${'<span></span>'.repeat(off)}${cel}</div><div class="ley"><span><b style="color:#15803D">■</b> Trabajó</span><span><b style="color:#E8A27A">■</b> Descanso pagado</span><span><b style="color:#B42318">■</b> Falta</span>${hayV?'<span><b style="color:#2563EB">■</b> Vacaciones / permiso pagado</span>':''}</div>`},
     E,I,
     money:n=>'S/ '+(Number(n)||0).toFixed(2),
     ref:id=>'#'+String(id||'').replace(/-/g,'').slice(0,8).toUpperCase(),
@@ -8448,6 +8456,7 @@ input.cod{text-align:center;font-size:30px;letter-spacing:.4em;height:64px}
 .kp span{font-size:13px;color:#6B5E55;font-weight:600}.kp b{font-size:22px}.kp small{font-size:12px;color:#6B5E55}
 .cd{background:#FFFFFF;border:1px solid #F1E4DA;border-radius:18px;padding:14px;display:flex;flex-direction:column;gap:10px}
 .cal{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px}
+.slc{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px}.slc>small{text-align:center;font-size:12px;font-weight:800;color:#6B5E55;padding:2px 0}.slc>div{min-height:60px;height:auto;border-radius:12px;border:1px solid #F1E4DA;background:#FFFFFF;color:#1F1A17;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:4px 1px;font:inherit;min-width:0}.slc>div b{font-size:17px;font-weight:800;line-height:1.1}.slc>div small{font-size:10px;font-weight:700;color:#6B5E55;line-height:1.1;text-align:center;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.slc>div em{font-style:normal;font-size:9px;font-weight:800;color:#9A330A;background:#FDEBDF;border-radius:6px;padding:1px 3px;max-width:100%;overflow:hidden;white-space:nowrap}.slc .trabajado,.slc .ajuste{background:#E9F6EE;border-color:#CDEBD7}.slc .trabajado small,.slc .ajuste small{color:#0F5E2E}.slc .descanso{background:#FFF4EC;border-color:#F6D9C4}.slc .descanso small{color:#9A330A}.slc .falta{background:#FDE8E8;border-color:#F4C7C3}.slc .falta small,.slc .falta b{color:#9B1C1C}.slc .hoy{border:2px solid #C4410C}.slc .hoy small{color:#C4410C}.slc .libre,.slc .antes,.slc .dia31,.slc .ajusteFuturo{background:#F6EFE9;color:#9C8F86}.slc .adel{box-shadow:inset 0 0 0 2px #15803D}.slc>div{position:relative}.slc .vacp{background:#EAF1FE;border-color:#C9DBFB}.slc .vacp small,.slc .vacp b{color:#1D4ED8}.slc .vacn small{color:#9B1C1C}
 .cal div{display:flex;flex-direction:column;align-items:center;gap:3px}.cal small{font-size:11px;color:#6B5E55;font-weight:700}
 .cal i{width:100%;max-width:40px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-style:normal;font-size:12px;font-weight:800;background:#F6EFE9;color:#6B5E55}
 .cal i.t{background:#E9F6EE;color:#0F5E2E}.cal i.r{background:#FDEBDF;color:#9A330A}.cal i.f{background:#FDE8E8;color:#9B1C1C}.cal i.h{background:#FFFFFF;border:1.5px solid #C4410C;color:#C4410C}
@@ -8666,11 +8675,15 @@ textarea.ta:focus{border-color:#C4410C}
   }
   function enlace(){try{return (window.getEnlaceIndividualCarta&&getEnlaceIndividualCarta())||($('miEnlaceCartaUrl')||{}).value||''}catch(e){return ''}}
 
+  let entLim=30;
+  const entTodos=()=>BO().filter(o=>est(o)==='entregado').sort((a,b)=>new Date(b.entregado_en||b.creado_en)-new Date(a.entregado_en||a.creado_en));
+  function entLista(T){const out=[],hk=diaLima(Date.now()),ak=diaLima(Date.now()-864e5);let last='';T.slice(0,entLim).forEach(o=>{const k=diaLima(o.entregado_en||o.creado_en);if(k!==last){last=k;const n=T.filter(x=>diaLima(x.entregado_en||x.creado_en)===k).length;out.push(`<div style="display:flex;justify-content:space-between;align-items:center;margin-top:6px;font-size:13px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:#6B5E55"><span>${k===hk?'Hoy':k===ak?'Ayer':E(new Date(k+'T12:00:00').toLocaleDateString('es-PE',{weekday:'long',day:'numeric',month:'short'}).replace('.',''))}</span><span>${n} pedido${n===1?'':'s'}</span></div>`)}out.push(tarjeta(o,false))});if(T.length>entLim)out.push(`<button type="button" class="b" data-a="entmas">Ver más entregados</button>`);return out.join('')}
   /* =============== PEDIDOS =============== */
   function pedidos(){
     const nv=nuevos(),cu=curso(),ho=entHoy(),an=anuHoy();const lista={nuevos:nv,curso:cu,hoy:ho,anulados:an}[seg]||nv;
-    let h=`<div class="seg" style="grid-template-columns:repeat(3,minmax(0,1fr))">${[['nuevos','Nuevos',nv.length],['curso','En curso',cu.length],['hoy','Entregados',ho.length]].map(x=>`<button type="button" data-s="${x[0]}" class="${seg===x[0]?'on':''}">${x[1]} · ${x[2]}</button>`).join('')}</div>`;
-    h+=lista.length?lista.map(o=>tarjeta(o,seg==='nuevos')).join(''):`<div class="vac">${seg==='nuevos'?'No tienes pedidos nuevos.':seg==='curso'?'No tienes pedidos en curso.':seg==='anulados'?'No hay pedidos anulados hoy.':'Aún no entregas pedidos hoy.'}</div>`;
+    let h=`<div class="seg" style="grid-template-columns:repeat(3,minmax(0,1fr))">${[['nuevos','Nuevos',nv.length],['curso','En curso',cu.length],['hoy','Entregados',entTodos().length]].map(x=>`<button type="button" data-s="${x[0]}" class="${seg===x[0]?'on':''}">${x[1]} · ${x[2]}</button>`).join('')}</div>`;
+    const ET=seg==='hoy'?entTodos():null;
+    h+=ET?(ET.length?entLista(ET):`<div class="vac">Todavía no tienes pedidos entregados.</div>`):lista.length?lista.map(o=>tarjeta(o,seg==='nuevos')).join(''):`<div class="vac">${seg==='nuevos'?'No tienes pedidos nuevos.':seg==='curso'?'No tienes pedidos en curso.':seg==='anulados'?'No hay pedidos anulados hoy.':'Aún no entregas pedidos hoy.'}</div>`;
     if(seg==='nuevos'&&nv.length)h+=U.note('Ábrelo para aceptarlo y coordinar el pago.');
     if(seg==='hoy'&&ho.length)h+=`<div class="cd"><div class="li"><span>Vendido hoy</span><b>${M(ho.reduce((s,o)=>s+subt(o),0))}</b></div><div class="li"><span>En efectivo</span><b>${M(efectivoHoy())}</b></div></div>`;
     if(an.length&&seg!=='anulados')h+=`<button type="button" class="b" data-s="anulados">Ver anulados de hoy · ${an.length}</button>`;
@@ -9136,6 +9149,7 @@ textarea.ta:focus{border-color:#C4410C}
     if(A.startsWith('pz:')){await ocupado(()=>pausar(Number(A.slice(3))));return}
     switch(A){
       case 'volver':volver();break;
+      case 'entmas':entLim+=30;key='';pintar();break;
       case 'act':await ocupado(async()=>{try{await window.loadBusinessOrders()}catch(_){}});break;
       case 'hoy':seg='hoy';ir('pedidos',null);break;
       case 'agotados':F.cat='__ag';F.q='';ir('productos',null);break;
