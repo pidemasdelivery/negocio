@@ -1189,7 +1189,7 @@ html.pdxSheetOpen body #nav#nav#nav#nav#nav#nav#nav#nav#nav#nav{display:none!imp
 </style>
 
 <meta name="pd-instalacion" content="1">
-<meta name="pd-version" content="202611181712"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover"><title>Pidemás | Panel Negocio</title>
+<meta name="pd-version" content="202611181800"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover"><title>Pidemás | Panel Negocio</title>
 <link rel="manifest" href="manifest.webmanifest">
 <meta name="theme-color" content="#FFF9F5">
 <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
@@ -1954,9 +1954,15 @@ async function loadCategories(){
 function renderCategories(){$('pCategoria').innerHTML='<option value="">Sin categoría</option>';categories.forEach(c=>{const o=document.createElement('option');o.value=c.id;o.textContent=c.nombre;$('pCategoria').appendChild(o)});$('categoryList').innerHTML=categories.length?categories.map(c=>`<div class="productCard"><div class="productTop"><div><b>${esc(c.nombre)}</b><div class="muted">${esc(c.descripcion||'')}</div></div></div><div class="actions"><button class="btn alt" onclick="editCategory('${c.id}')">Editar</button><button class="btn alt" onclick="deleteCategory('${c.id}')">Eliminar</button></div></div>`).join(''):'<div class="empty">Todavía no tienes categorías.</div>'}
 window.editCategory=async id=>{const c=categories.find(x=>String(x.id)===String(id));if(!c)return;const n=(await pdPedir('Nombre de la categoría:',c.nombre||''));if(n===null)return;const d=(await pdPedir('Descripción:',c.descripcion||''));if(d===null)return;const {error}=await db.from('categorias_negocio').update({nombre:n.trim(),descripcion:d.trim()||null}).eq('id',id).eq('negocio_id',restaurant.id);if(error){pdAviso('No se pudo editar la categoría.');return}await loadCategories();await loadProducts()};window.toggleCategory=async id=>{const c=categories.find(x=>String(x.id)===String(id));if(!c)return;const nuevoEstado=c.activo===false;const accion=nuevoEstado?'mostrar':'ocultar';if(!(await pdConfirmar(`¿${accion.charAt(0).toUpperCase()+accion.slice(1)} esta categoría completa en la tienda?`)))return;try{const {error}=await db.from('categorias_negocio').update({activo:nuevoEstado}).eq('id',id).eq('negocio_id',restaurant.id);if(error)throw error;await loadCategories();await loadProducts()}catch(e){pdAviso('No se pudo cambiar el estado de la categoría: '+(e?.message||'Revisa los permisos de categorias_negocio.'))}};window.deleteCategory=async id=>{if(!(await pdConfirmar('¿Eliminar esta categoría?')))return;const {error}=await db.from('categorias_negocio').delete().eq('id',id).eq('negocio_id',restaurant.id);if(error){pdAviso('No se pudo eliminar la categoría.');return}await loadCategories();await loadProducts()};
 async function loadProducts(){
-  const {data,error}=await db.from('productos_negocio').select('*').eq('negocio_id',restaurant.id).order('orden',{ascending:true});
-  if(error){show($('appMsg'),'No se pudieron cargar los productos: '+error.message);return}
+  let {data,error}=await db.from('productos_negocio').select('*').eq('negocio_id',restaurant.id).order('orden',{ascending:true});
+  if(error){/* conexión lenta o respuesta muy pesada: primero la lista sin fotos y luego las fotos */
+    const r2=await db.from('productos_negocio').select('id,negocio_id,categoria_id,nombre,descripcion,precio,precio_antes,disponible,stock,orden,variantes,creado_en').eq('negocio_id',restaurant.id).order('orden',{ascending:true});
+    if(r2.error){show($('appMsg'),'No se pudieron cargar los productos: '+error.message);if(window.pdAviso&&!products.length)pdAviso('No se pudieron cargar tus productos. Revisa tu internet y toca actualizar.');return}
+    data=(r2.data||[]).map(p=>{const old=(products||[]).find(x=>String(x.id)===String(p.id));return Object.assign({imagen_url:old?old.imagen_url:null,fotos:old?old.fotos:null},p)});
+    setTimeout(()=>pdFotosProductos(data.map(p=>p.id)),50);
+  }
   products=data||[];
+  setTimeout(pdMigrarFotos,1500);
   // La categoría de cada producto siempre se relaciona con el ID de
   // categorias_negocio del mismo negocio. No se usa el nombre como clave.
   const validCategoryIds=new Set((categories||[]).map(c=>String(c.id)));
@@ -1966,6 +1972,27 @@ async function loadProducts(){
     }
   });
   renderProducts()
+}
+/* Fotos que quedaron guardadas dentro de la base de datos (porque Storage fallaba): se cargan aparte
+   y se pasan a Storage una sola vez, para que la carta cargue rápido y no desaparezca. */
+async function pdFotosProductos(ids){
+  for(let i=0;i<ids.length;i+=4){const part=ids.slice(i,i+4);
+    try{const {data}=await db.from('productos_negocio').select('id,imagen_url,fotos').in('id',part);(data||[]).forEach(d=>{const p=products.find(x=>String(x.id)===String(d.id));if(p){p.imagen_url=d.imagen_url;p.fotos=d.fotos}});renderProducts();try{window.pdAppNeg&&pdAppNeg.pintar&&pdAppNeg.pintar()}catch(_){}}catch(_){}}
+}
+let pdMigrando=false;
+async function pdSubirDataUrl(u,pid,suf){const blob=await (await fetch(u)).blob();const ext=(blob.type.split('/')[1]||'jpg').replace('jpeg','jpg');const path=`productos/${restaurant.id}/${pid}${suf}-${Date.now()}.${ext}`;
+  const b=db.storage.from('restaurantes');const {error}=await b.upload(path,blob,{upsert:false,contentType:blob.type||'image/jpeg',cacheControl:'31536000'});if(error)throw error;return b.getPublicUrl(path).data.publicUrl}
+async function pdMigrarFotos(){
+  if(pdMigrando||!restaurant||!restaurant.id)return;pdMigrando=true;
+  try{for(const p of (products||[]).slice()){
+    const esD=u=>typeof u==='string'&&u.startsWith('data:image');
+    let fotos=p.fotos;try{if(typeof fotos==='string')fotos=JSON.parse(fotos)}catch(_){fotos=null}
+    const tieneF=Array.isArray(fotos)&&fotos.some(esD);if(!esD(p.imagen_url)&&!tieneF)continue;
+    try{const patch={};if(esD(p.imagen_url))patch.imagen_url=await pdSubirDataUrl(p.imagen_url,p.id,'');
+      if(tieneF){const nf=[];for(const f of fotos)nf.push(esD(f)?await pdSubirDataUrl(f,p.id,'_f'):f);patch.fotos=nf}
+      const {error}=await db.from('productos_negocio').update(patch).eq('id',p.id).eq('negocio_id',restaurant.id);if(error)throw error;Object.assign(p,patch);
+    }catch(e){console.warn('[fotos] no se pudo pasar a Storage',p.id,e);break}
+  }}finally{pdMigrando=false}
 }
 function renderProducts(){
   if(!products.length){$('productList').innerHTML='<div class="empty">Todavía no tienes productos en tu carta.</div>';return}
@@ -2074,9 +2101,9 @@ async function compressImageForFallback(file){
 async function uploadProductImage(productId,file){
   if(!file)return null;
   const ext=await extensionFor(file);
-  const path=`productos/${productId}.${ext}`;
-  const bucket=db.storage.from('negocios');
-  const {error}=await bucket.upload(path,file,{upsert:true,contentType:file.type||'image/jpeg'});
+  const path=`productos/${restaurant.id}/${productId}-${Date.now()}.${ext}`;
+  const bucket=db.storage.from('restaurantes');
+  const {error}=await bucket.upload(path,file,{upsert:false,contentType:file.type||'image/jpeg',cacheControl:'31536000'});
   if(!error){
     const {data}=bucket.getPublicUrl(path);
     return data.publicUrl;
@@ -2086,8 +2113,8 @@ async function uploadProductImage(productId,file){
   return await compressImageForFallback(file);
 }
 function storagePathFromImageUrl(url){
-  const marker='/storage/v1/object/public/negocios/';
   const value=String(url||'');
+  const marker=value.includes('/storage/v1/object/public/restaurantes/')?'/storage/v1/object/public/restaurantes/':'/storage/v1/object/public/negocios/';
   const i=value.indexOf(marker);
   if(i<0)return null;
   try{return decodeURIComponent(value.slice(i+marker.length).split('?')[0])}catch(_){return value.slice(i+marker.length).split('?')[0]}
@@ -2096,8 +2123,8 @@ async function removeProductImageUrl(url){
   const path=storagePathFromImageUrl(url);
   // Las imágenes guardadas como data URL no necesitan eliminarse de Storage.
   if(!path)return;
-  const {error}=await db.storage.from('negocios').remove([path]);
-  if(error && !String(error.message||'').toLowerCase().includes('bucket not found'))throw error;
+  const {error}=await db.storage.from(String(url).includes('/public/restaurantes/')?'restaurantes':'negocios').remove([path]);
+  if(error && !/bucket not found|not found|denied|policy/i.test(String(error.message||'')))throw error;
 }
 $('editProductClose').onclick=closeEditProductModal;$('editProductCancel').onclick=closeEditProductModal;$('editProductModal').addEventListener('click',e=>{if(e.target===$('editProductModal'))closeEditProductModal()});$('editPImagenFile').addEventListener('change',e=>{const f=e.target.files?.[0];if(!f){const current=$('editPImagen').value.trim();if(current){$('editPImagenPreview').src=current;$('editPImagenPreview').style.display='block';$('editPImagenCloud').style.display='none';$('editPImagenFileName').textContent='Imagen actual';$('deleteEditImage').style.display='block'}else{$('editPImagenPreview').style.display='none';$('editPImagenCloud').style.display='block';$('editPImagenFileName').textContent='PNG, JPG o WebP.';$('deleteEditImage').style.display='none'}return}const url=URL.createObjectURL(f);$('editPImagenPreview').src=url;$('editPImagenPreview').style.display='block';$('editPImagenCloud').style.display='none';$('editPImagenTitle').textContent='Nueva imagen';$('editPImagenHint').textContent='Se guardará al presionar Guardar cambios';$('editPImagenFileName').textContent=f.name;$('deleteEditImage').style.display='none';$('deleteEditImage').dataset.removeImage='false'});$('deleteEditImage').onclick=()=>{if(!$('editPImagen').value.trim())return;$('editPImagen').value='';$('editPImagenFile').value='';$('editPImagenPreview').style.display='none';$('editPImagenPreview').removeAttribute('src');$('editPImagenCloud').style.display='block';$('editPImagenTitle').textContent='Seleccionar imagen';$('editPImagenHint').textContent='Selecciona una imagen o arrástrala aquí';$('editPImagenFileName').textContent='Imagen eliminada. Guarda los cambios.';$('deleteEditImage').style.display='none';$('deleteEditImage').dataset.removeImage='true'};$('editProductSave').onclick=async()=>{
   const id=$('editProductModal').dataset.productId;
@@ -3576,8 +3603,8 @@ async function init(){try{setupLoginOptions();$('loginBtn').addEventListener('cl
   }
   async function subirFoto(file){
     const id=st.id,ext=(file.type.split('/')[1]||'jpg').replace('jpeg','jpg');
-    const path=`productos/${id}_f${Date.now()}.${ext}`;
-    const b=db.storage.from('negocios');
+    const path=`productos/${restaurant.id}/${id}_f${Date.now()}.${ext}`;
+    const b=db.storage.from('restaurantes');
     const {error}=await b.upload(path,file,{upsert:false,contentType:file.type||'image/jpeg'});
     if(!error)return b.getPublicUrl(path).data.publicUrl;
     if(typeof compressImageForFallback==='function')return await compressImageForFallback(file);
@@ -8028,7 +8055,7 @@ button{font-family:inherit;-webkit-tap-highlight-color:transparent}
     if(cur)close(true);
     const host=document.createElement('pd-pasos-pedido');
     host.setAttribute('data-pd-aislado','1');
-    const root=host.attachShadow({mode:'open'});
+    const root=host.attachShadow({mode:'open'});try{flechas(root)}catch(_){}
     document.body.appendChild(host);
     /* en el motorizado el menú de abajo queda visible también en el detalle */
     try{const nh=(()=>{const A=window.pdAppMoto||window.pdAppNeg||window.pdAppAdm;return A&&A.navH?A.navH():0})();if(nh>0)host.style.bottom=nh+'px'}catch(_){}
@@ -8068,7 +8095,30 @@ button{font-family:inherit;-webkit-tap-highlight-color:transparent}
     items:(titulo,det,precios)=>{const L=(det||[]).map(d=>`<div class="li"><span>${E(d.cantidad||1)} × ${E(d.nombre_producto||'Producto')}</span>${precios?`<b>${util.money(d.subtotal!=null?d.subtotal:(Number(d.precio_unitario)||0)*(Number(d.cantidad)||1))}</b>`:''}</div>`).join('');return L?`<div class="box"><div class="k">${E(titulo)}</div>${L}</div>`:''},
     code:(k,n,s)=>`<div class="code"><div class="k">${E(k)}</div><div class="n">${E(n)}</div>${s?`<div class="s">${E(s)}</div>`:''}</div>`
   };
-  window.PdPasos={open,close,render:()=>{if(cur){cur.key=null;render()}},isOpen:()=>!!cur,util,css:CSS};
+
+  /* Filas que se deslizan de lado (chips, categorías): sin barra de scroll y con una flecha que avanza */
+  const FL_CSS='.pdfW{position:relative}.pdfW>.pdfS{scrollbar-width:none;padding-right:52px!important}.pdfW>.pdfS::-webkit-scrollbar{display:none}.pdfA{position:absolute;right:0;top:50%;transform:translateY(-50%);width:40px;height:40px;border-radius:50%;border:1px solid #F1E4DA;background:#FFFFFF;color:#C4410C;display:flex;align-items:center;justify-content:center;box-shadow:-14px 0 14px rgba(255,249,245,.95),0 2px 6px rgba(31,26,23,.12);cursor:pointer;z-index:2;padding:0;margin:0}.pdfA svg{width:20px;height:20px;transition:transform .2s}.pdfA.fin svg{transform:rotate(180deg)}.pdfA[hidden]{display:none!important}';
+  const FL_SEL='.chips,.cats,.chs,.dias,.qChips,.tCats';
+  function flechas(root){
+    if(!root||root.__pdf)return;root.__pdf=1;
+    const fin=el=>el.scrollLeft+el.clientWidth>=el.scrollWidth-4;
+    const ver=(el,b)=>{const h=el.scrollWidth<=el.clientWidth+4;if(b.hidden!==h)b.hidden=h;b.classList.toggle('fin',!h&&fin(el))};
+    const apply=()=>{
+      if(!root.querySelector('style[data-pdf]')){const st=document.createElement('style');st.setAttribute('data-pdf','');st.textContent=FL_CSS;(root.head||root).appendChild(st)}
+      root.querySelectorAll(FL_SEL).forEach(el=>{
+        if(el.closest('.chW')||(el.parentElement&&el.parentElement.classList.contains('pdfW')))return;
+        const cs=getComputedStyle(el);if(cs.flexWrap==='wrap'||!/auto|scroll/.test(cs.overflowX))return;
+        const w=document.createElement('div');w.className='pdfW';el.parentNode.insertBefore(w,el);w.appendChild(el);el.classList.add('pdfS');
+        const b=document.createElement('button');b.type='button';b.className='pdfA';b.setAttribute('aria-label','Ver más');b.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg>';w.appendChild(b);
+        b.addEventListener('click',e=>{e.preventDefault();e.stopPropagation();el.scrollTo({left:fin(el)?0:el.scrollLeft+Math.max(160,el.clientWidth*.6),behavior:'smooth'})});
+        el.addEventListener('scroll',()=>ver(el,b),{passive:true});ver(el,b);
+      });
+      root.querySelectorAll('.pdfW').forEach(w=>{const el=w.querySelector('.pdfS'),b=w.querySelector('.pdfA');if(el&&b)ver(el,b)});
+    };
+    let t=null;new MutationObserver(()=>{clearTimeout(t);t=setTimeout(apply,40)}).observe(root,{childList:true,subtree:true});
+    addEventListener('resize',()=>{clearTimeout(t);t=setTimeout(apply,80)});apply();
+  }
+  window.PdPasos={open,close,flechas,render:()=>{if(cur){cur.key=null;render()}},isOpen:()=>!!cur,util,css:CSS};
 })();
 
 </script>
@@ -9080,7 +9130,7 @@ textarea.ta:focus{border-color:#C4410C}
       const wrap=document.createElement('header');wrap.id='pdAppShell';wrap.style.cssText='display:contents';wrap.appendChild(host);document.body.appendChild(wrap);
       if(!$('pd-app-neg-ext')){const st=document.createElement('style');st.id='pd-app-neg-ext';st.textContent=ESTILO_EXT;document.head.appendChild(st)}
       ext=document.createElement('div');ext.slot='ext';ext.id='pdnExt';host.appendChild(ext);
-      root=host.attachShadow({mode:'open'});
+      root=host.attachShadow({mode:'open'});try{PdPasos.flechas(root)}catch(_){}
       root.addEventListener('click',clic);root.addEventListener('input',entrada);root.addEventListener('change',entrada);
       root.addEventListener('pointerdown',()=>{tocando=true});root.addEventListener('click',()=>setTimeout(()=>{tocando=false},60),true);root.addEventListener('pointercancel',()=>{tocando=false});
     }
