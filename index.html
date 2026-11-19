@@ -1189,7 +1189,7 @@ html.pdxSheetOpen body #nav#nav#nav#nav#nav#nav#nav#nav#nav#nav{display:none!imp
 </style>
 
 <meta name="pd-instalacion" content="1">
-<meta name="pd-version" content="202611191200"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover"><title>Pidemás | Panel Negocio</title>
+<meta name="pd-version" content="202611191205"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover"><title>Pidemás | Panel Negocio</title>
 <link rel="manifest" href="manifest.webmanifest">
 <meta name="theme-color" content="#FFF9F5">
 <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
@@ -8411,8 +8411,8 @@ input.cod{text-align:center;font-size:30px;letter-spacing:.4em;height:64px}
       <div class="tapa" data-k=""></div><div class="cd" role="dialog" aria-modal="true" aria-label="${E(o.titulo||'')}" style="--abajo:${ab}px"><div class="hd"><span class="ic ${o.ic||''}">${IC[o.ic==='mal'?'mal':o.ic==='ok'?'ok':'q']}</span><div class="tt"><b>${E(o.titulo||'')}</b></div></div>${o.html||''}
       <div class="bs${dos?' dos':''}">${bs.map(b=>`<button type="button" class="b ${b.c||''}${b.sub?' s':''}" data-k="${E(b.k)}">${E(b.t)}${b.sub?`<small>${E(b.sub)}</small>`:''}</button>`).join('')}${o.cancelar===false?'':`<button type="button" class="b x2" data-k="">${E(o.cancelar||'Cancelar')}</button>`}</div></div>`;
     const fin=v=>{h.remove();res(v||null)};
-    r.addEventListener('click',e=>{const x=e.target.closest('[data-k]');if(!x)return;const k=x.dataset.k;const b=bs.find(y=>String(y.k)===k);if(b&&b.queda){try{o.alTocar&&o.alTocar(k,r,x)}catch(_){}return}fin(k)});
-    document.body.appendChild(h);setTimeout(()=>{const x=r.querySelector('.b.o,.b.r,.b.g');x&&x.focus()},40);
+    r.addEventListener('click',e=>{const x=e.target.closest('[data-k]');if(!x)return;const k=x.dataset.k;const b=bs.find(y=>String(y.k)===k);if(b&&b.queda){try{o.alTocar&&o.alTocar(k,r,x)}catch(_){}return}let v=k;try{if(o.valor)v=o.valor(k,r)}catch(_){}fin(v)});
+    document.body.appendChild(h);
   })};
   let pend=0;const tick=()=>{pend=0;try{sinVelo();pintarDlg();pintarToasts()}catch(e){console.warn('Ventanas:',e)}};
   new MutationObserver(()=>{if(!pend)pend=requestAnimationFrame(tick)}).observe(document.documentElement,{subtree:true,childList:true,attributes:true,attributeFilter:['hidden','class','disabled','data-pdm-velo','data-pd-sin-velo'],characterData:true});
@@ -8447,9 +8447,10 @@ input.cod{text-align:center;font-size:30px;letter-spacing:.4em;height:64px}
   /* Eliminar una categoría: el usuario elige si borra también sus productos */
   window.pdElegirBorrarCat=function(nombre,n){
     const Es=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-    if(window.pdVentana)return window.pdVentana({ic:'mal',titulo:'Eliminar «'+nombre+'»',
-      html:`<p>${n?`Esta categoría tiene <b style="color:#1F1A17">${n} producto${n===1?'':'s'}</b>. ¿Qué quieres hacer con ${n===1?'él':'ellos'}?`:'Esta categoría no tiene productos.'}</p>`,
-      botones:n?[{k:'todo',t:n===1?'Borrar la categoría y su producto':'Borrar la categoría y sus '+n+' productos',c:'r'},{k:'solo',t:'Borrar solo la categoría',sub:'Los productos se quedan, sin categoría'}]:[{k:'solo',t:'Sí, eliminar',c:'r'}]});
+    if(window.pdVentana)return window.pdVentana({ic:'mal',titulo:'¿Eliminar la categoría «'+nombre+'»?',
+      html:n?`<p>Tiene <b style="color:#1F1A17">${n} producto${n===1?'':'s'}</b>. Si no marcas la casilla, ${n===1?'se queda':'se quedan'} en tu carta sin categoría.</p><label style="display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:14px;border:1px solid #F1E4DA;cursor:pointer;font-size:15px;font-weight:700"><input type="checkbox" id="pdCatTodo" style="width:22px;height:22px;accent-color:#B42318;flex:0 0 auto;margin:0">Borrar también ${n===1?'su producto':'sus '+n+' productos'}</label>`:'',
+      botones:[{k:'',t:'Cancelar'},{k:'si',t:'Sí, continuar',c:'r'}],cancelar:false,
+      valor:(k,r)=>k==='si'?(r.getElementById('pdCatTodo')&&r.getElementById('pdCatTodo').checked?'todo':'solo'):null});
     return Promise.resolve(confirm('¿Eliminar la categoría «'+nombre+'»?')?'solo':null)};
   window.pdElegirBorrarCatViejo=function(nombre,n){return new Promise(res=>{
     const Es=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -8809,7 +8810,7 @@ textarea.ta:focus{border-color:#C4410C}
       let it=g.it.filter(p=>(!q||String(p.nombre||'').toLowerCase().includes(q))&&(F.cat!=='__ag'||agotado(p))).sort(byOrd);
       if(!it.length&&(q||F.cat==='__ag'||g.id==='__none'))return;
       n+=it.length;
-      h+=`<div class="cat"><div class="lbl">${E(g.n)}</div>${g.oc?'<span class="pl r">Oculta</span>':''}<small>${it.length} producto${it.length===1?'':'s'}</small>${g.id!=='__none'?`<button type="button" class="cdel" data-a="cat:del:${E(g.id)}" aria-label="Eliminar la categoría ${E(g.n)}">${IC.trash}</button>`:''}</div>`;
+      h+=`<div class="cat"><div class="lbl">${E(g.n)}</div>${g.oc?'<span class="pl r">Oculta</span>':''}<small>${it.length} producto${it.length===1?'':'s'}</small></div>`;
       h+=it.length?it.map(filaProd).join(''):'<div class="vac" style="padding:16px">Sin productos en esta categoría.</div>';
     });
     return h||`<div class="vac">${q?'No hay productos con ese nombre.':F.cat==='__ag'?'No tienes productos agotados.':'Todavía no tienes productos. Agrega el primero.'}</div>`;
