@@ -1189,7 +1189,7 @@ html.pdxSheetOpen body #nav#nav#nav#nav#nav#nav#nav#nav#nav#nav{display:none!imp
 </style>
 
 <meta name="pd-instalacion" content="1">
-<meta name="pd-version" content="202611191340"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover"><title>Pidemás | Panel Negocio</title>
+<meta name="pd-version" content="202611191440"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover"><title>Pidemás | Panel Negocio</title>
 <link rel="manifest" href="manifest.webmanifest">
 <meta name="theme-color" content="#FFF9F5">
 <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
@@ -8059,7 +8059,7 @@ button{font-family:inherit;-webkit-tap-highlight-color:transparent}
     const root=host.attachShadow({mode:'open'});try{flechas(root)}catch(_){}
     document.body.appendChild(host);
     /* en el motorizado el menú de abajo queda visible también en el detalle */
-    try{const nh=(()=>{const A=window.pdAppMoto||window.pdAppNeg||window.pdAppAdm;return A&&A.navH?A.navH():0})();if(nh>0)host.style.bottom=nh+'px'}catch(_){}
+    try{const nh=(()=>{const A=window.pdAppMoto||window.pdAppNeg||window.pdAppAdm;return A&&A.navH&&A.navEnDetalle!==false?A.navH():0})();if(nh>0)host.style.bottom=nh+'px'}catch(_){}
     cur={host,root,model,ocultas:[],open:{},key:null,lastActive:-2,onClose:opts&&opts.onClose,ov:document.documentElement.style.overflow};
     document.documentElement.style.overflow='hidden';
     cur.propio=propio();
@@ -8941,7 +8941,7 @@ textarea.ta:focus{border-color:#C4410C}
     const perm=!('Notification' in window)?'Este navegador no permite avisos.':Notification.permission==='granted'?'Activados.':Notification.permission==='denied'?'Bloqueados. Actívalos en los ajustes del sitio.':'Desactivados.';
     h+=`<div class="cd"><div class="lbl">Avisos de pedidos</div><div class="swr"><span class="tx"><b>Sonido de avisos</b><span>Suena cuando llega un pedido nuevo.</span></span>${sw('snd',sOn,'Sonido de avisos',!snd)}</div>
       <div class="btns b2"><button type="button" class="b" data-a="probar">${IC.sound}Probar sonido</button><button type="button" class="b" data-a="permiso"${'Notification' in window&&Notification.permission==='denied'?' disabled':''}>${IC.bell}${'Notification' in window&&Notification.permission==='granted'?'Probar aviso':'Activar avisos'}</button></div><span style="font-size:13px;color:#6B5E55">Avisos del teléfono: ${E(perm)}</span></div>`;
-    h+=`<button type="button" class="b rojo" data-a="salir">${IC.logout}Cerrar sesión</button>`;
+    h+=`<button type="button" class="b rojo" style="height:54px;font-size:16px;background:#FFFFFF" data-a="salir">${IC.logout}Cerrar sesión</button>`;
     return {head:top('Mi cuenta','Mi perfil'),body:h};
   }
   async function perfilGuardar(){
