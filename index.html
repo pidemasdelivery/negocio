@@ -1189,7 +1189,7 @@ html.pdxSheetOpen body #nav#nav#nav#nav#nav#nav#nav#nav#nav#nav{display:none!imp
 </style>
 
 <meta name="pd-instalacion" content="1">
-<meta name="pd-version" content="202611181925"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover"><title>Pidemás | Panel Negocio</title>
+<meta name="pd-version" content="202611182010"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover"><title>Pidemás | Panel Negocio</title>
 <link rel="manifest" href="manifest.webmanifest">
 <meta name="theme-color" content="#FFF9F5">
 <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
@@ -8080,14 +8080,15 @@ button{font-family:inherit;-webkit-tap-highlight-color:transparent}
     money:n=>'S/ '+(Number(n)||0).toFixed(2),
     ref:id=>'#'+String(id||'').replace(/-/g,'').slice(0,8).toUpperCase(),
     hora:d=>{if(!d)return '';const x=new Date(d);return isNaN(x)?'':x.toLocaleTimeString('es-PE',{hour:'numeric',minute:'2-digit',hour12:true,timeZone:'America/Lima'}).replace(/\s?a\.?\s?m\.?/i,' am').replace(/\s?p\.?\s?m\.?/i,' pm')},
-    tel:t=>{const d=String(t||'').replace(/\D/g,'');if(!d)return '';return d.startsWith('51')&&d.length>9?d:(d.length===9?'51'+d:d)},
+    usuario:t=>{const m=/^\s*@([a-z0-9._]{3,35})\s*$/i.exec(String(t||''))||(/[a-z]/i.test(String(t||''))&&/^\s*([a-z0-9._]{3,35})\s*$/i.exec(String(t||'')));return m?m[1].toLowerCase():''},
+    tel:t=>{const us=util.usuario(t);if(us)return us;const d=String(t||'').replace(/\D/g,'');if(!d)return '';return d.startsWith('51')&&d.length>9?d:(d.length===9?'51'+d:d)},
     maps:(lat,lng,txt,url)=>{if(lat!=null&&lng!=null&&lat!==''&&lng!=='')return 'https://www.google.com/maps/dir/?api=1&destination='+lat+','+lng;if(url)return url;return txt?'https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(txt):''},
     ini:t=>String(t||'?').trim().charAt(0)||'?',
     who:(nombre,sub,foto,redondo)=>`<div class="who"><span class="av${redondo?' r':''}"${foto?` style="background-image:url('${E(foto)}')"`:''}>${foto?'':E(String(nombre||'?').trim().charAt(0))}</span><div style="min-width:0"><div class="wn">${E(nombre||'—')}</div><div class="ws">${sub||''}</div></div></div>`,
     addr:(t,r)=>t?`<div class="addr">${I.pin}<div><div class="at">${E(t)}</div>${r?`<div class="ar">Ref.: ${E(r)}</div>`:''}</div></div>`:'',
     contact:(mapUrl,phone,waText,cols)=>{const t=util.tel(phone);const b=[];
       if(mapUrl!==null)b.push(`<a class="b o" ${mapUrl?`href="${E(mapUrl)}" target="_blank" rel="noopener"`:'aria-disabled="true" style="opacity:.45;pointer-events:none"'}>${I.nav}Ir</a>`);
-      b.push(`<a class="b" ${t?`href="tel:+${t}"`:'aria-disabled="true" style="opacity:.45;pointer-events:none"'}>${I.phone}Llamar</a>`);
+      b.push(`<a class="b" ${t?`href="${util.usuario(phone)?'https://wa.me/'+t:'tel:+'+t}"${util.usuario(phone)?' target="_blank" rel="noopener"':''}`:'aria-disabled="true" style="opacity:.45;pointer-events:none"'}>${I.phone}Llamar</a>`);
       b.push(`<a class="b g" ${t?`href="https://wa.me/${t}${waText?'?text='+encodeURIComponent(waText):''}" target="_blank" rel="noopener"`:'aria-disabled="true" style="opacity:.45;pointer-events:none"'}>${I.wa}WhatsApp</a>`);
       return `<div class="btns${b.length===2?' b2':''}">${b.join('')}</div>`},
     st:(txt,tipo)=>`<div class="st ${tipo||''}">${tipo==='ok'?I.ok:tipo==='mal'?'':'<span class="pt"></span>'}<span>${txt}</span></div>`,
