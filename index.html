@@ -1189,7 +1189,7 @@ html.pdxSheetOpen body #nav#nav#nav#nav#nav#nav#nav#nav#nav#nav{display:none!imp
 </style>
 
 <meta name="pd-instalacion" content="1">
-<meta name="pd-version" content="202611191205"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover"><title>Pidemás | Panel Negocio</title>
+<meta name="pd-version" content="202611191250"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover"><title>Pidemás | Panel Negocio</title>
 <link rel="manifest" href="manifest.webmanifest">
 <meta name="theme-color" content="#FFF9F5">
 <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
@@ -8989,10 +8989,21 @@ textarea.ta:focus{border-color:#C4410C}
     h+=`<div class="lbl">${pz?'Alargar la pausa':'Pausar por'}</div><div class="opts">${[[15,'15 minutos'],[30,'30 minutos'],[60,'1 hora'],[120,'2 horas']].map(x=>`<button type="button" class="opt" data-a="pz:${x[0]}"><b>${x[1]}</b><span>Vuelves a recibir pedidos a las ${E(hora(Date.now()+x[0]*60000))}</span></button>`).join('')}</div>`;
     return {head:top('Mi negocio','Pausar pedidos',null,true),body:h,foot:pz?`<button type="button" class="b o" style="height:54px;font-size:16px" data-a="pz:0">${IC.play}Reanudar ahora</button>`:''};
   }
+  /* Pausar pedidos como alerta (mismo diseño de las ventanas de la app) */
+  async function pausaAlerta(){
+    const pz=pausaHasta(),st=estado();
+    const bs=[[15,'15 minutos'],[30,'30 minutos'],[60,'1 hora'],[120,'2 horas']].map(x=>({k:String(x[0]),t:(pz?'+ ':'')+x[1],sub:'Vuelves a recibir pedidos a las '+hora((pz||Date.now())+x[0]*60000)}));
+    if(pz)bs.unshift({k:'0',t:'Reanudar ahora',c:'o'});
+    const v=await window.pdVentana({ic:pz?'mal':'q',titulo:pz?'Pedidos en pausa hasta las '+hora(pz):'Pausar pedidos',
+      html:`<p>${pz?'Puedes reanudar ahora o alargar la pausa.':'Mientras estés en pausa, tu negocio aparece cerrado en la tienda. Los pedidos que ya tienes siguen igual.'}</p>${pz?'':'<div style="font-size:12px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:#6B5E55;margin-top:2px">Pausar por</div>'}`,
+      botones:bs});
+    if(v==null)return;
+    const m=Number(v);try{await pausar(m?Math.round(((pz||Date.now())+m*60000-Date.now())/60000):0)}catch(err){aviso(String(err&&err.message||err))}key='';pintar();
+  }
   async function pausar(m){
     const r=R();const hasta=m?new Date(Date.now()+m*60000).toISOString():null;
     const q=await D().from('negocios').update({pausado_hasta:hasta}).eq('id',r.id);if(q.error){aviso('No se pudo guardar: '+q.error.message);return}
-    r.pausado_hasta=hasta;r.__pzAvisado=0;exito(m?'Pedidos en pausa hasta las '+hora(T(hasta)):'Listo, ya recibes pedidos otra vez');volver();
+    r.pausado_hasta=hasta;r.__pzAvisado=0;exito(m?'Pedidos en pausa hasta las '+hora(T(hasta)):'Listo, ya recibes pedidos otra vez');if(sub==='pausa')volver();
   }
 
   /* =============== MIS PAGOS =============== */
@@ -9238,6 +9249,7 @@ textarea.ta:focus{border-color:#C4410C}
     const rp=e.target.closest('[data-rp]');if(rp){F.rep=+rp.dataset.rp;key='';pintar();return}
     const o=e.target.closest('[data-o]');if(o){abrirPedido(o.dataset.o);return}
     const a=e.target.closest('[data-a]');if(!a)return;const A=a.dataset.a;
+    if(A==='p:pausa'&&window.pdVentana){await pausaAlerta();return}
     if(A.startsWith('p:')){ir(tab,A.slice(2));return}
     const ocupado=async fn=>{if(a.disabled)return;a.disabled=true;const tx=a.innerHTML;a.innerHTML='Un momento…';try{await fn()}catch(err){aviso(String(err&&err.message||err))}finally{a.disabled=false;a.innerHTML=tx;key='';pintar()}};
     if(A.startsWith('disp:')){const id=A.slice(5),p=PR().find(x=>String(x.id)===id);if(p)await ocupado(()=>setDisp(id,agotado(p)));return}
