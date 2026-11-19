@@ -1189,7 +1189,7 @@ html.pdxSheetOpen body #nav#nav#nav#nav#nav#nav#nav#nav#nav#nav{display:none!imp
 </style>
 
 <meta name="pd-instalacion" content="1">
-<meta name="pd-version" content="202611191025"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover"><title>Pidemás | Panel Negocio</title>
+<meta name="pd-version" content="202611191130"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover"><title>Pidemás | Panel Negocio</title>
 <link rel="manifest" href="manifest.webmanifest">
 <meta name="theme-color" content="#FFF9F5">
 <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
@@ -8901,7 +8901,7 @@ textarea.ta:focus{border-color:#C4410C}
 
   /* =============== PERFIL =============== */
   const CATS=['Restaurantes','Comida criolla','Pizzerías','Pollerías','Hamburgueserías','Comida rápida','Sangucherías','Paviferías','Cevicherías','Chifas','Sushi y comida japonesa','Parrillas y anticuchos','Heladerías','Cafeterías','Juguerías','Dulcerías y pastelerías','Panaderías','Bodegas y minimarkets','Fruterías y verdulerías','Carnicerías','Licorerías','Agua y gas','Farmacias y boticas','Ropa y moda','Calzado y zapatillas','Accesorios y bisutería','Tecnología','Celulares y accesorios','Belleza y cuidado personal','Hogar y decoración','Ferreterías','Deportes','Bebés y maternidad','Florerías y regalos','Mascotas','Librerías y útiles escolares','Jugueterías','Lavanderías'];
-  function perfilNuevo(){const r=R()||{};return {nombre:r.nombre||'',cat:r.categoria_negocio||'',desc:r.descripcion||'',tel:r.telefono||'',ruc:r.ruc||'',dir:r.direccion||'',maps:r.google_maps_url||'',lat:r.latitud??'',lng:r.longitud??'',tiempo:r.tiempo_estimado||'',activo:r.activo!==false,msg:'',ok:''}}
+  function perfilNuevo(){const r=R()||{};return {nombre:r.nombre||'',cat:r.categoria_negocio||'',desc:r.descripcion||'',tel:r.telefono||'',ruc:r.ruc||'',dir:r.direccion||'',maps:r.google_maps_url||'',lat:r.latitud??'',lng:r.longitud??'',tiempo:r.tiempo_estimado||'',activo:r.activo!==false,pub:r.ubicacion_publica!==false,msg:'',ok:''}}
   function perfil(){
     const r=R()||{};if(!F.perfil)F.perfil=perfilNuevo();const f=F.perfil,lg=logoDe(r);
     const cats=CATS.includes(f.cat)||!f.cat?CATS:[f.cat,...CATS];
@@ -8911,7 +8911,7 @@ textarea.ta:focus{border-color:#C4410C}
       <div class="fld"><label for="pC">Rubro</label><select id="pC" data-in="pf:cat"><option value="">Elige tu rubro</option>${cats.map(c=>`<option${c===f.cat?' selected':''}>${E(c)}</option>`).join('')}</select></div>
       <div class="fld"><label for="pD">Descripción</label><textarea id="pD" class="ta" data-in="pf:desc" maxlength="300" placeholder="Qué vendes, en pocas palabras">${E(f.desc)}</textarea></div>
       <div class="g2">${fld('pT','Teléfono','pf:tel',f.tel,{t:'tel',im:'tel',max:15})}${fld('pR','RUC','pf:ruc',f.ruc,{im:'numeric',max:11})}</div></div>`;
-    h+=`<div class="cd"><div class="lbl">Ubicación</div>${fld('pDi','Dirección','pf:dir',f.dir,{max:160})}${fld('pM','Enlace de Google Maps','pf:maps',f.maps,{t:'url',ph:'https://maps.google.com/…'})}<div class="g2">${fld('pLa','Latitud','pf:lat',f.lat,{im:'decimal'})}${fld('pLo','Longitud','pf:lng',f.lng,{im:'decimal'})}</div><span style="font-size:13px;color:#6B5E55">Si pegas el enlace de Google Maps, la latitud y longitud se llenan solas.</span></div>`;
+    h+=`<div class="cd"><div class="lbl">Ubicación</div>${fld('pDi','Dirección','pf:dir',f.dir,{max:160})}${fld('pM','Enlace de Google Maps','pf:maps',f.maps,{t:'url',ph:'https://maps.google.com/…'})}<div class="swr"><span class="tx"><b>Mostrar mi dirección a los clientes</b><span>${f.pub?'Los clientes ven tu dirección en la tienda.':'Privada: los clientes no la ven. Solo se usa para el delivery.'} Apágalo si no tienes local para atender en persona.</span></span>${sw('pf:pub',f.pub,'Mostrar mi dirección a los clientes')}</div><div class="g2">${fld('pLa','Latitud','pf:lat',f.lat,{im:'decimal'})}${fld('pLo','Longitud','pf:lng',f.lng,{im:'decimal'})}</div><span style="font-size:13px;color:#6B5E55">Si pegas el enlace de Google Maps, la latitud y longitud se llenan solas.</span></div>`;
     h+=`<div class="cd"><div class="lbl">En la tienda</div>${fld('pTi','Tiempo estimado de entrega','pf:tiempo',f.tiempo,{max:20,ph:'Ej. 25–35 min'})}<div class="swr"><span class="tx"><b>Negocio visible en la tienda</b><span>Si lo apagas, los clientes no verán tu negocio.</span></span>${sw('pf:activo',f.activo,'Negocio visible',r.visible_admin===false)}</div></div>`;
     if(f.msg)h+=`<div class="err">${E(f.msg)}</div>`;if(f.ok)h+=`<div class="msgok">${E(f.ok)}</div>`;
     h+=`<button type="button" class="b o" data-a="pf:guardar">Guardar cambios</button>`;
@@ -8931,6 +8931,7 @@ textarea.ta:focus{border-color:#C4410C}
     set('perfilNombre',f.nombre);set('perfilCategoriaNegocio',f.cat);set('perfilDescripcion',f.desc);set('perfilNumero',f.tel);set('perfilRuc',f.ruc);set('perfilDireccion',f.dir);set('perfilMaps',f.maps);set('perfilLatitud',String(f.lat??''));set('perfilLongitud',String(f.lng??''));
     const ac=$('perfilActivo');if(ac){ac.checked=f.activo;ac.dataset.touched='1'}
     const ti=$('pdxTiempo');if(ti){ti.value=f.tiempo;ti.dataset.touched='1'}
+    {const r=R();if(r&&(r.ubicacion_publica!==false)!==f.pub){const q=await D().from('negocios').update({ubicacion_publica:f.pub}).eq('id',r.id);if(q.error){f.msg='No se pudo guardar si tu dirección es pública: '+q.error.message;return}r.ubicacion_publica=f.pub}}
     const box=$('perfilMsg');if(box)box.textContent='';
     try{await (window.guardarPerfilAhora||guardarPerfilAhora)()}catch(e){f.msg=String(e.message||e);return}
     const t=String(box&&box.textContent||'').trim();
@@ -9243,6 +9244,7 @@ textarea.ta:focus{border-color:#C4410C}
       case 'pr:guardar':{const f=F.prod;if(f.busy)break;f.busy=true;key='';pintar();try{await prodGuardar()}finally{if(F.prod)F.prod.busy=false;key='';pintar()}break}
       case 'pr:borrar':{const f=F.prod;const n=PR().length;try{await window.deleteProduct(f.id)}catch(err){aviso(String(err.message||err))}if(!PR().some(x=>String(x.id)===f.id)||PR().length<n){F.prod=null;volver()}break}
       case 'pf:activo':F.perfil.activo=!F.perfil.activo;key='';pintar();break;
+      case 'pf:pub':F.perfil.pub=!F.perfil.pub;key='';pintar();break;
       case 'pf:guardar':await ocupado(perfilGuardar);break;
       case 'logo:quitar':$('pdLogoDel')?.click();setTimeout(()=>{key='';pintar()},1500);break;
       case 'snd':$('pdxSnd')?.click();key='';pintar();break;
