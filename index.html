@@ -9259,7 +9259,7 @@ textarea.ta:focus{border-color:#C4410C}
   const PADRE={avisos:'inicio',pausa:'inicio',pagos:'inicio',reportes:'inicio',calificaciones:'inicio',horario:null,yape:null,producto:'productos',categorias:'productos',descartables:'perfil',clave:'perfil'};
   let origen='inicio';
   function nav(){
-    const n=nuevos().length;const act=sub?(PADRE[sub]||origen):tab;
+    const n=nuevos().length;const act=tab;/* se marca la pestaña desde donde se abrió */
     const it=[['inicio','Inicio',IC.home],['pedidos','Pedidos',IC.box],['productos','Productos',IC.layers],['perfil','Perfil',IC.user]];
     return `<nav class="nv" aria-label="Menú principal">${it.map(x=>`<button type="button" data-t="${x[0]}" class="${act===x[0]?'on':''}"${act===x[0]?' aria-current="page"':''}><span class="i">${x[2]}</span>${x[1]}${x[0]==='pedidos'&&n?`<span class="bd">${n}</span>`:''}</button>`).join('')}</nav>`;
   }
@@ -9314,8 +9314,9 @@ textarea.ta:focus{border-color:#C4410C}
     const nl=root.querySelector('.list');if(nl)nl.scrollTop=root.__pag===pag?(scrollMem[pag]||0):(scrollMem[pag]=0,0);root.__pag=pag;
     if(document.documentElement.style.overflow!=='hidden')document.documentElement.style.overflow='hidden';
   }
+  var regreso=null;/* pestaña desde donde se abrió la página, para volver ahí */
   function ir(t,s){
-    const antes=sub||tab;if(!s)origen=t||tab;tab=t||tab;sub=s||null;key='';
+    const antes=sub||tab;if(s&&t&&t!==tab&&!sub)regreso=tab;else if(!s)regreso=null;if(!s)origen=t||tab;tab=t||tab;sub=s||null;key='';
     if(sub&&!history.state?.pdApp)try{history.pushState({pdApp:1},'')}catch(_){}
     if(antes!==(sub||tab)){scrollMem[sub||tab]=0;const ck={pagos:'pagos',calificaciones:'cal',reportes:'rep'+F.rep}[sub];if(ck&&C[ck])C[ck].t=0}
     if(tab==='perfil'&&!sub)F.perfil=null;
@@ -9325,8 +9326,8 @@ textarea.ta:focus{border-color:#C4410C}
     pintar();
     if(sub==='producto')armarExtras();
   }
-  function volver(){sub=null;key='';if(ext)ext.innerHTML='';pintar();if(history.state?.pdApp){ignorarPop=true;history.back()}}
-  addEventListener('popstate',()=>{if(ignorarPop){ignorarPop=false;return}if(sub){sub=null;key='';if(ext)ext.innerHTML='';pintar()}});
+  function volver(){sub=null;if(regreso){tab=regreso;regreso=null}key='';if(ext)ext.innerHTML='';pintar();if(history.state?.pdApp){ignorarPop=true;history.back()}}
+  addEventListener('popstate',()=>{if(ignorarPop){ignorarPop=false;return}if(sub){sub=null;if(regreso){tab=regreso;regreso=null}key='';if(ext)ext.innerHTML='';pintar()}});
   function abrirPedido(id){const f=window.pdoAbrir||window.pdAbrirPasosNeg;if(typeof f==='function')f(id)}
   function entrada(e){
     const el=e.target;const k=el.dataset&&el.dataset.in;if(!k)return;const v=el.value;
