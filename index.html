@@ -8888,7 +8888,7 @@ textarea.ta:focus{border-color:#C4410C}
     h+=`<div class="btns b2"><button type="button" class="b o" data-a="nuevo">${IC.plus}Producto</button><button type="button" class="b" data-a="p:categorias">${IC.tag}Categorías</button></div>`;
     {const r0=R()||{},PF0=window.pdDescPerfil?window.pdDescPerfil(r0.categoria_negocio||r0.categoria||r0.tipo_negocio):{tipo:'comida'};
       if(PF0.tipo!=='ninguno')h+=`<button type="button" class="b" data-a="p:descartables">${IC.cup}Descartables<span style="margin-left:auto;font-size:13px;font-weight:700;color:#6B5E55">${r0.descartables_activo===true?'Activados':'Apagados'}</span></button>`}
-    h+=`<div class="chips">${[['','Todas'],['__ag','Agotados'],...cats.map(c=>[String(c.id),c.nombre])].map(x=>`<button type="button" data-c="${E(x[0])}" class="${F.cat===x[0]?'on':''}">${E(x[1])}</button>`).join('')}</div>`;
+    h+=`<div class="chips">${(L0=>{const i=L0.findIndex(x=>x[0]===F.cat);return i>0?[L0[i],...L0.slice(0,i),...L0.slice(i+1)]:L0})([['','Todas'],['__ag','Agotados'],...cats.map(c=>[String(c.id),c.nombre])]).map(x=>`<button type="button" data-c="${E(x[0])}" class="${F.cat===x[0]?'on':''}">${E(x[1])}</button>`).join('')}</div>`;
     h+=`<div id="pLista" style="display:flex;flex-direction:column;gap:10px">${listaProd(L,cats,q)}</div>`;
     return {head:top('Mi carta','Productos',`<button type="button" class="ib" data-a="nuevo" aria-label="Agregar producto">${IC.plus}</button>`),body:h};
   }
@@ -9345,7 +9345,7 @@ textarea.ta:focus{border-color:#C4410C}
     tocando=false;
     const t=e.target.closest('[data-t]');if(t){if(window.PdPasos&&PdPasos.isOpen())PdPasos.close();if(sub&&history.state?.pdApp){ignorarPop=true;history.back()}ir(t.dataset.t,null);return}
     const s=e.target.closest('[data-s]');if(s){seg=s.dataset.s;if(tab!=='pedidos'||sub)ir('pedidos',null);else{key='';pintar()}return}
-    const cc=e.target.closest('[data-c]');if(cc){F.cat=F.cat===cc.dataset.c&&cc.dataset.c?'':cc.dataset.c;key='';pintar();return}
+    const cc=e.target.closest('[data-c]');if(cc){F.cat=F.cat===cc.dataset.c&&cc.dataset.c?'':cc.dataset.c;key='';pintar();try{const ch=root.querySelector('.chips button[data-c]');if(ch&&ch.parentElement)ch.parentElement.scrollTo({left:0,behavior:'smooth'})}catch(_){}return}
     const pp=e.target.closest('[data-p]');if(pp){const p=PR().find(x=>String(x.id)===pp.dataset.p);if(p){F.prod=prodNuevo(p);ir(tab,'producto')}return}
     const av=e.target.closest('[data-av]');if(av){F.av=av.dataset.av;key='';pintar();return}
     const rp=e.target.closest('[data-rp]');if(rp){F.rep=+rp.dataset.rp;key='';pintar();return}
