@@ -8025,7 +8025,7 @@ button{font-family:inherit;-webkit-tap-highlight-color:transparent}
 .amt .k{font-size:13px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:#9A330A}
 .amt .n{font-size:44px;font-weight:800;margin-top:4px;letter-spacing:-.02em;line-height:1.1}
 .pill{display:inline-flex;align-items:center;gap:6px;margin-top:8px;height:30px;padding:0 12px;border-radius:999px;background:#FFFFFF;font-size:14px;font-weight:700}
-.sum{padding:12px 14px;border-radius:14px;background:#FFF9F5;font-size:15px;display:flex;flex-direction:column;gap:6px}.sum span{color:#6B5E55}
+.sum{padding:12px;border-radius:14px;border:1px dashed #E3CFC2;background:transparent;font-size:15px;display:flex;flex-direction:column;gap:4px}.sum span{color:#6B5E55}.sum .lbl{font-size:12px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:#6B5E55;margin:0 0 2px}
 .qr{display:flex;gap:12px;align-items:center;width:100%;padding:12px;border-radius:14px;border:1.5px solid #E4D3F5;background:#FFFFFF;text-align:left;color:#1F1A17;cursor:zoom-in}
 .qr .im{flex:0 0 84px;width:84px;height:84px;border-radius:10px;border:1px solid #F1E4DA;background:#FFFFFF center/contain no-repeat;display:flex;align-items:center;justify-content:center;font-size:11px;color:#6B5E55;text-align:center}
 .qr .t{display:flex;flex-direction:column;gap:3px;min-width:0}
@@ -8281,7 +8281,7 @@ button{font-family:inherit;-webkit-tap-highlight-color:transparent}
     {const s=steps[0];s.sum='Aceptado · listo en '+tmin+' min';
       const ef=marca(o.observaciones,'__PIDEMAS_PAGO_EFECTIVO__');
       let h=U.who(cli,'Cliente · paga con '+(yape(o)?'Yape':'efectivo')+(ef&&Number(ef.monto)>0?' (con '+M(ef.monto)+')':''),'',true)+U.items('Qué pidió',det,true)+
-        `<div class="sum"><div class="li"><span>Productos</span><b>${M(o.subtotal)}</b></div><div class="li"><span>Delivery</span><b>${M(o.costo_delivery)}</b></div><div class="li"><span>Total</span><b>${M(o.total)}</b></div></div>`;
+        `<div class="sum"><div class="lbl">Montos</div><div class="li"><span>Productos</span><b>${M(o.subtotal)}</b></div><div class="li"><span>Delivery</span><b>${M(o.costo_delivery)}</b></div><div class="li t"><span>Total</span><b>${M(o.total)}</b></div></div>`;
       if(e===0)h+=`<div><div class="lbl">¿En cuánto estará listo?</div><div class="grid4" style="grid-template-columns:repeat(${OT.ops.length},minmax(0,1fr))" data-act="tiempo">${OT.ops.map(x=>`<button type="button" data-n="${x.n}" class="${x.n===T[id]?'on':''}">${E(x.t)}</button>`).join('')}</div></div>`;
       const nota=String(o.observaciones||'').replace(/__PIDEMAS_[A-Z0-9_]+__(\{[^]*?\})?/g,'').split(/\s+[·|]\s+/).map(x=>x.trim()).filter(x=>x&&!/^(Pago Yape:|Ubicaci|DELIVERY PAGADO|PRODUCTO_MAYOR)/i.test(x)).join(' · ');
       if(nota)h+=U.note('<b>Nota del cliente:</b> '+E(nota));
@@ -8293,7 +8293,7 @@ button{font-family:inherit;-webkit-tap-highlight-color:transparent}
       if(!yape(o)){
         const ef=marca(o.observaciones,'__PIDEMAS_PAGO_EFECTIVO__');
         h+=U.st(E(cli)+' paga en <b>efectivo</b> al recibir: el motorizado cobra '+M(o.total)+'.','ok')+
-          (ef&&Number(ef.monto)>0?`<div class="sum"><div class="li"><span>Paga con</span><b>${M(ef.monto)}</b></div><div class="li"><span>Vuelto que lleva el motorizado</span><b>${M(Math.max(0,Number(ef.vuelto!=null?ef.vuelto:ef.monto-o.total)||0))}</b></div></div>`:'');
+          (ef&&Number(ef.monto)>0?`<div class="sum"><div class="lbl">Pago en efectivo</div><div class="li"><span>Paga con</span><b>${M(ef.monto)}</b></div><div class="li"><span>Vuelto que lleva el motorizado</span><b>${M(Math.max(0,Number(ef.vuelto!=null?ef.vuelto:ef.monto-o.total)||0))}</b></div></div>`:'');
       }else if(e<=1){
         const sel=P[id]||'';
         h+=U.note(E(cli)+' eligió pagar con <b>Yape</b> y coordinar contigo. Escríbele: el mensaje ya lleva el total y tu Yape.')+
