@@ -1,4 +1,13 @@
 <!doctype html><html lang="es"><head>
+<script id="pd-sin-cajones">/* Sin cajones de conteo arriba de las páginas: quitan espacio al contenido.
+   Se ocultan en la página y dentro de cada ventana aislada (Shadow DOM). */
+(function(){var C=".x-stats,.pdh-stats{display:none!important}";
+try{var s=document.createElement("style");s.id="pd-sin-cajones-css";s.textContent=C;document.head.appendChild(s)}catch(e){}
+var hoja=null;try{hoja=new CSSStyleSheet();hoja.replaceSync(C)}catch(e){hoja=null}
+function poner(r){try{if(hoja){r.adoptedStyleSheets=[].concat(Array.from(r.adoptedStyleSheets||[]),[hoja])}else{var t=document.createElement("style");t.textContent=C;r.appendChild(t)}}catch(e){}}
+var orig=Element.prototype.attachShadow;if(orig&&!orig.__pdSinCaj){var f=function(o){var r=orig.call(this,o);poner(r);return r};f.__pdSinCaj=1;Element.prototype.attachShadow=f}
+})();</script>
+
 <style id="pd-modal-unico-css">
 /* ===== pd-modal-unico · todas las ventanas iguales en todas las apps de Pidemás =====
    Mismo ancho (máx. 560px), misma altura (hasta 56px del borde de arriba), bordes redondeados,
@@ -8874,7 +8883,7 @@ textarea.ta:focus{border-color:#C4410C}
   const agotado=p=>{const sc=stk(p);return p.disponible===false||(sc!==null&&Number(p[sc]??0)<=0)};
   function productos(){
     const L=PR(),cats=[...CT()].sort(byOrd),q=F.q.trim().toLowerCase();
-    let h=`<div class="cols3"><div class="kp"><span>Productos</span><b>${L.length}</b></div><div class="kp"><span>Categorías</span><b>${cats.length}</b></div><button type="button" class="kp" data-c="__ag" style="text-align:left;cursor:pointer;font:inherit;color:inherit"><span>Agotados</span><b>${L.filter(agotado).length}</b></button></div>`;
+    let h='';
     h+=`<div class="fld"><label for="pQ" style="position:absolute;width:1px;height:1px;overflow:hidden">Buscar producto</label><input id="pQ" type="search" placeholder="Buscar producto" value="${E(F.q)}" data-in="pq"></div>`;
     h+=`<div class="btns b2"><button type="button" class="b o" data-a="nuevo">${IC.plus}Producto</button><button type="button" class="b" data-a="p:categorias">${IC.tag}Categorías</button></div>`;
     h+=`<div class="chips">${[['','Todas'],['__ag','Agotados'],...cats.map(c=>[String(c.id),c.nombre])].map(x=>`<button type="button" data-c="${E(x[0])}" class="${F.cat===x[0]?'on':''}">${E(x[1])}</button>`).join('')}</div>`;
