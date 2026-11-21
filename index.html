@@ -1,4 +1,5 @@
 <!doctype html><html lang="es"><head>
+<script id="pd-sin-arrastre">/* Las páginas ya no son ventanas: no se cierran ni se mueven arrastrando hacia abajo */document.documentElement.dataset.pdSinArrastre="1";</script>
 <script id="pd-sin-cajones">/* Sin cajones de conteo arriba de las páginas: quitan espacio al contenido.
    Se ocultan en la página y dentro de cada ventana aislada (Shadow DOM). */
 (function(){var C=".x-stats,.pdh-stats{display:none!important}";
@@ -7175,6 +7176,7 @@ new MutationObserver(ms=>{for(const m of ms){const x=m.target;if(x.__pdmOcultoPo
 let D=null;
 function arribaDelTodo(t,h){for(let x=t;x&&x!==h.parentElement;x=x.parentElement){if(x.scrollTop>0){const c=getComputedStyle(x);if(/(auto|scroll)/.test(c.overflowY))return false}if(x===h)break}return true}
 function inicio(y,x,t){
+  if(document.documentElement.dataset.pdSinArrastre==='1')return;/* las páginas ya no se cierran arrastrando hacia abajo */
   const h=t&&t.closest&&t.closest('[data-pdm-hoja]');if(!h)return;
   if(t.closest('input,textarea,select,[contenteditable="true"],.leaflet-container,canvas,[data-pdm-no-arrastre]'))return;
   const r=h.getBoundingClientRect();
