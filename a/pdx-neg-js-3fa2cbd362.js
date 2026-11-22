@@ -253,7 +253,7 @@
   window.addEventListener('offline',()=>netNote(true));
   document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&R())window.loadBusinessOrders&&window.loadBusinessOrders()});
   // Enlace de la tienda: abre solo la carta de este negocio.
-  const TIENDA_URL='https://pidemasdelivery.github.io/';
+  const TIENDA_URL='https://pidemas.pe/';
   window.getEnlaceIndividualCarta=function(){const r=R();if(!r||!r.id)return '';return TIENDA_URL+'?negocio='+encodeURIComponent(String(r.id))};
   setInterval(()=>{try{const i=$('miEnlaceCartaUrl'),u=window.getEnlaceIndividualCarta();if(i&&u&&i.value!==u)i.value=u}catch(e){}},1500);
 
