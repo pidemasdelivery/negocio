@@ -5,7 +5,7 @@
   const QUIEN='Sin avisos no te enterarás de los pedidos nuevos de tu negocio.';
   const ICO={gps:'<svg viewBox="0 0 24 24"><path d="M12 21s-7-6.2-7-11a7 7 0 0 1 14 0c0 4.8-7 11-7 11Z"/><circle cx="12" cy="10" r="2.5"/></svg>',
     bell:'<svg viewBox="0 0 24 24"><path d="M6 8a6 6 0 1 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>'};
-  const PASOS='Si ya diste permiso a la app y sigue sin activarse, falta el permiso de Chrome:\n1. Abre Chrome → toca ⋮ (arriba a la derecha) → Configuración.\n2. Entra a «Configuración de sitios» → «Notificaciones».\n3. Busca pidemasdelivery.github.io y ponlo en «Permitir».\n4. Haz lo mismo en «Ubicación» si te pide GPS.\n5. Cierra la app del todo y vuelve a abrirla.';
+  const PASOS='Si ya diste permiso a la app y sigue sin activarse, falta el permiso de Chrome:\n1. Abre Chrome → toca ⋮ (arriba a la derecha) → Configuración.\n2. Entra a «Configuración de sitios» → «Notificaciones».\n3. Busca pidemas.pe y ponlo en «Permitir».\n4. Haz lo mismo en «Ubicación» si te pide GPS.\n5. Cierra la app del todo y vuelve a abrirla.';
   let gps=null,gate=null;
   const notifOk=()=>!('Notification' in window)||Notification.permission==='granted';
   const sesion=()=>{const l=document.getElementById('loginView');if(!l)return false;if(l.classList.contains('hidden')||l.hidden)return true;return getComputedStyle(l).display==='none'};

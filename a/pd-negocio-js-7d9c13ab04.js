@@ -5,7 +5,7 @@ function getEnlaceIndividualCarta(){
   if(!restaurant?.id) return '';
   // Apuntar explícitamente al archivo público de la tienda, no a la raíz genérica
   // que el hosting podría resolver hacia otra página.
-  const url=new URL('https://pidemasdelivery.github.io/');
+  const url=new URL('https://pidemas.pe/');
   url.searchParams.set('negocio',String(restaurant.id));
   return url.toString();
 }
