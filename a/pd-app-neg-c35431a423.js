@@ -871,7 +871,7 @@ textarea.ta:focus{border-color:#C4410C}
     if(sub==='producto')armarExtras();
   }
   function volver(){sub=null;if(regreso){tab=regreso;regreso=null}key='';if(ext)ext.innerHTML='';pintar();if(history.state?.pdApp){ignorarPop=true;history.back()}}
-  addEventListener('popstate',()=>{if(ignorarPop){ignorarPop=false;return}if(sub){sub=null;if(regreso){tab=regreso;regreso=null}key='';if(ext)ext.innerHTML='';pintar()}});
+  addEventListener('popstate',()=>{if(window.__pdPopPropio)return;if(ignorarPop){ignorarPop=false;return}if(sub){sub=null;if(regreso){tab=regreso;regreso=null}key='';if(ext)ext.innerHTML='';pintar()}});
   function abrirPedido(id){const f=window.pdoAbrir||window.pdAbrirPasosNeg;if(typeof f==='function')f(id)}
   function entrada(e){
     const el=e.target;const k=el.dataset&&el.dataset.in;if(!k)return;const v=el.value;
