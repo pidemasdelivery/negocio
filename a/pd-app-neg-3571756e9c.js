@@ -953,5 +953,5 @@ textarea.ta:focus{border-color:#C4410C}
   window.pdNegYape=()=>{if(window.PdPasos&&PdPasos.isOpen())PdPasos.close();ir(tab,'yape')};
   window.pdxTrack=id=>abrirPedido(id);
   setInterval(pintar,700);
-  window.pdAppNeg={pintar,ir,navH:()=>{if(!host||host.style.display==='none'||!root)return 0;const n=root.querySelector('.nv');return n?n.offsetHeight:0}};
+  window.pdAppNeg={pintar,ir,navEnDetalle:false,navH:()=>{if(!host||host.style.display==='none'||!root)return 0;const n=root.querySelector('.nv');return n?n.offsetHeight:0}};
 })();
