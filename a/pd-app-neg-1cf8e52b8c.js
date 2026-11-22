@@ -794,7 +794,7 @@ textarea.ta:focus{border-color:#C4410C}
   function avisos(){
     const ev=eventos(),v=visto();const L=ev.filter(e=>F.av==='todos'||e.cat===F.av);
     let h=`<div class="chips">${[['todos','Todos'],['pedidos','Pedidos'],['motorizado','Motorizado']].map(x=>`<button type="button" data-av="${x[0]}" class="${F.av===x[0]?'on':''}">${x[1]}</button>`).join('')}</div>`;
-    h+=L.length?L.map(n=>`<button type="button" class="av2" data-o="${E(n.id)}"><span class="ic">${n.cat==='motorizado'?IC.moto:IC.box}</span><span class="tx"><b>${E(n.tit)}</b><span>${E(n.msg)}</span><small>${E(fecha(n.t))} · Ver pedido ${E(ref(n.id))}</small></span>${n.t>v?'<span class="pt"></span>':''}</button>`).join(''):'<div class="vac">No hay avisos de los últimos 2 días.</div>';
+    h+=L.length?L.map(n=>`<button type="button" class="av2" data-o="${E(n.id)}"><span class="ic">${n.cat==='motorizado'?S('<circle cx="12" cy="7" r="4"/><path d="M6 21v-2a4 4 0 0 1 4-4h2.5"/><path d="M21.12 20.12a3 3 0 1 0-4.24 0c.42.42 1.12 1.05 2.12 1.88 1.05-.89 1.76-1.52 2.12-1.88z"/><path d="M19 18v.01"/>'):IC.box}</span><span class="tx"><b>${E(n.tit)}</b><span>${E(n.msg)}</span><small>${E(fecha(n.t))} · Ver pedido ${E(ref(n.id))}</small></span>${n.t>v?'<span class="pt"></span>':''}</button>`).join(''):'<div class="vac">No hay avisos de los últimos 2 días.</div>';
     if(ev.some(e=>e.t>v))h+=`<button type="button" class="b" style="height:46px" data-a="av:leer">${IC.check}Marcar todo como leído</button>`;
     return {head:top('Notificaciones','Avisos',null,true),body:h};
   }
