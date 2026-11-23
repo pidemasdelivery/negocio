@@ -235,7 +235,10 @@ textarea.ta:focus{border-color:#C4410C}
 .step{display:grid;grid-template-columns:54px minmax(0,1fr) 54px;gap:8px}
 .step button{height:54px;border-radius:14px;border:1px solid #F1E4DA;background:#FFFFFF;color:#1F1A17;display:flex;align-items:center;justify-content:center;cursor:pointer}
 .step input{text-align:center}
-.dia{display:grid;grid-template-columns:56px minmax(0,1fr) 14px minmax(0,1fr);gap:8px;align-items:center}
+.dia{display:grid;grid-template-columns:56px minmax(0,1fr) 14px minmax(0,1fr) 36px;gap:8px;align-items:center}
+.dia>button.t2b,.dia.on>button.t2b{width:36px;height:36px;border-radius:50%;border:1.5px solid #F1E4DA;background:#FFF4EC;color:#C4410C;font:800 20px/1 PdInter,Inter,system-ui,sans-serif;cursor:pointer;padding:0;display:flex;align-items:center;justify-content:center}
+.dia>button.t2b.x,.dia.on>button.t2b.x{background:#fff;color:#6B5E55}
+.dia.t2{margin-top:-4px}.dia .t2l{font-size:11px;font-weight:800;color:#6B5E55;text-align:center;line-height:1.1}
 .dia>button{height:48px;border-radius:12px;border:1px solid #F1E4DA;background:#F6EFE9;color:#6B5E55;font-size:14px;font-weight:800;cursor:pointer}
 .dia.on>button{border:0;background:#C4410C;color:#FFFFFF}
 .dia input{height:48px;border-radius:12px;border:1.5px solid #F1E4DA;background:#FFFFFF;padding:0 6px;text-align:center;font:700 14px PdInter,Inter,system-ui,sans-serif;color:#1F1A17;min-width:0;width:100%;box-sizing:border-box}
@@ -352,14 +355,16 @@ textarea.ta:focus{border-color:#C4410C}
   const DN={lunes:'Lunes',martes:'Martes',miercoles:'Miércoles',jueves:'Jueves',viernes:'Viernes',sabado:'Sábado',domingo:'Domingo'};
   const DC={lunes:'Lun',martes:'Mar',miercoles:'Mié',jueves:'Jue',viernes:'Vie',sabado:'Sáb',domingo:'Dom'};
   function lima(){const p={};new Intl.DateTimeFormat('en-US',{timeZone:'America/Lima',year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hour12:false}).formatToParts(new Date()).forEach(x=>{if(x.type!=='literal')p[x.type]=x.value});return new Date(+p.year,+p.month-1,+p.day,(+p.hour)%24,+p.minute)}
-  function parseH(raw){const o={};String(raw||'').split('|').forEach(part=>{const [d,h]=part.split('=');if(!d||!h)return;const [a,c]=h.split('-');if(/^\d{1,2}:\d{2}$/.test(a||'')&&/^\d{1,2}:\d{2}$/.test(c||''))o[d.trim()]=[a,c]});return o}
+  /* Turnos por día: lunes=12:00-15:00,18:00-22:00 → {lunes:[['12:00','15:00'],['18:00','22:00']]} */
+  function parseT(raw){const o={};String(raw||'').split('|').forEach(part=>{const [d,h]=part.split('=');if(!d||!h)return;const L=h.split(',').map(x=>x.trim().split('-')).filter(([a,c])=>/^\d{1,2}:\d{2}$/.test(a||'')&&/^\d{1,2}:\d{2}$/.test(c||''));if(L.length)o[d.trim()]=L});return o}
+  function parseH(raw){const o={},t=parseT(raw);Object.keys(t).forEach(d=>{const L=t[d];o[d]=[L[0][0],L[L.length-1][1]]});return o}
   const toMin=t=>{const m=String(t).match(/^(\d{1,2}):(\d{2})/);return m?+m[1]*60+ +m[2]:null};
   const fmtT=t=>{const m=toMin(t);if(m===null)return '';const h=Math.floor(m/60),mm=m%60;return (h%12||12)+(mm?':'+String(mm).padStart(2,'0'):'')+' '+(h>=12?'p. m.':'a. m.')};
   const horarioRaw=()=>{const r=R()||{};return r.horario??r.horarios??r.horario_atencion??''};
   function estadoHor(){
-    const h=parseH(horarioRaw()),now=lima(),cur=now.getHours()*60+now.getMinutes(),today=KEYS[now.getDay()];const t=h[today];
-    if(t){const a=toMin(t[0]),c=toMin(t[1]);const open=a<c?(cur>=a&&cur<c):(cur>=a||cur<c);if(open)return {open:true,text:'Cierra a las '+fmtT(t[1])}}
-    for(let i=0;i<8;i++){const d=new Date(now);d.setDate(d.getDate()+i);const k=KEYS[d.getDay()],v=h[k];if(!v)continue;const a=toMin(v[0]);if(i===0&&a<=cur)continue;return {open:false,text:'Abre '+(i===0?'hoy':i===1?'mañana':'el '+DN[k].toLowerCase())+' a las '+fmtT(v[0])}}
+    const h=parseT(horarioRaw()),now=lima(),cur=now.getHours()*60+now.getMinutes(),today=KEYS[now.getDay()];
+    for(const t of (h[today]||[])){const a=toMin(t[0]),c=toMin(t[1]);const open=a<c?(cur>=a&&cur<c):(cur>=a||cur<c);if(open)return {open:true,text:'Cierra a las '+fmtT(t[1])}}
+    for(let i=0;i<8;i++){const d=new Date(now);d.setDate(d.getDate()+i);const k=KEYS[d.getDay()];for(const v of (h[k]||[])){const a=toMin(v[0]);if(i===0&&a<=cur)continue;return {open:false,text:'Abre '+(i===0?'hoy':i===1?'mañana':'el '+DN[k].toLowerCase())+' a las '+fmtT(v[0])}}}
     return {open:false,text:'Aún no pones tu horario'};
   }
   const pausaHasta=()=>{const r=R();const t=r&&r.pausado_hasta?T(r.pausado_hasta):0;return t>Date.now()?t:0};
@@ -604,10 +609,10 @@ textarea.ta:focus{border-color:#C4410C}
 
   /* =============== HORARIO =============== */
   function horario(){
-    if(!F.hor){const p=parseH(horarioRaw());F.hor={d:Object.fromEntries(DIAS.map(d=>[d,{on:!!p[d],a:p[d]?p[d][0].padStart(5,'0'):'09:00',c:p[d]?p[d][1].padStart(5,'0'):'22:00'}])),msg:'',ok:'',dirty:false}}
+    if(!F.hor){const p=parseT(horarioRaw()),z=x=>String(x).padStart(5,'0');F.hor={d:Object.fromEntries(DIAS.map(d=>{const L=p[d]||[];return [d,{on:!!L.length,a:L[0]?z(L[0][0]):'09:00',c:L[0]?z(L[0][1]):'22:00',t2:L.length>1,a2:L[1]?z(L[1][0]):'18:00',c2:L[1]?z(L[1][1]):'22:00'}]})),msg:'',ok:'',dirty:false}}
     const f=F.hor,s=estadoHor(),hoy=KEYS[lima().getDay()];
     let h=`<div class="dsp${s.open?'':' off'}"><span class="pt"></span><span style="flex:1 1 0%"><b style="display:block;font-size:16px">${s.open?'Abierto ahora':'Cerrado ahora'}</b><span style="font-size:13px;color:#6B5E55">${E(s.text)}</span></span></div>`;
-    h+=`<div class="cd"><div class="lbl">Días y horas</div>${DIAS.map(d=>{const v=f.d[d];return `<div class="dia${v.on?' on':''}${d===hoy?' hoy':''}"><button type="button" data-a="hd:${d}" aria-pressed="${v.on}" aria-label="${DN[d]}">${DC[d]}</button><input type="time" aria-label="Abre el ${DN[d]}" value="${E(v.a)}" data-in="ha:${d}"><span>a</span><input type="time" aria-label="Cierra el ${DN[d]}" value="${E(v.c)}" data-in="hc:${d}"></div>`}).join('')}<span style="font-size:13px;color:#6B5E55">Toca un día para abrirlo o cerrarlo.</span></div>`;
+    h+=`<div class="cd"><div class="lbl">Días y horas</div>${DIAS.map(d=>{const v=f.d[d];return `<div class="dia${v.on?' on':''}${d===hoy?' hoy':''}"><button type="button" data-a="hd:${d}" aria-pressed="${v.on}" aria-label="${DN[d]}">${DC[d]}</button><input type="time" aria-label="Abre el ${DN[d]}" value="${E(v.a)}" data-in="ha:${d}"><span>a</span><input type="time" aria-label="Cierra el ${DN[d]}" value="${E(v.c)}" data-in="hc:${d}">${v.on&&!v.t2?`<button type="button" class="t2b" data-a="ht:${d}" aria-label="Agregar un segundo turno el ${DN[d]}">+</button>`:'<i></i>'}</div>${v.on&&v.t2?`<div class="dia on t2"><span class="t2l">2.º turno</span><input type="time" aria-label="Segundo turno: abre el ${DN[d]}" value="${E(v.a2)}" data-in="hA:${d}"><span>a</span><input type="time" aria-label="Segundo turno: cierra el ${DN[d]}" value="${E(v.c2)}" data-in="hC:${d}"><button type="button" class="t2b x" data-a="hx:${d}" aria-label="Quitar el segundo turno del ${DN[d]}">×</button></div>`:''}`}).join('')}<span style="font-size:13px;color:#6B5E55">Toca un día para abrirlo o cerrarlo. Si cierras al mediodía, toca <b>+</b> para agregar un segundo turno (por ejemplo 12 a 3 p. m. y 6 a 10 p. m.).</span></div>`;
     h+=`<div class="btns b2"><button type="button" class="b" data-a="h:igual">Igual todos los días</button><button type="button" class="b" data-a="h:todos">Abrir toda la semana</button></div>`;
     if(f.msg)h+=`<div class="err">${E(f.msg)}</div>`;if(f.ok)h+=`<div class="msgok">${E(f.ok)}</div>`;
     return {head:top('Mi negocio','Horario de atención',null,true),body:h,foot:`<button type="button" class="b o" style="height:54px;font-size:16px" data-a="h:guardar">Guardar horario</button>`};
@@ -615,7 +620,15 @@ textarea.ta:focus{border-color:#C4410C}
   async function horGuardar(){
     const f=F.hor;f.msg='';f.ok='';const parts=[];
     for(const d of DIAS){const v=f.d[d];if(!v.on)continue;if(!v.a||!v.c){f.msg='Completa las horas del '+DN[d]+'.';return}if(v.a===v.c){f.msg='El '+DN[d]+' la hora de apertura y la de cierre no pueden ser iguales.';return}
-      const err=typeof window.pdValidarHorarioDia==='function'?window.pdValidarHorarioDia(v.a,v.c):'';if(err){f.msg=DN[d]+': '+err;return}parts.push(d+'='+v.a+'-'+v.c)}
+      const err=typeof window.pdValidarHorarioDia==='function'?window.pdValidarHorarioDia(v.a,v.c):'';if(err){f.msg=DN[d]+': '+err;return}
+      let t=d+'='+v.a+'-'+v.c;
+      if(v.t2){if(!v.a2||!v.c2){f.msg='Completa las horas del segundo turno del '+DN[d]+'.';return}
+        if(toMin(v.c)<=toMin(v.a)){f.msg=DN[d]+': con dos turnos, el primero debe cerrar después de abrir.';return}
+        if(toMin(v.a2)<=toMin(v.c)){f.msg=DN[d]+': el segundo turno debe empezar después de que termine el primero.';return}
+        if(toMin(v.c2)<=toMin(v.a2)){f.msg=DN[d]+': el segundo turno debe cerrar después de abrir.';return}
+        const e2=typeof window.pdValidarHorarioDia==='function'?window.pdValidarHorarioDia(v.a2,v.c2):'';if(e2){f.msg=DN[d]+' (2.º turno): '+e2;return}
+        t+=','+v.a2+'-'+v.c2}
+      parts.push(t)}
     try{const q=await D().from('negocios').update({horario:parts.join('|')||null}).eq('id',R().id).select('id,horario').maybeSingle();if(q.error)throw q.error;if(!q.data)throw new Error('Supabase no actualizó el negocio (revisa permisos).');
       R().horario=q.data.horario;try{window.renderPerfilVista&&window.renderPerfilVista()}catch(_){}F.hor=null;horario();F.hor.ok='Horario guardado.'}
     catch(e){f.msg='No se pudo guardar el horario: '+(e.message||e)}
@@ -882,6 +895,7 @@ textarea.ta:focus{border-color:#C4410C}
     if(k.startsWith('pf:')){const c=k.slice(3);F.perfil[c]=v;
       if(c==='maps'){const m=v.match(/@(-?\d+\.\d+),(-?\d+\.\d+)/)||v.match(/[?&](?:q|query|ll)=(-?\d+\.\d+)(?:,|%2C)\s*(-?\d+\.\d+)/i)||v.match(/!3d(-?\d+\.\d+)!4d(-?\d+\.\d+)/);if(m){F.perfil.lat=m[1];F.perfil.lng=m[2];const a=root.getElementById('pLa'),b=root.getElementById('pLo');if(a)a.value=m[1];if(b)b.value=m[2]}}return}
     if(k==='logo'&&e.type==='change'){const fl=el.files&&el.files[0];el.value='';if(fl)logoSubir(fl);return}
+    if(k.startsWith('hA:')||k.startsWith('hC:')){F.hor.d[k.slice(3)][k[1]==='A'?'a2':'c2']=v;F.hor.dirty=true;return}
     if(k.startsWith('ha:')||k.startsWith('hc:')){F.hor.d[k.slice(3)][k[1]==='a'?'a':'c']=v;F.hor.dirty=true;return}
     if(k.startsWith('y:')){F.yape[k.slice(2)]=v;return}
     if(k==='yqr'&&e.type==='change'){const fl=el.files&&el.files[0];el.value='';if(fl)yapeArchivo(fl);return}
@@ -908,6 +922,8 @@ textarea.ta:focus{border-color:#C4410C}
     if(A.startsWith('ft:')){const f=F.prod;if(A==='ft:add')f.feat.push({name:'',value:''});else f.feat.splice(+A.split(':')[2],1);key='';pintar();return}
     if(A.startsWith('st:')){const f=F.prod;f.stock=String(Math.max(0,(Math.floor(Number(f.stock)||0))+Number(A.slice(3))));key='';pintar();return}
     if(A.startsWith('mv:')){await ocupado(()=>moverProd(Number(A.slice(3))));return}
+    if(A.startsWith('ht:')){const d=F.hor.d[A.slice(3)];d.t2=true;if(toMin(d.c)>=toMin(d.a2)){d.c='15:00';if(toMin(d.a)>=900)d.a='12:00'}F.hor.dirty=true;F.hor.ok='';key='';pintar();return}
+    if(A.startsWith('hx:')){F.hor.d[A.slice(3)].t2=false;F.hor.dirty=true;F.hor.ok='';key='';pintar();return}
     if(A.startsWith('hd:')){const d=F.hor.d[A.slice(3)];d.on=!d.on;F.hor.dirty=true;F.hor.ok='';key='';pintar();return}
     if(A.startsWith('dx:del:')){F.desc.ex.splice(+A.slice(7),1);key='';pintar();return}
     if(A.startsWith('pz:')){await ocupado(()=>pausar(Number(A.slice(3))));return}
@@ -936,7 +952,7 @@ textarea.ta:focus{border-color:#C4410C}
       case 'probar':$('pdxTest')?.click();break;
       case 'permiso':$('pdxPerm')?.click();setTimeout(()=>{key='';pintar()},1500);break;
       case 'salir':if(await confirmar('¿Cerrar sesión? Dejarás de recibir avisos de pedidos en este teléfono.'))$('logout')?.click();break;
-      case 'h:igual':{const f=F.hor,src=DIAS.map(d=>f.d[d]).find(v=>v.on);if(!src){f.msg='Primero abre al menos un día.';key='';pintar();break}DIAS.forEach(d=>{if(f.d[d].on){f.d[d].a=src.a;f.d[d].c=src.c}});f.dirty=true;f.msg='';f.ok='';key='';pintar();break}
+      case 'h:igual':{const f=F.hor,src=DIAS.map(d=>f.d[d]).find(v=>v.on);if(!src){f.msg='Primero abre al menos un día.';key='';pintar();break}DIAS.forEach(d=>{if(f.d[d].on){f.d[d].a=src.a;f.d[d].c=src.c;f.d[d].t2=src.t2;f.d[d].a2=src.a2;f.d[d].c2=src.c2}});f.dirty=true;f.msg='';f.ok='';key='';pintar();break}
       case 'h:todos':DIAS.forEach(d=>F.hor.d[d].on=true);F.hor.dirty=true;F.hor.ok='';key='';pintar();break;
       case 'h:guardar':await ocupado(horGuardar);break;
       case 'r:pagos':C.pagos&&(C.pagos.t=0);key='';pintar();break;

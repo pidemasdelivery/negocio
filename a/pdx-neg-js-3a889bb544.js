@@ -14,7 +14,7 @@
   const DNAME={lunes:'Lunes',martes:'Martes',miercoles:'Miércoles',jueves:'Jueves',viernes:'Viernes',sabado:'Sábado',domingo:'Domingo'};
   const KEYS=['domingo','lunes','martes','miercoles','jueves','viernes','sabado'];
   function lima(){const p={};new Intl.DateTimeFormat('en-US',{timeZone:'America/Lima',year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hour12:false}).formatToParts(new Date()).forEach(x=>{if(x.type!=='literal')p[x.type]=x.value});return new Date(+p.year,+p.month-1,+p.day,(+p.hour)%24,+p.minute)}
-  function parseH(raw){const o={};String(raw||'').split('|').forEach(part=>{const [d,h]=part.split('=');if(!d||!h)return;const [a,c]=h.split('-');if(/^\d{1,2}:\d{2}$/.test(a||'')&&/^\d{1,2}:\d{2}$/.test(c||''))o[d.trim()]=[a,c]});return o}
+  function parseH(raw){const o={};String(raw||'').split('|').forEach(part=>{const [d,h]=part.split('=');if(!d||!h)return;const L=h.split(',');const a=(L[0]||'').split('-')[0],c=(L[L.length-1]||'').split('-')[1];if(/^\d{1,2}:\d{2}$/.test(a||'')&&/^\d{1,2}:\d{2}$/.test(c||''))o[d.trim()]=[a,c]});return o}
   const toMin=t=>{const m=String(t).match(/^(\d{1,2}):(\d{2})/);return m?+m[1]*60+ +m[2]:null};
   const fmtT=t=>{const m=toMin(t);if(m===null)return '';const h=Math.floor(m/60),mm=m%60;return (h%12||12)+(mm?':'+String(mm).padStart(2,'0'):'')+' '+(h>=12?'p. m.':'a. m.')};
   const horarioRaw=()=>{const r=R()||{};return r.horario??r.horarios??r.horario_atencion??''};
