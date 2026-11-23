@@ -562,8 +562,7 @@
     const body=openSheet('Cambiar contraseña');
     const campo=(id,lbl,ac)=>`<label class="x-eLbl">${lbl}<span class="pdxPwWrap"><input class="x-in" id="${id}" type="password" autocomplete="${ac}" minlength="6" maxlength="72"><button type="button" class="pdxPwEye" data-ver="${id}" aria-label="Mostrar contraseña">Ver</button></span></label>`;
     body.innerHTML=`<div style="display:flex;flex-direction:column;gap:12px">
-      ${campo('pdxPwAct','Contraseña actual','current-password')}
-      ${campo('pdxPwNew','Nueva contraseña','new-password')}
+            ${campo('pdxPwNew','Nueva contraseña','new-password')}
       ${campo('pdxPwRep','Repite la nueva contraseña','new-password')}
       <small class="x-muted">Usa al menos 6 caracteres. Al cambiarla, entrarás con la nueva clave en todos tus teléfonos.</small>
       <div id="pdxPwMsg" class="pdxPwMsg" role="status"></div>
@@ -572,25 +571,18 @@
     const msg=(t,ok)=>{const m=$('pdxPwMsg');m.textContent=t||'';m.className='pdxPwMsg'+(t?(ok?' ok':' err'):'')};
     const btn=$('pdxPwSave');
     btn.onclick=async()=>{
-      const act=$('pdxPwAct').value,nw=$('pdxPwNew').value,rep=$('pdxPwRep').value;
-      if(!act)return msg('Escribe tu contraseña actual.');
+      const nw=$('pdxPwNew').value,rep=$('pdxPwRep').value;
       if(nw.length<6)return msg('La nueva contraseña debe tener al menos 6 caracteres.');
       if(nw!==rep)return msg('Las contraseñas nuevas no coinciden.');
-      if(nw===act)return msg('La nueva contraseña debe ser diferente a la actual.');
       btn.disabled=true;btn.textContent='Guardando…';msg('');
       try{
-        const {data:u}=await db.auth.getUser();const email=u?.user?.email;
-        if(!email)throw new Error('Tu sesión expiró. Vuelve a ingresar.');
-        const {error:e1}=await db.auth.signInWithPassword({email,password:act});
-        if(e1)throw new Error('La contraseña actual no es correcta.');
-        const {error:e2}=await db.auth.updateUser({password:nw});
-        if(e2){const t=String(e2.message||'');throw new Error(/different/i.test(t)?'La nueva contraseña debe ser diferente a la actual.':/weak|short|least/i.test(t)?'La nueva contraseña es muy débil. Usa una más larga.':'No se pudo cambiar: '+t)}
+        const __pdClaveNueva=async(cli,pw)=>{const {data,error}=await cli.functions.invoke('cambiar-mi-password',{body:{password:pw}});if(error){let m='';try{const j=await error.context.clone().json();m=j&&j.error||''}catch(_){}throw new Error(m||'No se pudo cambiar la contraseña. Revisa tu internet.')}if(data&&data.error)throw new Error(data.error)};await __pdClaveNueva(db,nw);
         closeSheet();
         alertUser({kind:'ok',title:'Contraseña actualizada',text:'Desde ahora entra con tu nueva contraseña.'});
       }catch(e){msg(e.message||String(e))}
       finally{btn.disabled=false;btn.textContent='Guardar contraseña'}
     };
-    setTimeout(()=>$('pdxPwAct')?.focus(),250);
+    setTimeout(()=>$('pdxPwNew')?.focus(),250);
   }
   function paintPerf(){
     if(!$('pdxPerf')||!R())return;const r=R();

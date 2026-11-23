@@ -775,17 +775,15 @@ textarea.ta:focus{border-color:#C4410C}
   /* =============== CONTRASEÑA =============== */
   function clave(){
     const f=F.clave,t=f.ver?'text':'password';
-    let h=`<div class="cd">${fld('kA','Contraseña actual','k:a',f.a,{t,ac:'current-password',max:72})}${fld('kN','Nueva contraseña','k:n',f.n,{t,ac:'new-password',max:72})}${fld('kR','Repite la nueva contraseña','k:r',f.r,{t,ac:'new-password',max:72})}
+    let h=`<div class="cd">${fld('kN','Nueva contraseña','k:n',f.n,{t,ac:'new-password',max:72})}${fld('kR','Repite la nueva contraseña','k:r',f.r,{t,ac:'new-password',max:72})}
       <button type="button" class="b" style="height:42px" data-a="k:ver">${IC.eye}${f.ver?'Ocultar contraseñas':'Mostrar contraseñas'}</button><span style="font-size:13px;color:#6B5E55">Usa al menos 6 caracteres. Al cambiarla, entrarás con la nueva clave en todos tus teléfonos.</span></div>`;
     if(f.msg)h+=`<div class="err">${E(f.msg)}</div>`;
     return {head:top('Seguridad','Cambiar contraseña',null,true),body:h,foot:`<button type="button" class="b o" style="height:54px;font-size:16px" data-a="k:guardar">Guardar contraseña</button>`};
   }
   async function claveGuardar(){
     const f=F.clave;f.msg='';
-    if(!f.a)return f.msg='Escribe tu contraseña actual.';if(f.n.length<6)return f.msg='La nueva contraseña debe tener al menos 6 caracteres.';if(f.n!==f.r)return f.msg='Las contraseñas nuevas no coinciden.';if(f.n===f.a)return f.msg='La nueva contraseña debe ser diferente a la actual.';
-    try{const {data:u}=await D().auth.getUser();const email=u?.user?.email;if(!email)throw new Error('Tu sesión expiró. Vuelve a ingresar.');
-      const {error:e1}=await D().auth.signInWithPassword({email,password:f.a});if(e1)throw new Error('La contraseña actual no es correcta.');
-      const {error:e2}=await D().auth.updateUser({password:f.n});if(e2){const t=String(e2.message||'');throw new Error(/different/i.test(t)?'La nueva contraseña debe ser diferente a la actual.':/weak|short|least/i.test(t)?'La nueva contraseña es muy débil. Usa una más larga.':'No se pudo cambiar: '+t)}
+    if(f.n.length<6)return f.msg='La nueva contraseña debe tener al menos 6 caracteres.';if(f.n!==f.r)return f.msg='Las contraseñas no coinciden.';
+    try{const __pdClaveNueva=async(cli,pw)=>{const {data,error}=await cli.functions.invoke('cambiar-mi-password',{body:{password:pw}});if(error){let m='';try{const j=await error.context.clone().json();m=j&&j.error||''}catch(_){}throw new Error(m||'No se pudo cambiar la contraseña. Revisa tu internet.')}if(data&&data.error)throw new Error(data.error)};await __pdClaveNueva(D(),f.n);
       F.clave={a:'',n:'',r:'',msg:'',ver:false};exito('Contraseña actualizada');volver()}
     catch(e){f.msg=e.message||String(e)}
   }
