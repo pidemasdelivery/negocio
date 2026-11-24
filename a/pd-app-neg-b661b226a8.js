@@ -664,9 +664,9 @@ textarea.ta:focus{border-color:#C4410C}
     const head=top('Pidemás y tú','Mis pagos',`<button type="button" class="ib" data-a="r:pagos" aria-label="Actualizar">${IC.refresh}</button>`,true);
     const c=cargar('pagos',async()=>{const q=await D().from('pedidos').select('id,estado,subtotal,total,costo_delivery,pago_acordado,metodo_pago,creado_en,entregado_en,negocio_pagado_en,negocio_pagado_metodo,negocio_pagado_monto,delivery_negocio_cobrado_en').eq('negocio_id',R().id).eq('estado','entregado').gte('creado_en',new Date(Date.now()-60*864e5).toISOString()).order('creado_en',{ascending:false}).limit(1000);if(q.error)throw q.error;return q.data||[]});
     if(!c.data)return {head,body:c.err?`<div class="err">${E(c.err)}</div>`:'<div class="load">Cargando tus pagos…</div>'};
-    const P=c.data,cobra=P.filter(p=>!['solo_delivery','pagado','yape_negocio'].includes(String(p.pago_acordado||''))&&subt(p)>0);
+    const P=c.data,ynE=p=>String(p.pago_acordado||'')==='yape_negocio'&&String(p.metodo_pago||'').toLowerCase()==='efectivo',cobra=P.filter(p=>(ynE(p)||!['solo_delivery','pagado','yape_negocio'].includes(String(p.pago_acordado||'')))&&subt(p)>0);
     const pend=cobra.filter(p=>!p.negocio_pagado_en),pag=cobra.filter(p=>p.negocio_pagado_en);
-    const deb=P.filter(p=>['pagado','yape_negocio'].includes(String(p.pago_acordado||''))&&!p.delivery_negocio_cobrado_en&&Number(p.costo_delivery)>0);
+    const deb=P.filter(p=>['pagado','yape_negocio'].includes(String(p.pago_acordado||''))&&!ynE(p)&&!p.delivery_negocio_cobrado_en&&Number(p.costo_delivery)>0);
     const tP=pend.reduce((s,p)=>s+subt(p),0),tD=deb.reduce((s,p)=>s+(Number(p.costo_delivery)||0),0);
     const fila=(p,v,x,ic,bg,co)=>`<div class="mv"><span class="ic" style="background:${bg};color:${co}">${ic}</span><span class="tx"><b>${E(ref(p.id))}</b><span>${E(fecha(p.entregado_en||p.creado_en))}${x?' · '+E(x):''}</span></span><span class="am">${M(v)}</span></div>`;
     let h=`<div class="amt"><div class="k">Pidemás te debe</div><div class="n">${M(tP)}</div><div class="pill">${pend.length?pend.length+' pedido'+(pend.length===1?'':'s')+' por pagarte':'Estás al día'}</div></div>`;

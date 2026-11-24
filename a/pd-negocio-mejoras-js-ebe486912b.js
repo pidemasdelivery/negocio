@@ -162,9 +162,9 @@
     const q=await D().from('pedidos').select('id,estado,subtotal,total,costo_delivery,pago_acordado,metodo_pago,creado_en,entregado_en,negocio_pagado_en,negocio_pagado_metodo,negocio_pagado_monto,delivery_negocio_cobrado_en').eq('negocio_id',r.id).eq('estado','entregado').gte('creado_en',desde).order('creado_en',{ascending:false}).limit(1000);
     if(q.error){b.innerHTML='<p class="pdnErr">No se pudo leer: '+E(q.error.message)+'</p>';return}
     const P=q.data||[];
-    const cobra=P.filter(p=>!['solo_delivery','pagado','yape_negocio'].includes(String(p.pago_acordado||''))&&sub(p)>0);
+    const ynE=p=>String(p.pago_acordado||'')==='yape_negocio'&&String(p.metodo_pago||'').toLowerCase()==='efectivo',cobra=P.filter(p=>(ynE(p)||!['solo_delivery','pagado','yape_negocio'].includes(String(p.pago_acordado||'')))&&sub(p)>0);
     const pend=cobra.filter(p=>!p.negocio_pagado_en),pag=cobra.filter(p=>p.negocio_pagado_en);
-    const deb=P.filter(p=>['pagado','yape_negocio'].includes(String(p.pago_acordado||''))&&!p.delivery_negocio_cobrado_en&&Number(p.costo_delivery)>0);
+    const deb=P.filter(p=>['pagado','yape_negocio'].includes(String(p.pago_acordado||''))&&!ynE(p)&&!p.delivery_negocio_cobrado_en&&Number(p.costo_delivery)>0);
     const tP=pend.reduce((s,p)=>s+sub(p),0),tD=deb.reduce((s,p)=>s+(Number(p.costo_delivery)||0),0);
     const fila=(p,v,x)=>'<div class="pdnRow"><span><b>'+E(ref(p.id))+'</b><small>'+E(fH(p.entregado_en||p.creado_en))+(x?' · '+E(x):'')+'</small></span><b>'+M(v)+'</b></div>';
     b.innerHTML='<div class="pdnStat"><span>Pidemás te debe</span><b>'+M(tP)+'</b></div>'
