@@ -9,7 +9,7 @@
     if(window.pdExito)window.pdExito('Cambios guardados');else if(window.pdAviso)window.pdAviso(t)};
   function msgError(e){
     const m=String((e&&e.message)||e||'');
-    return /descartables|column|schema/i.test(m)?'Falta crear las columnas de descartables en Supabase. Avisa al administrador.':'No se pudo guardar: '+m;
+    return /descartables|column|schema/i.test(m)?'Falta crear las columnas de descartables en Supabase. Avisa a Pidemás.':'No se pudo guardar: '+m;
   }
   async function guardar(campos,ok){
     const r=neg();if(!r||!r.id){aviso('No se encontró tu negocio.',true);return false}

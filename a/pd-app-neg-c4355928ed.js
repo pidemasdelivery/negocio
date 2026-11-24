@@ -781,7 +781,7 @@ textarea.ta:focus{border-color:#C4410C}
     cfg.extras=ex;const ids=new Set(ex.map(x=>x.id));
     let prod=dcfg().prod;if(prod&&typeof prod==='object'){prod=JSON.parse(JSON.stringify(prod));for(const k in prod){const m=prod[k];if(Array.isArray(m.ex)){m.ex=m.ex.filter(i=>ids.has(String(i)));if(!m.ex.length)delete m.ex}if(PF&&PF.tipo!=='comida'){delete m.taper;delete m.vaso}if(!Object.keys(m).length)delete prod[k]}cfg.prod=prod}
     const q=await D().from('negocios').update({descartables_config:cfg}).eq('id',r.id).select('id').maybeSingle();
-    if(q.error||!q.data){f.msg=/descartables|column|schema/i.test(String(q.error&&q.error.message))?'Falta crear las columnas de descartables en Supabase. Avisa al administrador.':'No se pudo guardar: '+(q.error?q.error.message:'revisa permisos');return}
+    if(q.error||!q.data){f.msg=/descartables|column|schema/i.test(String(q.error&&q.error.message))?'Falta crear las columnas de descartables en Supabase. Avisa a Pidemás.':'No se pudo guardar: '+(q.error?q.error.message:'revisa permisos');return}
     r.descartables_config=cfg;F.desc=null;exito('Precios guardados');volver();
   }
 
@@ -958,7 +958,7 @@ textarea.ta:focus{border-color:#C4410C}
       case 'r:pagos':C.pagos&&(C.pagos.t=0);key='';pintar();break;
       case 'y:guardar':await ocupado(yapeGuardar);break;
       case 'y:quitar':await ocupado(yapeQuitar);break;
-      case 'd:on':await ocupado(async()=>{const r=R(),v=r.descartables_activo!==true;const q=await D().from('negocios').update({descartables_activo:v}).eq('id',r.id).select('id').maybeSingle();if(q.error||!q.data)throw new Error(q.error?(/column|schema/i.test(q.error.message)?'Falta crear las columnas de descartables en Supabase. Avisa al administrador.':q.error.message):'No se actualizó el negocio (revisa permisos).');r.descartables_activo=v});break;
+      case 'd:on':await ocupado(async()=>{const r=R(),v=r.descartables_activo!==true;const q=await D().from('negocios').update({descartables_activo:v}).eq('id',r.id).select('id').maybeSingle();if(q.error||!q.data)throw new Error(q.error?(/column|schema/i.test(q.error.message)?'Falta crear las columnas de descartables en Supabase. Avisa a Pidemás.':q.error.message):'No se actualizó el negocio (revisa permisos).');r.descartables_activo=v});break;
       case 'd:guardar':await ocupado(descGuardar);break;
       case 'dx:add':F.desc.ex.push({id:'',n:'',p:''});key='';pintar();break;
       case 'k:ver':F.clave.ver=!F.clave.ver;key='';pintar();break;

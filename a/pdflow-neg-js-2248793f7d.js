@@ -1,4 +1,4 @@
-/* Etapa 2 · El negocio acepta con tiempo de preparación (después de que Administración confirma). */
+/* Etapa 2 · El negocio acepta con tiempo de preparación (después de que Pidemás confirma). */
 (function(){
   if(window.__pdFlowNeg)return; window.__pdFlowNeg=true;
   window.__pdxT=window.__pdxT||{};

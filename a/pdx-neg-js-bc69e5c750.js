@@ -156,7 +156,7 @@
     const trk=`<button type="button" class="x-btn light sm x-trkBtn" onclick="pdxTrack('${E(id)}')">${ICO.trk}Seguimiento</button>`;
     const pair=`<div class="x-grid2">${wa}${trk}</div>`;
     const mi=motoInfo(o),mn=mi.nombre;
-    const motoTxt=st.k==='camino'?(mn||'El motorizado')+' lleva el pedido al cliente':o.motorizado_id&&o.en_local_en?(mn||'El motorizado')+' está en tu local':o.motorizado_id?(mn||'El motorizado')+' va a recoger el pedido':'Listo · esperando que administración asigne motorizado';
+    const motoTxt=st.k==='camino'?(mn||'El motorizado')+' lleva el pedido al cliente':o.motorizado_id&&o.en_local_en?(mn||'El motorizado')+' está en tu local':o.motorizado_id?(mn||'El motorizado')+' va a recoger el pedido':'Listo · esperando que Pidemás asigne motorizado';
     let acts='';
     if(st.k==='nuevo'){const sel=(window.__pdxT||{})[id]||15;const ob=String(o.observaciones||'');if(!(window.__pdxP||{})[id]&&/pagará al motorizado con QR/i.test(ob)){window.__pdxP=window.__pdxP||{};window.__pdxP[id]='yape'}const pg=(window.__pdxP||{})[id]||'';const pref=/prefiere coordinar con el negocio/i.test(ob)?'El cliente quiere yapearte a ti: escríbele por WhatsApp.':/pagará al motorizado con QR/i.test(ob)?'El cliente prefiere pagar con Yape al motorizado (QR).':'';acts=(window.pdxNuevoActs?window.pdxNuevoActs(o,{id,A,sel,pg,trk:ICO.trk}):'')}
     else if(st.k==='cobrar')acts=`<div class="x-note">Escribe al cliente por WhatsApp con el total y confirma cuando hayas recibido el pago.</div><button type="button" class="x-btn" ${A} onclick="businessConfirmPayment('${E(id)}')">Pago recibido</button>${pair}`;
@@ -206,7 +206,7 @@
       const now=sn(o),b=prev.get(id);
       if(!b){if(now.estado!=='cancelado')alertUser({kind:'nuevo',sticky:stage(o).k==='nuevo',key:'nuevo:'+id,pedidoId:id,title:'Nuevo pedido '+code(id),text:describe(o),actions:acts(o),orden:o});continue}
       if(now.estado!==b.estado){
-        if(now.estado==='cancelado'){ack(id);alertUser({kind:'cancel',pedidoId:id,title:'Pedido '+code(id)+' cancelado',text:String(o.cancelado_por||'')==='negocio'?'Anulaste este pedido. Pidemás ya fue avisado.':'Administración canceló este pedido. No lo prepares.'})}
+        if(now.estado==='cancelado'){ack(id);alertUser({kind:'cancel',pedidoId:id,title:'Pedido '+code(id)+' cancelado',text:String(o.cancelado_por||'')==='negocio'?'Anulaste este pedido. Pidemás ya fue avisado.':'Pidemás canceló este pedido. No lo prepares.'})}
         else if(stage(o).k!=='nuevo')ack(id);
         if(['asignado'].includes(now.estado)&&b.estado!=='asignado')alertUser({kind:'info',pedidoId:id,title:'Motorizado asignado a '+code(id),text:'Ten el pedido listo para cuando llegue.'});
         if(['en_camino','en_entrega','camino_entrega'].includes(now.estado)&&!['en_camino','en_entrega','camino_entrega'].includes(b.estado))alertUser({kind:'ok',pedidoId:id,title:'El motorizado recogió '+code(id),text:'Va camino al cliente.'});
@@ -215,7 +215,7 @@
       if(now.local&&!b.local&&now.estado!=='cancelado')alertUser({kind:'nuevo',pedidoId:id,title:'El motorizado llegó por '+code(id),text:'Código de recojo: '+(o.codigo_recojo||'—')+'. Compáralo antes de entregar.'});
       if(now.total!==b.total&&b.total!=='undefined'&&now.estado!=='cancelado')alertUser({kind:'cambio',pedidoId:id,title:'Pedido '+code(id)+' modificado',text:'Total: '+money(b.total)+' → '+money(now.total)});
     }
-    for(const [id,b] of prev){if(!cur.has(id)&&!['entregado','cancelado'].includes(b.estado)){ack(id);alertUser({kind:'cancel',title:'Pedido '+code(id)+' retirado',text:'Administración eliminó este pedido.'})}}
+    for(const [id,b] of prev){if(!cur.has(id)&&!['entregado','cancelado'].includes(b.estado)){ack(id);alertUser({kind:'cancel',title:'Pedido '+code(id)+' retirado',text:'Pidemás eliminó este pedido.'})}}
     prev=new Map([...cur].map(([k,o])=>[k,sn(o)]));
   }
   function describe(o){const items=(o.detalle_pedidos||[]).map(x=>(x.cantidad||1)+'× '+(x.nombre_producto||x.nombre||'Producto')).slice(0,3).join(', ');return [o.nombre_cliente,items,Number.isFinite(Number(o.total))?money(o.total):''].filter(Boolean).join(' · ')}
@@ -263,7 +263,7 @@
     ['Confirmado','Confirmaste el pedido',['confirmado_en','negocio_confirmado_en']],
     ['Pago recibido','Confirmaste el pago del cliente',['pago_negocio_confirmado_en','pago_confirmado_en']],
     ['Listo para recojo','Pedido preparado y empacado',['listo_en','listo_para_recojo_en']],
-    ['Motorizado asignado','Administración asignó un motorizado',['asignado_en','aceptado_en']],
+    ['Motorizado asignado','Pidemás asignó un motorizado',['asignado_en','aceptado_en']],
     ['Recogido · en camino','El motorizado lo lleva al cliente',['en_camino_en','recogido_en','en_entrega_en']],
     ['Entregado','El cliente recibió su pedido',['entregado_en']]];
   function trkDone(o){
@@ -293,16 +293,16 @@
   function trkHtml(o){
     const st=stage(o),done=trkDone(o),cur=done.lastIndexOf(true),cancel=st.k==='cancel',fin=cur===6;
     const mi=motoInfo(o),mname=mi.nombre;
-    const desc=i=>i===4&&mname?'Administración asignó a '+mname:i===5&&mname?mname+' lleva el pedido al cliente':TRK[i][1];
+    const desc=i=>i===4&&mname?'Pidemás asignó a '+mname:i===5&&mname?mname+' lleva el pedido al cliente':TRK[i][1];
     const headLabel=cancel?'Pedido cancelado':fin?'Pedido entregado':TRK[cur][0];
-    const headDesc=cancel?'Administración canceló este pedido. No lo prepares.':fin?'El cliente ya recibió su pedido.':(cur===3&&!o.motorizado_id?'Esperando que administración asigne un motorizado.':desc(cur));
+    const headDesc=cancel?'Pidemás canceló este pedido. No lo prepares.':fin?'El cliente ya recibió su pedido.':(cur===3&&!o.motorizado_id?'Esperando que Pidemás asigne un motorizado.':desc(cur));
     let h=`<div class="x-trkHero ${cancel?'cancel':fin?'fin':''}">
       <div class="x-oRow"><span class="x-kick">${E(code(o.id))} · ${E(o.nombre_cliente||'Cliente')}</span>${cancel||fin?'':'<span class="x-live"><i></i>En vivo</span>'}</div>
       <span class="x-trkState">${E(headLabel)}</span><span class="x-trkDesc">${E(headDesc)}</span>
       ${cancel?'':`<div class="x-trkBar"><span style="width:${Math.round((cur+1)/7*100)}%"></span></div><span class="x-trkStep">Paso ${cur+1} de 7</span>`}</div>`;
     if(!cancel&&o.motorizado_id){
       const g=gpsCache.get(String(o.motorizado_id));
-      h+=`<section class="x-trkSec"><div class="x-motoRow"><span class="x-motoAv">${mname?E(mname.trim().charAt(0).toUpperCase()):ICO.moto}</span><span class="x-motoTxt"><span class="x-kick">Motorizado asignado</span><strong>${E(mname||'Motorizado de Pidemás')}</strong><small>Asignado por administración</small></span></div>
+      h+=`<section class="x-trkSec"><div class="x-motoRow"><span class="x-motoAv">${mname?E(mname.trim().charAt(0).toUpperCase()):ICO.moto}</span><span class="x-motoTxt"><span class="x-kick">Motorizado asignado</span><strong>${E(mname||'Motorizado de Pidemás')}</strong><small>Asignado por Pidemás</small></span></div>
       ${!fin?(g?`<div class="x-map"><iframe title="Ubicación del motorizado" loading="lazy" src="https://www.openstreetmap.org/export/embed.html?bbox=${g.lng-0.006},${g.lat-0.004},${g.lng+0.006},${g.lat+0.004}&layer=mapnik&marker=${g.lat},${g.lng}"></iframe></div><div class="x-oRow"><small class="x-muted">${ICO.pin} Ubicación ${g.t?E(ago(g.t)):'reciente'}</small><a class="x-link" target="_blank" rel="noopener" href="https://www.google.com/maps?q=${g.lat},${g.lng}">Abrir en Google Maps</a></div>`:''):''}</section>`;
     }
     if(!cancel)h+=`<section class="x-trkSec"><span class="x-kick">Línea de tiempo</span><div class="x-tl">${TRK.map((t,i)=>{const tm=tfmt(t[2].map(k=>o[k]).find(Boolean));const c=i===cur;return `<div class="x-tlStep ${done[i]&&!c?'done':''} ${c?'cur':''} ${c&&fin?'fin':''}"><span class="x-tlDot"></span><div><div class="x-tlName"><span>${E(t[0])}</span>${c&&!fin?'<b class="x-now">Ahora</b>':(done[i]&&tm?`<small>${E(tm)}</small>`:'')}</div>${c||(done[i]&&i>=4)?`<small>${E(desc(i))}${c&&tm?' · '+E(tm):''}</small>`:''}</div></div>`}).join('')}</div></section>`;
@@ -312,7 +312,7 @@
   }
   async function paintTrk(fetchGps){
     if(!trkOpen)return;const o=(businessOrders||[]).find(x=>String(x.id)===trkOpen);const body=$('pdxTrkBody');if(!body)return;
-    if(!o){body.innerHTML='<div class="x-empty"><b>Pedido no disponible</b>Es posible que administración lo haya eliminado.</div>';return}
+    if(!o){body.innerHTML='<div class="x-empty"><b>Pedido no disponible</b>Es posible que Pidemás lo haya eliminado.</div>';return}
     const sc=body.parentElement.scrollTop;body.innerHTML=trkHtml(o);body.parentElement.scrollTop=sc;
     const mid=String(o.motorizado_id||'');
     if(mid&&(fetchGps||!motoCache.has(mid))){const had=JSON.stringify([motoCache.get(mid),gpsCache.get(mid)]);await loadMoto(mid);if(!trkDone(o)[6])await loadGps(mid);if(trkOpen===String(o.id)&&JSON.stringify([motoCache.get(mid),gpsCache.get(mid)])!==had){const s2=body.parentElement.scrollTop;body.innerHTML=trkHtml(o);body.parentElement.scrollTop=s2}}

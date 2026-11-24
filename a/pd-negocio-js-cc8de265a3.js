@@ -816,7 +816,7 @@ async function updateBusinessOrder(id,patch,success){
 window.businessConfirmOrder=async id=>{
   const o=businessOrders.find(x=>String(x.id)===String(id));if(!o)return;
   if(!(await pdConfirmar('¿Confirmas que el negocio acepta este pedido?')))return;
-  await updateBusinessOrder(id,{estado:'confirmado'},'Pedido confirmado. El administrador ya puede gestionarlo.');
+  await updateBusinessOrder(id,{estado:'confirmado'},'Pedido confirmado. Pidemás ya puede gestionarlo.');
 };
 window.businessConfirmPayment=async id=>{
   const o=businessOrders.find(x=>String(x.id)===String(id));if(!o)return;
