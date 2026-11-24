@@ -20,7 +20,7 @@
     if(m==='efectivo'){
       window.__pdxP[id]='efectivo';
       const d=efectivo(o),tot=Number(o.total)||0;
-      const info=d&&Number(d.monto)>0?`<div class="r"><span>Paga con</span><b>${money(d.monto)}</b></div><div class="r"><span>Vuelto que lleva el motorizado</span><b>${money(Math.max(0,Number(d.vuelto??(d.monto-tot))||0))}</b></div>`:'<div class="r"><span>Paga con</span><b>Monto exacto</b></div>';
+      const info=d&&Number(d.monto)>0?`<div class="r"><span>Paga con</span><b>${money(d.monto)}</b></div><div class="r" style="display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:8px;padding:12px 14px;border-radius:12px;background:#E9F6EE;color:#15803D;font-weight:700;font-size:15px"><span>Vuelto que lleva el motorizado</span><b style="font-size:17px;font-weight:800;color:#15803D">${money(Math.max(0,Number(d.vuelto??(d.monto-tot))||0))}</b></div>`:'<div class="r"><span>Paga con</span><b>Monto exacto</b></div>';
       return `<div class="x-cashInfo"><b class="t">Paga en efectivo al recibir</b><div class="r"><span>El motorizado cobra</span><b>${money(tot)}</b></div>${info}</div>${tiempo}${fin}`;
     }
     const pg=window.__pdxP[id]||'';

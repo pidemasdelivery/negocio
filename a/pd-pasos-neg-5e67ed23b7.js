@@ -69,7 +69,7 @@
       if(!yape(o)){
         const ef=marca(o.observaciones,'__PIDEMAS_PAGO_EFECTIVO__');
         h+=U.st(E(cli)+' paga en <b>efectivo</b> al recibir: el motorizado cobra '+M(o.total)+'.','ok')+
-          (ef&&Number(ef.monto)>0?`<div class="sum"><div class="lbl">Pago en efectivo</div><div class="li"><span>Paga con</span><b>${M(ef.monto)}</b></div><div class="li"><span>Vuelto que lleva el motorizado</span><b>${M(Math.max(0,Number(ef.vuelto!=null?ef.vuelto:ef.monto-o.total)||0))}</b></div></div>`:'');
+          (ef&&Number(ef.monto)>0?(()=>{const vu=Math.max(0,Number(ef.vuelto!=null?ef.vuelto:ef.monto-o.total)||0);return vu>0.004?`<div class="vto"><span>Vuelto que lleva el motorizado · paga con ${M(ef.monto)}</span><b>${M(vu)}</b></div>`:`<div class="vto"><span>Paga con ${M(ef.monto)}</span><b>Sin vuelto</b></div>`})():'');
       }else if(e<=1){
         const sel=P[id]||'';
         h+=U.note(E(cli)+' eligió pagar con <b>Yape</b> y coordinar contigo. Escríbele: el mensaje ya lleva el total y tu Yape.')+
