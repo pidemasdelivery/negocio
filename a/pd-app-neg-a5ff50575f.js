@@ -473,7 +473,7 @@ textarea.ta:focus{border-color:#C4410C}
   function producto(){
     const f=F.prod;if(!f)return {head:top('Productos','Producto',null,true),body:''};
     const cats=[...CT()].sort(byOrd);const foto=f.prev||(!f.quitar&&f.img)||'';
-    let h=`<div class="foto"><span class="pi"${foto?` style="background-image:url('${E(foto)}')"`:''}>${foto?'':IC.camera}</span><div class="bs"><label class="b" style="height:44px;cursor:pointer">${IC.camera}${foto?'Cambiar foto':'Subir foto'}<input type="file" accept="image/jpeg,image/png,image/webp" data-in="pfoto" style="display:none"></label>${foto?`<button type="button" class="b rojo" style="height:40px" data-a="pf:quitarfoto">Quitar foto</button>`:'<span style="font-size:13px;color:#6B5E55">Mejor cuadrada y con buena luz.</span>'}</div></div>`;
+    let h=`<div class="foto"><span class="pi"${foto?` style="background-image:url('${E(foto)}')"`:''}>${foto?'':IC.camera}</span><div class="bs"><label class="b soft" style="height:46px;cursor:pointer">${IC.camera}${foto?'Cambiar foto':'Subir foto'}<input type="file" accept="image/jpeg,image/png,image/webp" data-in="pfoto" style="display:none"></label>${foto?`<button type="button" class="b rojo" style="height:40px" data-a="pf:quitarfoto">Quitar foto</button>`:'<span style="font-size:13px;color:#6B5E55">Mejor cuadrada y con buena luz.</span>'}</div></div>`;
     h+=`<div class="cd">${fld('prN','Nombre del producto','pr:nombre',f.nombre,{max:120,ph:'Ej. Pollo a la brasa ¼'})}
       <div class="g2">${fld('prP','Precio (S/)','pr:precio',f.precio,{im:'decimal',ph:'0.00',max:10})}<div class="fld"><label for="prC">Categoría</label><select id="prC" data-in="pr:cat"><option value="">Sin categoría</option>${cats.map(c=>`<option value="${E(c.id)}"${String(c.id)===f.cat?' selected':''}>${E(c.nombre)}</option>`).join('')}</select></div></div>
       <div class="fld"><label for="prD">Descripción</label><textarea id="prD" class="ta" data-in="pr:desc" maxlength="600" placeholder="Qué trae, tamaño, acompañamientos…">${E(f.desc)}</textarea></div></div>`;
@@ -570,7 +570,7 @@ textarea.ta:focus{border-color:#C4410C}
   function perfil(){
     const r=R()||{};if(!F.perfil)F.perfil=perfilNuevo();const f=F.perfil,lg=logoDe(r);
     const cats=CATS.includes(f.cat)||!f.cat?CATS:[f.cat,...CATS];
-    let h=`<div class="ph"><span class="ava"${lg?` style="background-image:url('${E(lg)}')"`:''}>${lg?'':ini(f.nombre)}</span><div style="flex:1 1 0%;min-width:0"><b style="display:block;font-size:20px;overflow-wrap:anywhere">${E(r.nombre||'Mi negocio')}</b><span class="pl${r.activo===false||r.visible_admin===false?' r':' g'}" style="margin-top:4px">${r.activo===false||r.visible_admin===false?'Oculto en la tienda':'Visible en la tienda'}</span></div><label class="b" style="height:44px;cursor:pointer">${IC.camera}Logo<input type="file" accept="image/png,image/jpeg,image/webp" data-in="logo" style="display:none"></label></div>`;
+    let h=`<div class="ph"><span class="ava"${lg?` style="background-image:url('${E(lg)}')"`:''}>${lg?'':ini(f.nombre)}</span><div style="flex:1 1 0%;min-width:0"><b style="display:block;font-size:20px;overflow-wrap:anywhere">${E(r.nombre||'Mi negocio')}</b><span class="pl${r.activo===false||r.visible_admin===false?' r':' g'}" style="margin-top:4px">${r.activo===false||r.visible_admin===false?'Oculto en la tienda':'Visible en la tienda'}</span></div><label class="b soft" style="height:46px;cursor:pointer">${IC.camera}Logo<input type="file" accept="image/png,image/jpeg,image/webp" data-in="logo" style="display:none"></label></div>`;
     if(lg)h+=`<button type="button" class="b rojo" style="height:40px" data-a="logo:quitar">Quitar logo</button>`;
     h+=`<div class="cd"><div class="lbl">Datos del negocio</div>${fld('pN','Nombre del negocio','pf:nombre',f.nombre,{max:80})}
       <div class="fld"><label for="pC">Rubro</label><select id="pC" data-in="pf:cat"><option value="">Elige tu rubro</option>${cats.map(c=>`<option${c===f.cat?' selected':''}>${E(c)}</option>`).join('')}</select></div>
@@ -724,7 +724,7 @@ textarea.ta:focus{border-color:#C4410C}
     const r=R()||{};if(!F.yape)F.yape={num:r.yape_numero||'',tit:r.yape_titular||'',file:null,prev:'',msg:''};const f=F.yape,u=f.prev||r.yape_qr_url||'';
     let h=U.note('Sube solo el QR, recortado: que se vea únicamente el cuadro del QR, sin el resto de la pantalla.');
     h+=`<div class="qrbox">${u?`<img src="${E(u)}" alt="QR de Yape">`:'Aún no subes tu QR'}</div>`;
-    h+=`<label class="b" style="cursor:pointer">${IC.camera}${u?'Cambiar QR':'Elegir QR'}<input type="file" accept="image/png,image/jpeg,image/webp" data-in="yqr" style="display:none"></label>`;
+    h+=`<label class="b soft" style="cursor:pointer">${IC.camera}${u?'Cambiar QR':'Elegir QR'}<input type="file" accept="image/png,image/jpeg,image/webp" data-in="yqr" style="display:none"></label>`;
     h+=`<div class="cd">${fld('yN','Número de Yape','y:num',f.num,{t:'tel',im:'numeric',max:9,ph:'9 dígitos',ac:'off'})}${fld('yT','Titular (como sale en tu Yape)','y:tit',f.tit,{max:60,ac:'off'})}</div>`;
     if(f.msg)h+=`<div class="err">${E(f.msg)}</div>`;
     h+=U.note('Va en el WhatsApp para coordinar el pago. Si eliges «Paga todo al recibir con mi Yape», el motorizado se lo muestra al cliente para que te pague directo a ti.');
