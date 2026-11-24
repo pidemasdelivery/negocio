@@ -566,13 +566,16 @@ textarea.ta:focus{border-color:#C4410C}
 
   /* =============== PERFIL =============== */
   const CATS=['Restaurantes','Comida criolla','Pizzerías','Pollerías','Hamburgueserías','Comida rápida','Sangucherías','Paviferías','Cevicherías','Chifas','Sushi y comida japonesa','Parrillas y anticuchos','Heladerías','Cafeterías','Juguerías','Dulcerías y pastelerías','Panaderías','Bodegas y minimarkets','Fruterías y verdulerías','Carnicerías','Licorerías','Farmacias y boticas','Ropa y moda','Calzado y zapatillas','Accesorios y bisutería','Tecnología','Celulares y accesorios','Belleza y cuidado personal','Hogar y decoración','Ferreterías','Deportes','Bebés y maternidad','Florerías y regalos','Mascotas','Librerías y útiles escolares','Jugueterías','Lavanderías'];
-  function perfilNuevo(){const r=R()||{};return {nombre:r.nombre||'',cat:r.categoria_negocio||'',desc:r.descripcion||'',tel:r.telefono||'',ruc:r.ruc||'',dir:r.direccion||'',maps:r.google_maps_url||'',lat:r.latitud??'',lng:r.longitud??'',tiempo:r.tiempo_estimado||'',activo:r.activo!==false,pub:r.ubicacion_publica!==false,msg:'',ok:''}}
+  /* sede: se guarda dentro del nombre como «Nombre (Sede)»; la tienda la muestra como pastilla */
+  const sedeSep=n=>{const t=String(n||'').trim(),m=t.match(/^(.*\S)\s*\(([^()]+)\)\s*$/);return m?[m[1],m[2].trim()]:[t,'']};
+  const sedeJun=(n,se)=>{n=String(n||'').trim().replace(/\s+/g,' ');se=String(se||'').replace(/[()]/g,'').trim().replace(/\s+/g,' ');return n&&se?n+' ('+se+')':n};
+  function perfilNuevo(){const r=R()||{};return {nombre:sedeSep(r.nombre)[0],sede:sedeSep(r.nombre)[1],cat:r.categoria_negocio||'',desc:r.descripcion||'',tel:r.telefono||'',ruc:r.ruc||'',dir:r.direccion||'',maps:r.google_maps_url||'',lat:r.latitud??'',lng:r.longitud??'',tiempo:r.tiempo_estimado||'',activo:r.activo!==false,pub:r.ubicacion_publica!==false,msg:'',ok:''}}
   function perfil(){
     const r=R()||{};if(!F.perfil)F.perfil=perfilNuevo();const f=F.perfil,lg=logoDe(r);
     const cats=CATS.includes(f.cat)||!f.cat?CATS:[f.cat,...CATS];
     let h=`<div class="ph"><span class="ava"${lg?` style="background-image:url('${E(lg)}')"`:''}>${lg?'':ini(f.nombre)}</span><div style="flex:1 1 0%;min-width:0"><b style="display:block;font-size:20px;overflow-wrap:anywhere">${E(r.nombre||'Mi negocio')}</b><span class="pl${r.activo===false||r.visible_admin===false?' r':' g'}" style="margin-top:4px">${r.activo===false||r.visible_admin===false?'Oculto en la tienda':'Visible en la tienda'}</span></div><label class="b soft" style="height:46px;cursor:pointer">${IC.camera}Logo<input type="file" accept="image/png,image/jpeg,image/webp" data-in="logo" style="display:none"></label></div>`;
     if(lg)h+=`<button type="button" class="b rojo" style="height:40px" data-a="logo:quitar">Quitar logo</button>`;
-    h+=`<div class="cd"><div class="lbl">Datos del negocio</div>${fld('pN','Nombre del negocio','pf:nombre',f.nombre,{max:80})}
+    h+=`<div class="cd"><div class="lbl">Datos del negocio</div>${fld('pN','Nombre del negocio','pf:nombre',f.nombre,{max:80})}${fld('pS','Sede (opcional)','pf:sede',f.sede,{max:40,ph:'Ej. Jr. Arequipa'})}<span style="display:block;font-size:13px;color:#6B5E55;margin:-4px 2px 4px">Si tienes varios locales, escribe aquí cuál es este. En la tienda se ve como una pastilla al lado del nombre.</span>
       <div class="fld"><label for="pC">Rubro</label><select id="pC" data-in="pf:cat"><option value="">Elige tu rubro</option>${cats.map(c=>`<option${c===f.cat?' selected':''}>${E(c)}</option>`).join('')}</select></div>
       <div class="fld"><label for="pD">Descripción</label><textarea id="pD" class="ta" data-in="pf:desc" maxlength="300" placeholder="Qué vendes, en pocas palabras">${E(f.desc)}</textarea></div>
       <div class="g2">${fld('pT','Teléfono','pf:tel',f.tel,{t:'tel',im:'tel',max:15})}${fld('pR','RUC','pf:ruc',f.ruc,{im:'numeric',max:11})}</div></div>`;
@@ -593,7 +596,7 @@ textarea.ta:focus{border-color:#C4410C}
     const f=F.perfil;f.msg='';f.ok='';
     if(!f.nombre.trim()){f.msg='El nombre es obligatorio.';return}
     const set=(id,v)=>{const el=$(id);if(!el)return;if(el.tagName==='SELECT'&&v&&![...el.options].some(o=>o.value===v)){const o=document.createElement('option');o.textContent=v;el.appendChild(o)}el.value=v??''};
-    set('perfilNombre',f.nombre);set('perfilCategoriaNegocio',f.cat);set('perfilDescripcion',f.desc);set('perfilNumero',f.tel);set('perfilRuc',f.ruc);set('perfilDireccion',f.dir);set('perfilMaps',f.maps);set('perfilLatitud',String(f.lat??''));set('perfilLongitud',String(f.lng??''));
+    set('perfilNombre',sedeJun(f.nombre,f.sede));set('perfilCategoriaNegocio',f.cat);set('perfilDescripcion',f.desc);set('perfilNumero',f.tel);set('perfilRuc',f.ruc);set('perfilDireccion',f.dir);set('perfilMaps',f.maps);set('perfilLatitud',String(f.lat??''));set('perfilLongitud',String(f.lng??''));
     const ac=$('perfilActivo');if(ac){ac.checked=f.activo;ac.dataset.touched='1'}
     const ti=$('pdxTiempo');if(ti){ti.value=f.tiempo;ti.dataset.touched='1'}
     {const r=R();if(r&&(r.ubicacion_publica!==false)!==f.pub){const q=await D().from('negocios').update({ubicacion_publica:f.pub}).eq('id',r.id);if(q.error){f.msg='No se pudo guardar si tu dirección es pública: '+q.error.message;return}r.ubicacion_publica=f.pub}}
