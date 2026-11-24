@@ -53,13 +53,22 @@
     const listoA=o.negocio_aceptado_en&&o.tiempo_preparacion_min?U.hora(new Date(new Date(o.negocio_aceptado_en).getTime()+o.tiempo_preparacion_min*60000)):'';
     const PAT={yape_negocio:'Paga todo al recibir con tu Yape',solo_delivery:'Te pagó productos · falta el delivery',pagado:'Te pagó todo · tú pagas el delivery',efectivo:'Paga en efectivo al recibir',yape:'Paga con el Yape de Pidemás'};
 
+    /* Mismo diseño que Admin y Motorizado: arriba el total con cómo paga, luego un resumen ordenado y sin repetir datos */
+    const ef=marca(o.observaciones,'__PIDEMAS_PAGO_EFECTIVO__'),pagaCon=ef&&Number(ef.monto)>0?Number(ef.monto):0,tot=Number(o.total)||0;
+    const sb=t=>'<small style="display:block;margin-top:2px;font-size:13.5px;font-weight:600;opacity:.85">'+t+'</small>';
+    const vuelto=()=>!yape(o)&&pagaCon>0?(pagaCon-tot>0.004?'<div class="vto"><span>El motorizado lleva '+M(pagaCon-tot)+' de sencillo para el vuelto'+sb('Cobra '+M(tot)+' y el cliente paga con un billete de '+M(pagaCon))+'</span></div>':'<div class="vto"><span>No necesita sencillo'+sb('Cobra '+M(tot)+' y el cliente paga exacto')+'</span></div>'):'';
+    const li=(k,v,c)=>`<div class="li${c?' t':''}"><span>${k}</span><b>${v}</b></div>`;
+    const sumBox=(l,h)=>`<div class="sum"><div class="lbl">${l}</div>${h}</div>`;
+    const limpia=v=>String(v||'').replace(/https?:\/\/\S+/g,'').replace(/[\s·,|-]+$/,'').trim();
     /* 1 · Aceptar */
     {const s=steps[0];s.sum='Aceptado · listo en '+tmin+' min';
-      const ef=marca(o.observaciones,'__PIDEMAS_PAGO_EFECTIVO__');
-      let h=U.who(cli,'Cliente · paga con '+(yape(o)?'Yape':'efectivo')+(ef&&Number(ef.monto)>0?' (con '+M(ef.monto)+')':''),'',true)+U.items('Qué pidió',det,true)+
-        `<div class="sum"><div class="lbl">Montos</div><div class="li"><span>Productos</span><b>${M(o.subtotal)}</b></div><div class="li"><span>Delivery</span><b>${M(o.costo_delivery)}</b></div><div class="li t"><span>Total</span><b>${M(o.total)}</b></div></div>`;
+      const pagoTx=yape(o)?'Paga con Yape':'Paga en efectivo'+(pagaCon>0?' con '+M(pagaCon):'');
+      let h=`<div class="amt"><div class="k">Total del pedido</div><div class="n">${M(tot)}</div><div class="pill">${E(pagoTx)}</div></div>`+vuelto();
+      const dir=limpia(o.direccion_entrega);
+      h+=sumBox('Resumen',li('Cliente',E(cli))+(dir?li('Entrega en',`<span style="font-weight:600">${E(dir)}</span>`):'')+(o.creado_en?li('Pedido a las',E(U.hora(o.creado_en))):'')+li('Productos',M(o.subtotal))+li('Delivery',M(o.costo_delivery)));
+      h+=U.items('Qué pidió',det,true);
       if(e===0)h+=`<div><div class="lbl">¿En cuánto estará listo?</div><div class="grid4" style="grid-template-columns:repeat(${OT.ops.length},minmax(0,1fr))" data-act="tiempo">${OT.ops.map(x=>`<button type="button" data-n="${x.n}" class="${x.n===T[id]?'on':''}">${E(x.t)}</button>`).join('')}</div></div>`;
-      const nota=String(o.observaciones||'').replace(/__PIDEMAS_[A-Z0-9_]+__(\{[^]*?\})?/g,'').split(/\s+[·|]\s+/).map(x=>x.trim()).filter(x=>x&&!/^(Pago Yape:|Ubicaci|DELIVERY PAGADO|PRODUCTO_MAYOR)/i.test(x)).join(' · ');
+      const nota=String(o.observaciones||'').replace(/__PIDEMAS_[A-Z0-9_]+__(\{[^]*?\})?/g,'').replace(/https?:\/\/\S+/g,'').split(/\s+[·|]\s+/).map(x=>x.trim()).filter(x=>x&&!/^(Pago Yape:|Ubicaci|DELIVERY PAGADO|PRODUCTO_MAYOR)/i.test(x)).join(' · ');
       if(nota)h+=U.note('<b>Nota del cliente:</b> '+E(nota));
       if(/PRODUCTO_MAYOR_18_VERIFICAR_DNI/.test(String(o.observaciones||'')))h+=U.st('Producto +18: el motorizado verificará el DNI del cliente.','mal');
       s.body=h;}
@@ -67,9 +76,7 @@
     {const s=steps[1];s.locked='Se muestra al aceptar el pedido';s.sum=PAT[pa]||PAT[P[id]]||'Pago coordinado';
       let h='';
       if(!yape(o)){
-        const ef=marca(o.observaciones,'__PIDEMAS_PAGO_EFECTIVO__');
-        h+=U.st(E(cli)+' paga en <b>efectivo</b> al recibir: el motorizado cobra '+M(o.total)+'.','ok')+
-          (ef&&Number(ef.monto)>0?(()=>{const vu=Math.max(0,Number(ef.vuelto!=null?ef.vuelto:ef.monto-o.total)||0);return vu>0.004?`<div class="vto"><span>Vuelto que lleva el motorizado · paga con ${M(ef.monto)}</span><b>${M(vu)}</b></div>`:`<div class="vto"><span>Paga con ${M(ef.monto)}</span><b>Sin vuelto</b></div>`})():'');
+        h+=U.st(E(cli)+' paga en <b>efectivo</b> al recibir: el motorizado le cobra '+M(o.total)+'.','ok')+U.note('Pidemás te paga tus productos ('+M(o.subtotal)+') después. Lo ves en «Mis pagos».');
       }else if(e<=1){
         const sel=P[id]||'';
         h+=U.note(E(cli)+' eligió pagar con <b>Yape</b> y coordinar contigo. Escríbele: el mensaje ya lleva el total y tu Yape.')+
