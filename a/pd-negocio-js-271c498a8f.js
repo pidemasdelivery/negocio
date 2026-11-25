@@ -153,7 +153,7 @@ async function loadProducts(){
     data=(r2.data||[]).map(p=>{const old=(products||[]).find(x=>String(x.id)===String(p.id));return Object.assign({imagen_url:old?old.imagen_url:null,fotos:old?old.fotos:null},p)});
     setTimeout(()=>pdFotosProductos(data.map(p=>p.id)),50);
   }
-  products=data||[];
+  products=data||[];window.pdProdsOk=true;
   setTimeout(pdMigrarFotos,1500);
   // La categoría de cada producto siempre se relaciona con el ID de
   // categorias_negocio del mismo negocio. No se usa el nombre como clave.

@@ -367,10 +367,13 @@ textarea.ta:focus{border-color:#C4410C}
     for(let i=0;i<8;i++){const d=new Date(now);d.setDate(d.getDate()+i);const k=KEYS[d.getDay()];for(const v of (h[k]||[])){const a=toMin(v[0]);if(i===0&&a<=cur)continue;return {open:false,text:'Abre '+(i===0?'hoy':i===1?'mañana':'el '+DN[k].toLowerCase())+' a las '+fmtT(v[0])}}}
     return {open:false,text:'Aún no pones tu horario'};
   }
+  /* Regla de Pidemás: para salir en la tienda hace falta logo y al menos un producto disponible */
+  const faltaTienda=r=>{const f=[];if(!logoDe(r||{}))f.push('subir tu logo');if(window.pdProdsOk&&!PR().some(p=>p&&p.disponible!==false))f.push('agregar al menos un producto');return f.join(' y ')};
   const pausaHasta=()=>{const r=R();const t=r&&r.pausado_hasta?T(r.pausado_hasta):0;return t>Date.now()?t:0};
   function estado(){
     const r=R()||{},h=estadoHor();
     if(r.visible_admin===false)return {on:false,t:'Oculto por Pidemás',s:'Escribe a Pidemás para volver a la tienda.'};
+    {const fl=faltaTienda(r);if(fl)return {on:false,t:'Aún no sales en la tienda',s:'Para aparecer necesitas logo y al menos un producto. Te falta '+fl+'.'}}
     if(r.activo===false)return {on:false,t:'Oculto en la tienda',s:'Actívalo en Perfil para recibir pedidos.'};
     const pz=pausaHasta();if(pz)return {on:false,t:'Pedidos en pausa',s:'Hasta las '+hora(pz)+'. Los pedidos que ya tienes siguen igual.',pausa:true};
     try{if(window.pdHorarioDia&&pdHorarioDia()===false){const p=window.pdHorario&&pdHorario.proxima&&pdHorario.proxima();return {on:false,t:'Pidemás no atiende hoy',s:'La tienda no recibe pedidos hoy.'+(p?' Vuelve '+p.cuando+' desde las '+p.hora:'')}}
@@ -573,7 +576,7 @@ textarea.ta:focus{border-color:#C4410C}
   function perfil(){
     const r=R()||{};if(!F.perfil)F.perfil=perfilNuevo();const f=F.perfil,lg=logoDe(r);
     const cats=CATS.includes(f.cat)||!f.cat?CATS:[f.cat,...CATS];
-    let h=`<div class="ph"><span class="ava"${lg?` style="background-image:url('${E(lg)}')"`:''}>${lg?'':ini(f.nombre)}</span><div style="flex:1 1 0%;min-width:0"><b style="display:block;font-size:20px;overflow-wrap:anywhere">${E(r.nombre||'Mi negocio')}</b><span class="pl${r.activo===false||r.visible_admin===false?' r':' g'}" style="margin-top:4px">${r.activo===false||r.visible_admin===false?'Oculto en la tienda':'Visible en la tienda'}</span></div><label class="b soft" style="height:46px;cursor:pointer">${IC.camera}Logo<input type="file" accept="image/png,image/jpeg,image/webp" data-in="logo" style="display:none"></label></div>`;
+    let h=`<div class="ph"><span class="ava"${lg?` style="background-image:url('${E(lg)}')"`:''}>${lg?'':ini(f.nombre)}</span><div style="flex:1 1 0%;min-width:0"><b style="display:block;font-size:20px;overflow-wrap:anywhere">${E(r.nombre||'Mi negocio')}</b><span class="pl${r.activo===false||r.visible_admin===false||faltaTienda(r)?' r':' g'}" style="margin-top:4px">${r.activo===false||r.visible_admin===false?'Oculto en la tienda':faltaTienda(r)?'Aún no sale en la tienda':'Visible en la tienda'}</span></div><label class="b soft" style="height:46px;cursor:pointer">${IC.camera}Logo<input type="file" accept="image/png,image/jpeg,image/webp" data-in="logo" style="display:none"></label></div>`;
     if(lg)h+=`<button type="button" class="b rojo" style="height:40px" data-a="logo:quitar">Quitar logo</button>`;
     h+=`<div class="cd"><div class="lbl">Datos del negocio</div>${fld('pN','Nombre del negocio','pf:nombre',f.nombre,{max:80})}${fld('pS','Sede (opcional)','pf:sede',f.sede,{max:40,ph:'Ej. Jr. Arequipa'})}<span style="display:block;font-size:13px;color:#6B5E55;margin:-4px 2px 4px">Si tienes varios locales, escribe aquí cuál es este. En la tienda se ve como una pastilla al lado del nombre.</span>
       <div class="fld"><label for="pC">Rubro</label><select id="pC" data-in="pf:cat"><option value="">Elige tu rubro</option>${cats.map(c=>`<option${c===f.cat?' selected':''}>${E(c)}</option>`).join('')}</select></div>
