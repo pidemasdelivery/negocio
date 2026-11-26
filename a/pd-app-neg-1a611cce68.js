@@ -587,7 +587,7 @@ textarea.ta:focus{border-color:#C4410C}
     if(f.msg)h+=`<div class="err">${E(f.msg)}</div>`;if(f.ok)h+=`<div class="msgok">${E(f.ok)}</div>`;
     h+=`<button type="button" class="b o" data-a="pf:guardar">Guardar cambios</button>`;
     const PF=window.pdDescPerfil?window.pdDescPerfil(f.cat||r.categoria_negocio):{tipo:'bolsa'};
-    h+=tl('p:horario',IC.clock,'Horario de atención',estadoHor().text)+tl('p:yape',IC.qr,'Mi Yape (QR)',r.yape_qr_url?'Yape '+(r.yape_numero||'')+' · listo':'Súbelo para cobrar')+tl('p:clave',IC.lock,'Contraseña','Cambia la clave de tu panel');
+    h+=tl('p:clave',IC.lock,'Contraseña','Cambia la clave de tu panel');
     const snd=$('pdxSnd'),sOn=!!snd&&snd.classList.contains('on');
     const perm=!('Notification' in window)?'Este navegador no permite avisos.':Notification.permission==='granted'?'Activados.':Notification.permission==='denied'?'Bloqueados. Actívalos en los ajustes del sitio.':'Desactivados.';
     h+=`<div class="cd"><div class="lbl">Avisos de pedidos</div><div class="swr"><span class="tx"><b>Sonido de avisos</b><span>Suena cuando llega un pedido nuevo.</span></span>${sw('snd',sOn,'Sonido de avisos',!snd)}</div>
