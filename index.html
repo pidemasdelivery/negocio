@@ -23,7 +23,7 @@ window.pdQuitarCarga=salir;
 }catch(e){h.classList.remove("pdCarga")}})();</script><link rel="stylesheet" id="pidemas-estilos" href="a/pidemas-estilos-css-704f170893.css">
 
 <meta name="pd-instalacion" content="1">
-<meta name="pd-version" content="202611252122"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="pd-version" content="202611260104"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <script>
 /* Pidemás · nunca en «versión para ordenador»: si Chrome abre este panel en modo escritorio en un celular,
    la página se dibuja a ~980 px y se ve chiquita; se agranda todo para que se vea como en el celular. */
@@ -287,27 +287,7 @@ window.pdTxt=function(s){
 
 <!-- ===== Pidemás · Botón «atrás» del celular: cierra la ventana abierta o vuelve a la pantalla principal ===== -->
 <script id="pidemas-boton-atras" src="a/pidemas-boton-atras-2dda02e326.js"></script>
-<script id="pidemas-version">
-/* Si el servidor ya tiene una versión más nueva de esta página, se recarga sola con la nueva (evita ver una versión guardada vieja). */
-(function(){
-  const V='20261106204500',K='pd_ver_'+location.pathname;
-  async function revisar(){
-    try{
-      if(location.protocol==='file:')return;
-      if(window.pdAtrasDebug&&pdAtrasDebug().nivel>0)return;            // no recargar con una ventana abierta
-      const a=document.activeElement;if(a&&/INPUT|TEXTAREA|SELECT/.test(a.tagName))return; // ni mientras escribe
-      const r=await fetch(location.pathname+'?chk='+Date.now(),{cache:'no-store'});if(!r.ok)return;
-      const m=(await r.text()).match(/name="pd-version" content="([^"]+)"/);
-      if(!m||m[1]===V)return;
-      if(sessionStorage.getItem(K)===m[1])return;sessionStorage.setItem(K,m[1]);
-      const u=new URL(location.href);u.searchParams.set('v',m[1]);location.replace(u.toString());
-    }catch(e){}
-  }
-  setTimeout(revisar,2500);
-  document.addEventListener('visibilitychange',()=>{if(!document.hidden)revisar()});
-  setInterval(revisar,5*60*1000);
-})();
-</script>
+
 <script id="pd-logo-negocio-js" src="a/pd-logo-negocio-js-d297bd2dc6.js"></script>
 <script id="pidemas-fix-enviar-pedido" src="a/pidemas-fix-enviar-pedido-8fd177ba0f.js"></script>
 
@@ -360,7 +340,7 @@ window.pdDescPerfil=function(cat){
 <style id="pd-velo-recto">html body [data-pdm-velo][data-pdm-velo][data-pdm-velo],html body [data-pd-sin-velo][data-pd-sin-velo][data-pd-sin-velo],html body .pdnOv.pdnOv.pdnOv{border-radius:0!important;border:0!important;box-shadow:none!important;outline:0!important}</style>
 
 <script id="pd-guardado-auto" src="a/pd-guardado-auto-00f62a64a0.js"></script>
-<script id="pd-actualizar" src="a/pd-actualizar-6e91d53dcb.js"></script>
+<script id="pd-actualizar" src="a/pd-actualizar-37dc8a785b.js"></script>
 
 <script id="pd-yape-negocio-neg-js" src="a/pd-yape-negocio-neg-js-a13d5a13a8.js"></script>
 <style id="pd-yape-negocio-neg-css">#pdYNOv{position:fixed;inset:0;z-index:2147483647;display:flex;align-items:flex-end;justify-content:center;background:rgba(31,26,23,.22);backdrop-filter:blur(5px);-webkit-backdrop-filter:blur(5px);border-radius:0;border:0}#pdYNOv .sh{width:100%;max-width:560px;background:#fff;border-radius:24px 24px 0 0;transform:translateY(100%);transition:transform .2s ease;font-family:Inter,system-ui,sans-serif;color:#1F1A17;padding-bottom:env(safe-area-inset-bottom,0px)}#pdYNOv.open .sh{transform:none}#pdYNOv .hd{padding:18px 18px 14px;border-bottom:1px solid #EFE3DA}#pdYNOv h2{margin:0;font:800 22px Inter,system-ui,sans-serif;color:#C4410C}#pdYNOv .bd{padding:16px 18px 20px;background:#FFF9F5;display:flex;flex-direction:column;gap:12px}#pdYNOv .mt{padding:16px;border-radius:16px;background:#fff;border:1px solid #EFE3DA;text-align:center}#pdYNOv .mt small{display:block;font:700 14px Inter,system-ui,sans-serif;color:#6B5E55}#pdYNOv .mt b{display:block;font:800 40px Inter,system-ui,sans-serif;letter-spacing:-.02em}#pdYNOv p{margin:0;font:500 15px/1.45 Inter,system-ui,sans-serif;color:#4A3F38}#pdYNOv .si,#pdYNOv .no{min-height:54px;border-radius:14px;font:800 16px Inter,system-ui,sans-serif;cursor:pointer}#pdYNOv .si{border:0;background:#15803D;color:#fff}#pdYNOv .no{border:1.5px solid #B42318;background:#fff;color:#B42318}#pdYNOv .er{color:#B42318;font-weight:700}</style>
@@ -373,6 +353,6 @@ window.pdDescPerfil=function(cat){
 <script src="a/pd-sin-tirar-7c274dd83c.js"></script>
 <script id="pd-subir-archivo" src="a/pd-subir-archivo-3d675d057f.js"></script>
 <script src="a/pd-avisos-nativo-da120c0a15.js" defer></script>
-<script id="pd-subir-foto" src="a/pd-subir-foto-6eaad5dbb3.js"></script>
+<script id="pd-subir-foto" src="a/pd-subir-foto-3d9edbc7b3.js"></script>
 </body></html>
 
