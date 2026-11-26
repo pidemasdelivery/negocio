@@ -582,7 +582,7 @@ textarea.ta:focus{border-color:#C4410C}
       <div class="fld"><label for="pC">Rubro</label><select id="pC" data-in="pf:cat"><option value="">Elige tu rubro</option>${cats.map(c=>`<option${c===f.cat?' selected':''}>${E(c)}</option>`).join('')}</select></div>
       <div class="fld"><label for="pD">Descripción</label><textarea id="pD" class="ta" data-in="pf:desc" maxlength="300" placeholder="Qué vendes, en pocas palabras">${E(f.desc)}</textarea></div>
       <div class="g2">${fld('pT','Teléfono','pf:tel',f.tel,{t:'tel',im:'tel',max:15})}${fld('pR','RUC','pf:ruc',f.ruc,{im:'numeric',max:11})}</div></div>`;
-    h+=`<div class="cd"><div class="lbl">Ubicación</div>${fld('pDi','Dirección','pf:dir',f.dir,{max:160})}${fld('pM','Enlace de Google Maps','pf:maps',f.maps,{t:'url',ph:'https://maps.google.com/…'})}<div class="swr"><span class="tx"><b>Mostrar mi dirección a los clientes</b><span>${f.pub?'Los clientes ven tu dirección en la tienda.':'Privada: los clientes no la ven. Solo se usa para el delivery.'} Apágalo si no tienes local para atender en persona.</span></span>${sw('pf:pub',f.pub,'Mostrar mi dirección a los clientes')}</div><div class="g2">${fld('pLa','Latitud','pf:lat',f.lat,{im:'decimal'})}${fld('pLo','Longitud','pf:lng',f.lng,{im:'decimal'})}</div><span style="font-size:13px;color:#6B5E55">Si pegas el enlace de Google Maps, la latitud y longitud se llenan solas.</span></div>`;
+    h+=`<div class="cd"><div class="lbl">Ubicación</div>${fld('pDi','Dirección','pf:dir',f.dir,{max:160})}${mapaCard(f)}<div class="swr"><span class="tx"><b>Mostrar mi dirección a los clientes</b><span>${f.pub?'Los clientes ven tu dirección en la tienda.':'Privada: los clientes no la ven. Solo se usa para el delivery.'} Apágalo si no tienes local para atender en persona.</span></span>${sw('pf:pub',f.pub,'Mostrar mi dirección a los clientes')}</div></div>`;
     h+=`<div class="cd"><div class="lbl">En la tienda</div>${fld('pTi','Tiempo estimado de entrega','pf:tiempo',f.tiempo,{max:20,ph:'Ej. 25–35 min'})}<div class="swr"><span class="tx"><b>Negocio visible en la tienda</b><span>Si lo apagas, los clientes no verán tu negocio.</span></span>${sw('pf:activo',f.activo,'Negocio visible',r.visible_admin===false)}</div></div>`;
     if(f.msg)h+=`<div class="err">${E(f.msg)}</div>`;if(f.ok)h+=`<div class="msgok">${E(f.ok)}</div>`;
     h+=`<button type="button" class="b o" data-a="pf:guardar">Guardar cambios</button>`;
@@ -594,6 +594,33 @@ textarea.ta:focus{border-color:#C4410C}
       <div class="btns b2"><button type="button" class="b" data-a="probar">${IC.sound}Probar sonido</button><button type="button" class="b" data-a="permiso"${'Notification' in window&&Notification.permission==='denied'?' disabled':''}>${IC.bell}${'Notification' in window&&Notification.permission==='granted'?'Probar aviso':'Activar avisos'}</button></div><span style="font-size:13px;color:#6B5E55">Avisos del teléfono: ${E(perm)}</span></div>`;
     h+=`<button type="button" class="b rojo" style="height:54px;font-size:16px;background:#FFFFFF" data-a="salir">${IC.logout}Cerrar sesión</button>`;
     return {head:top('Mi cuenta','Mi perfil'),body:h};
+  }
+  /* Ubicación con el mismo mapa de los formularios del admin (vista previa + mapa a pantalla completa) */
+  function mapaCard(f){
+    const la=Number(f.lat),lo=Number(f.lng),ok=Number.isFinite(la)&&Number.isFinite(lo)&&la&&lo;
+    let pv='';
+    if(ok){const z=17,n=2**z,xt=(lo+180)/360*n,r=la*Math.PI/180,yt=(1-Math.log(Math.tan(r)+1/Math.cos(r))/Math.PI)/2*n,tx=Math.floor(xt),ty=Math.floor(yt);
+      let tl='';for(let j=-1;j<=1;j++)for(let i=-1;i<=1;i++)tl+=`<img alt="" src="https://tile.openstreetmap.org/${z}/${tx+i}/${ty+j}.png" style="position:absolute;width:256px;height:256px;left:${(i+1)*256}px;top:${(j+1)*256}px">`;
+      pv=`<div style="position:absolute;left:50%;top:50%;width:768px;height:768px;transform:translate(${-((xt-tx+1)*256).toFixed(1)}px,${-((yt-ty+1)*256).toFixed(1)}px)">${tl}</div>`}
+    const pin='<svg viewBox="0 0 44 56" width="34" height="44" aria-hidden="true"><path d="M22 54s19-19.4 19-32.5A19 19 0 0 0 3 21.5C3 34.6 22 54 22 54z" fill="#C4410C" stroke="#fff" stroke-width="3"/><circle cx="22" cy="21.5" r="7.5" fill="#fff"/></svg>';
+    const u=ok?(window.pdMapa&&pdMapa.linkDe?pdMapa.linkDe({lat:la,lng:lo}):`https://www.google.com/maps?q=${la},${lo}`):'';
+    return `<div style="margin:6px 0 12px;border:1px solid #F1E4DA;border-radius:18px;overflow:hidden;background:#FFF8F3">
+      <button type="button" data-a="pf:mapa" aria-label="Abrir el mapa" style="all:unset;display:block;position:relative;width:100%;height:170px;overflow:hidden;cursor:pointer;background:#F3EAE3">${pv}
+        <span style="position:absolute;left:50%;top:50%;transform:translate(-50%,-100%);line-height:0">${ok?pin:''}</span>
+        ${ok?'':`<span style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;color:#6B5E55;font-size:14px;font-weight:700">${IC.pin||''}Aún no marcas tu local en el mapa</span>`}
+        <span style="position:absolute;left:10px;top:10px;padding:4px 10px;border-radius:999px;font-size:12px;font-weight:800;background:${ok?'#E7F6EC':'#FDEBDF'};color:${ok?'#0F6B33':'#9A330A'}">${ok?'Ubicación marcada':'Sin marcar'}</span></button>
+      <div style="padding:12px;display:flex;flex-direction:column;gap:8px">
+        ${ok?`<div style="display:flex;justify-content:space-between;gap:8px;align-items:center;font-size:13px;color:#6B5E55"><span>${la.toFixed(6)}, ${lo.toFixed(6)}</span><a href="${E(u)}" target="_blank" rel="noopener" style="color:#C4410C;font-weight:800;text-decoration:none">Ver en Google Maps</a></div>`:''}
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><button type="button" class="b o" style="height:48px" data-a="pf:mapa">Elegir en el mapa</button><button type="button" class="b" style="height:48px" data-a="pf:gps">Estoy aquí</button></div>
+      </div></div>`;
+  }
+  async function perfilMapa(centro){
+    const f=F.perfil;if(!window.pdMapa||!pdMapa.elegir){aviso('El mapa aún está cargando. Inténtalo en un momento.');return}
+    const la=Number(f.lat),lo=Number(f.lng);
+    const r=await pdMapa.elegir({titulo:'Ubicación de tu negocio',etiqueta:'Tu local',tip:'Mueve el mapa hasta tu local',centro:centro||(la&&lo?{lat:la,lng:lo}:null)});
+    if(!r)return;f.lat=Number(r.lat.toFixed(7));f.lng=Number(r.lng.toFixed(7));f.maps=pdMapa.linkDe?pdMapa.linkDe(r):'';
+    if(!String(f.dir||'').trim()&&r.linea)f.dir=[r.linea,r.sub].filter(Boolean).join(', ');
+    f.ok='Ubicación marcada. Toca «Guardar cambios» para guardarla.';f.msg='';key='';pintar();
   }
   async function perfilGuardar(){
     const f=F.perfil;f.msg='';f.ok='';
@@ -952,6 +979,9 @@ textarea.ta:focus{border-color:#C4410C}
       case 'pr:borrar':{const f=F.prod;const n=PR().length;try{await window.deleteProduct(f.id)}catch(err){aviso(String(err.message||err))}if(!PR().some(x=>String(x.id)===f.id)||PR().length<n){F.prod=null;volver()}break}
       case 'pf:activo':F.perfil.activo=!F.perfil.activo;key='';pintar();break;
       case 'pf:pub':F.perfil.pub=!F.perfil.pub;key='';pintar();break;
+      case 'pf:mapa':await perfilMapa();break;
+      case 'pf:gps':if(!navigator.geolocation){aviso('Este teléfono no permite obtener la ubicación.');break}
+        navigator.geolocation.getCurrentPosition(p=>perfilMapa({lat:p.coords.latitude,lng:p.coords.longitude}),er=>aviso(er&&er.code===1?'Permite el acceso a tu ubicación en el navegador.':'No se pudo obtener tu ubicación.'),{enableHighAccuracy:true,timeout:15000});break;
       case 'pf:guardar':await ocupado(perfilGuardar);break;
       case 'logo:quitar':$('pdLogoDel')?.click();setTimeout(()=>{key='';pintar()},1500);break;
       case 'snd':$('pdxSnd')?.click();key='';pintar();break;
