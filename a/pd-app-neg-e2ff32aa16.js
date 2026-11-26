@@ -582,7 +582,7 @@ textarea.ta:focus{border-color:#C4410C}
       <div class="fld"><label for="pC">Rubro</label><select id="pC" data-in="pf:cat"><option value="">Elige tu rubro</option>${cats.map(c=>`<option${c===f.cat?' selected':''}>${E(c)}</option>`).join('')}</select></div>
       <div class="fld"><label for="pD">Descripción</label><textarea id="pD" class="ta" data-in="pf:desc" maxlength="300" placeholder="Qué vendes, en pocas palabras">${E(f.desc)}</textarea></div>
       <div class="g2">${fld('pT','Teléfono','pf:tel',f.tel,{t:'tel',im:'tel',max:15})}${fld('pR','RUC','pf:ruc',f.ruc,{im:'numeric',max:11})}</div></div>`;
-    h+=`<div class="cd"><div class="lbl">Ubicación</div>${fld('pDi','Dirección','pf:dir',f.dir,{max:160})}${mapaCard(f)}<div class="swr"><span class="tx"><b>Mostrar mi dirección a los clientes</b><span>${f.pub?'Los clientes ven tu dirección en la tienda.':'Privada: los clientes no la ven. Solo se usa para el delivery.'} Apágalo si no tienes local para atender en persona.</span></span>${sw('pf:pub',f.pub,'Mostrar mi dirección a los clientes')}</div></div>`;
+    h+=`<div class="cd"><div class="lbl">Ubicación</div>${fld('pDi','Dirección','pf:dir',f.dir,{max:160})}<div id="pfMapa"></div><input type="hidden" id="pfLat" data-in="pf:lat" value="${E(f.lat??'')}"><input type="hidden" id="pfLng" data-in="pf:lng" value="${E(f.lng??'')}"><input type="hidden" id="pfMaps" data-in="pf:maps" value="${E(f.maps||'')}"><div class="swr"><span class="tx"><b>Mostrar mi dirección a los clientes</b><span>${f.pub?'Los clientes ven tu dirección en la tienda.':'Privada: los clientes no la ven. Solo se usa para el delivery.'} Apágalo si no tienes local para atender en persona.</span></span>${sw('pf:pub',f.pub,'Mostrar mi dirección a los clientes')}</div></div>`;
     h+=`<div class="cd"><div class="lbl">En la tienda</div>${fld('pTi','Tiempo estimado de entrega','pf:tiempo',f.tiempo,{max:20,ph:'Ej. 25–35 min'})}<div class="swr"><span class="tx"><b>Negocio visible en la tienda</b><span>Si lo apagas, los clientes no verán tu negocio.</span></span>${sw('pf:activo',f.activo,'Negocio visible',r.visible_admin===false)}</div></div>`;
     if(f.msg)h+=`<div class="err">${E(f.msg)}</div>`;if(f.ok)h+=`<div class="msgok">${E(f.ok)}</div>`;
     h+=`<button type="button" class="b o" data-a="pf:guardar">Guardar cambios</button>`;
@@ -622,6 +622,16 @@ textarea.ta:focus{border-color:#C4410C}
     if(!String(f.dir||'').trim()&&r.linea)f.dir=[r.linea,r.sub].filter(Boolean).join(', ');
     f.ok='Ubicación marcada. Toca «Guardar cambios» para guardarla.';f.msg='';key='';pintar();
   }
+  /* el mismo mapa (tarjeta) de los formularios del admin, montado dentro de esta app */
+  setInterval(()=>{try{
+    if(!root||!window.pdMapa||!pdMapa.tarjeta)return;const host=root.getElementById('pfMapa');if(!host||host.querySelector('.pdmc'))return;
+    if(!root.getElementById('pdmcCssS')){const css=document.getElementById('pd-mapa-css');const st=document.createElement('style');st.id='pdmcCssS';st.textContent=css?css.textContent:'';root.appendChild(st);
+      const l=document.createElement('link');l.rel='stylesheet';l.href='https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';root.appendChild(l)}
+    const dir=root.getElementById('pDi');
+    pdMapa.tarjeta(host,{dir:dir,antes:null,lat:root.getElementById('pfLat'),lng:root.getElementById('pfLng'),maps:root.getElementById('pfMaps'),
+      titulo:'Ubicación de tu negocio',etiqueta:'Tu local',tip:'Mueve el mapa hasta tu local',
+      pendTxt:'Toca «Guardar cambios» para guardar la ubicación.',faltaTxt:'Falta marcar tu local en el mapa.'});
+  }catch(_){}},400);
   async function perfilGuardar(){
     const f=F.perfil;f.msg='';f.ok='';
     if(!f.nombre.trim()){f.msg='El nombre es obligatorio.';return}
