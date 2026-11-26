@@ -625,12 +625,13 @@ textarea.ta:focus{border-color:#C4410C}
   /* el mismo mapa (tarjeta) de los formularios del admin, montado dentro de esta app */
   setInterval(()=>{try{
     if(!root||!window.pdMapa||!pdMapa.tarjeta)return;const host=root.getElementById('pfMapa');if(!host||host.querySelector('.pdmc'))return;
-    if(!root.getElementById('pdmcCssS')){const css=document.getElementById('pd-mapa-css');const st=document.createElement('style');st.id='pdmcCssS';st.textContent=css?css.textContent:'';root.appendChild(st);
+    if(!root.getElementById('pdmcCssS')){const css=document.getElementById('pd-mapa-css');const st=document.createElement('style');st.id='pdmcCssS';st.textContent=css?css.textContent.replace(/html:root body(?::not\(#pdZ\))+/g,':host'):'';root.appendChild(st);
       const l=document.createElement('link');l.rel='stylesheet';l.href='https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';root.appendChild(l)}
-    const dir=root.getElementById('pDi');
+    const dir=root.getElementById('pDi');const fl=dir&&dir.closest('.fld');
     pdMapa.tarjeta(host,{dir:dir,antes:null,lat:root.getElementById('pfLat'),lng:root.getElementById('pfLng'),maps:root.getElementById('pfMaps'),
       titulo:'Ubicación de tu negocio',etiqueta:'Tu local',tip:'Mueve el mapa hasta tu local',
       pendTxt:'Toca «Guardar cambios» para guardar la ubicación.',faltaTxt:'Falta marcar tu local en el mapa.'});
+    if(fl&&!fl.contains(dir))fl.style.display='none';
   }catch(_){}},400);
   async function perfilGuardar(){
     const f=F.perfil;f.msg='';f.ok='';
