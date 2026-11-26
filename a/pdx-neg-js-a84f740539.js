@@ -554,7 +554,10 @@
     $('perfilMaps')?.addEventListener('input',()=>{const u=$('perfilMaps').value;const m=u.match(/@(-?\d+\.\d+),(-?\d+\.\d+)/)||u.match(/[?&](?:q|query|ll)=(-?\d+\.\d+)(?:,|%2C)\s*(-?\d+\.\d+)/i)||u.match(/!3d(-?\d+\.\d+)!4d(-?\d+\.\d+)/);if(m){$('perfilLatitud').value=m[1];$('perfilLongitud').value=m[2]}});
     $('pdxSnd').onclick=()=>{Snd.on=!Snd.on;LS.set('pd_sound',Snd.on?'on':'off');if(Snd.on)Snd.play('info');paintPerf();paintBanner()};
     $('pdxTest').onclick=async()=>{await Snd.ready();setBannerOff();Snd.play('nuevo')};
-    $('pdxPerm').onclick=async()=>{if('Notification' in window&&Notification.permission==='default'){try{await Notification.requestPermission()}catch(e){}}else alertUser({kind:'info',title:'Así se verán tus avisos',text:'Te avisaremos de cada pedido nuevo.'});paintPerf();paintBanner()};
+    $('pdxPerm').onclick=async()=>{if('Notification' in window&&Notification.permission==='default'){try{await Notification.requestPermission()}catch(e){}}else{let ok=false;try{const c=(()=>{try{return db}catch(e){return window.db}})();const t=(await c.auth.getSession()).data.session.access_token;
+      const r=await fetch('https://escxesvzndmyfuteawey.supabase.co/functions/v1/enviar-push',{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+t},body:JSON.stringify({type:'PRUEBA_MIA'})});const j=await r.json().catch(()=>({}));
+      if(r.ok){ok=true;alertUser(j.enviados>0?{kind:'info',title:'Aviso de prueba enviado',text:'Apaga la pantalla: debe llegar en unos segundos.'}:{kind:'info',title:'Este teléfono no está registrado',text:'Toca «Activar avisos» otra vez.'})}}catch(_){}
+      if(!ok)alertUser({kind:'info',title:'Así se verán tus avisos',text:'Te avisaremos de cada pedido nuevo.'})}paintPerf();paintBanner()};
     $('pdxPass').onclick=()=>pdxCambiarClave();
     $('pdxLogout').onclick=async ()=>{if((await pdConfirmar('¿Cerrar sesión? Dejarás de recibir avisos de pedidos en este teléfono.')))$('logout')?.click()};
   }
