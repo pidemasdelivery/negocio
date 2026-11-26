@@ -20,7 +20,7 @@
   function etapa(o){
     const s=st(o);
     if(s==='cancelado')return -1;
-    if(['en_camino','en_entrega','camino_entrega','entregado'].includes(s))return 9;
+    if(['en_camino','en_entrega','camino_entrega','confirmando_pago','entregado'].includes(s))return 9;
     const conf=s!=='pendiente';
     if(!conf)return aceptado[o.id]?1:0;
     if(o.pago_negocio_confirmado!==true)return 1.5;
